@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 from pathlib import Path
 
 # read the contents of your README file
-this_directory = Path(__file__).resolve().parent
-with open(this_directory.joinpath('README.md'), encoding='utf-8') as f:
+PROJ_DIR = Path(__file__).resolve().parent
+with open(PROJ_DIR / 'README.md', encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
