@@ -47,3 +47,9 @@ Diagram examples can be found [here](https://kroki.io/examples.html).
 More information about installing a self-manged Kroki-Service [here](https://docs.kroki.io/kroki/setup/install/).
 
 More Plugins for MkDocs can be found [here](http://www.mkdocs.org/user-guide/plugins/)
+
+## Pre-Release-Versions
+
+Install the newest pre-release version using pip:
+
+`pip install -i https://test.pypi.org/simple/ mkdocs-kroki-plugin`
