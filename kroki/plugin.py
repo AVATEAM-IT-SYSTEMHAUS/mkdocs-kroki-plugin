@@ -33,6 +33,7 @@ class KrokiPlugin(BasePlugin):
         "vega",
         "vegalite",
         "wavedrom",
+        "pikchr",
     )
 
     kroki_blockdiag = (
