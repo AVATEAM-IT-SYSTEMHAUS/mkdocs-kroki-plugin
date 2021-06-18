@@ -22,6 +22,8 @@ plugins:
 * `Enablebpmn` - Enable BPMN, default: True
 * `EnableExcalidraw` - Enable Excalidraw, default: True
 * `EnableMermaid` - Enable Mermaid, default: True
+* `DownloadImages` - Download diagrams from kroki as static assets instead of just creating kroki links, default: False
+* `DownloadDir` - The asset directory to place downloaded svg images in, default: images/kroki_generated
 
 ## Usage
 
