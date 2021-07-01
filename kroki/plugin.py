@@ -95,21 +95,24 @@ class KrokiPlugin(BasePlugin):
     def _kroki_link(self, matchobj):
         return "![Kroki](" + self._krokiurl(matchobj) + ")"
 
-    def _download_image(self, matchobj, target, page_dest_path, files):
+    def _download_image(self, matchobj, target, page, files):
         url = self._krokiurl(matchobj)
         hash = hashlib.md5(url.encode("utf8")).hexdigest()
-        prefix = page_dest_path.parent.name
-        filename = f"{ prefix }-{ hash }.svg"
+        prefix = page.file.name.split(".")[0]
         dest_path = pathlib.Path(self.config["DownloadDir"])
 
+        (target / dest_path).mkdir(parents=True, exist_ok=True)
+
+        filename = dest_path / f"{ prefix }-{ hash }.svg"
         urllib.request.urlretrieve(url, target / filename)
+
         file = File(
-            filename, target, self._output_dir /  self.config["DownloadDir"], False)
+            filename, target, self._output_dir , False)
         files.append(file)
 
-        pref = "/".join([".." for _ in page_dest_path.parents][1:])
+        pref = "/".join([".." for _ in pathlib.Path(page.file.src_path).parents][1:])
 
-        return f"![Kroki](./{ pref }/{ dest_path / filename })"
+        return f"![Kroki](./{ pref }/{ filename })"
 
     def on_page_markdown(self, markdown, files, page, **kwargs):
         pattern = re.compile(self.kroki_re, flags=re.IGNORECASE + re.DOTALL)
@@ -121,7 +124,7 @@ class KrokiPlugin(BasePlugin):
 
         def do_download(matchobj):
             return self._download_image(
-                matchobj, target_dir, pathlib.Path(page.file.dest_path), files)
+                matchobj, target_dir, page, files)
 
         return re.sub(pattern, do_download, markdown)
 
