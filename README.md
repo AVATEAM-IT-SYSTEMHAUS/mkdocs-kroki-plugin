@@ -9,6 +9,7 @@ Install the plugin using pip:
 `pip install mkdocs-kroki-plugin`
 
 Activate the plugin in `mkdocs.yml`:
+
 ```yaml
 plugins:
   ...
@@ -17,7 +18,7 @@ plugins:
 
 ## Config
 
-* `ServerURL` - URL of your kroki-Server, default: https://kroki.io
+* `ServerURL` - URL of your kroki-Server, default: <https://kroki.io>
 * `EnableBlockDiag` - Enable BlockDiag (and the related Diagrams), default: True
 * `Enablebpmn` - Enable BPMN, default: True
 * `EnableExcalidraw` - Enable Excalidraw, default: True
@@ -31,16 +32,18 @@ Use code-fences with a tag of kroki-`<Module>` to replace the code with the want
 
 Example for BlockDiag:
 
-    ```kroki-blockdiag
-    blockdiag {
-      blockdiag -> generates -> "block-diagrams";
-      blockdiag -> is -> "very easy!";
+````markdown
+```kroki-blockdiag
+blockdiag {
+  blockdiag -> generates -> "block-diagrams";
+  blockdiag -> is -> "very easy!";
 
-      blockdiag [color = "greenyellow"];
-      "block-diagrams" [color = "pink"];
-      "very easy!" [color = "orange"];
-    }
-    ```
+  blockdiag [color = "greenyellow"];
+  "block-diagrams" [color = "pink"];
+  "very easy!" [color = "orange"];
+}
+```
+````
 
 ## See Also
 
