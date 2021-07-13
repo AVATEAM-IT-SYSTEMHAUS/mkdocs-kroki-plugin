@@ -107,7 +107,7 @@ class KrokiPlugin(BasePlugin):
         urllib.request.urlretrieve(url, target / filename)
 
         file = File(
-            filename, target, self._output_dir , False)
+            filename, target, self._output_dir, False)
         files.append(file)
 
         pref = "/".join([".." for _ in pathlib.Path(page.file.src_path).parents][1:])
