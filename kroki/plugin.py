@@ -1,13 +1,19 @@
 import base64
 import hashlib
+from urllib.error import HTTPError
 import zlib
 import re
 import tempfile
 import pathlib
 import urllib.request
+import logging
+
 from mkdocs.plugins import BasePlugin
 from mkdocs.structure.files import File
 from mkdocs import config
+
+
+log = logging.getLogger(__package__)
 
 
 class KrokiPlugin(BasePlugin):
@@ -105,7 +111,12 @@ class KrokiPlugin(BasePlugin):
         (target / dest_path).mkdir(parents=True, exist_ok=True)
 
         filename = dest_path / f"{ prefix }-{ hash }.svg"
-        urllib.request.urlretrieve(url, target / filename)
+        
+        try:
+            urllib.request.urlretrieve(url, target / filename)
+        except HTTPError as e:
+            log.debug(f'URL [{url}]: {e}', exec_info=1, stack_info=True)
+            return f'```\n{matchobj}\n```'
 
         file = File(
             filename, target, self._output_dir, False)
