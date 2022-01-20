@@ -1,13 +1,12 @@
 import base64
-from functools import partial
 import hashlib
-from urllib.error import HTTPError
 import zlib
 import re
 import tempfile
 import pathlib
 import urllib.request
 
+from functools import partial
 from mkdocs.plugins import BasePlugin
 from mkdocs.structure.files import File
 from mkdocs import config
