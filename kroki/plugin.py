@@ -20,20 +20,15 @@ error = partial(log.error, f'{__name__} %s')
 
 class KrokiPlugin(BasePlugin):
     config_scheme = (
-        ('ServerURL', config.config_options.Type(
-            str, default='https://kroki.io')),
-        ('EnableBlockDiag', config.config_options.Type(
-            bool, default=True)),
-        ('Enablebpmn', config.config_options.Type(
-            bool, default=True)),
-        ('EnableExcalidraw', config.config_options.Type(
-            bool, default=True)),
-        ('EnableMermaid', config.config_options.Type(
-            bool, default=True)),
-        ('DownloadImages', config.config_options.Type(
-            bool, default=False)),
-        ('DownloadDir', config.config_options.Type(
-            str, default='images/kroki_generated')),
+        ('ServerURL', config.config_options.Type(str, default='https://kroki.io')),
+        ('EnableBlockDiag', config.config_options.Type(bool, default=True)),
+        ('Enablebpmn', config.config_options.Type(bool, default=True)),
+        ('EnableExcalidraw', config.config_options.Type(bool, default=True)),
+        ('EnableMermaid', config.config_options.Type(bool, default=True)),
+        ('DownloadImages', config.config_options.Type(bool, default=False)),
+        ('EmbedImages', config.config_options.Type(bool, default=False)),
+        ('DownloadDir', config.config_options.Type(str, default='images/kroki_generated')),
+        ('FencePrefix', config.config_options.Type(str, default='kroki-')),
     )
 
     kroki_re = ""
@@ -76,16 +71,20 @@ class KrokiPlugin(BasePlugin):
     )
 
     def on_config(self, config, **_kwargs):
-        self.kroki_re += "|".join(self.kroki_base)
+        diagram_types = self.kroki_base
+
         if self.config['EnableBlockDiag']:
-            self.kroki_re += "|" + "|".join(self.kroki_blockdiag)
+            diagram_types = diagram_types + self.kroki_blockdiag
         if self.config['Enablebpmn']:
-            self.kroki_re += "|" + "|".join(self.kroki_bpmn)
+            diagram_types = diagram_types + self.kroki_bpmn
         if self.config['EnableExcalidraw']:
-            self.kroki_re += "|" + "|".join(self.kroki_excalidraw)
+            diagram_types = diagram_types + self.kroki_excalidraw
         if self.config['EnableMermaid']:
-            self.kroki_re += "|" + "|".join(self.kroki_mermaid)
-        self.kroki_re = r'(?:```kroki-)(' + self.kroki_re + ')\n(.*?)(?:```)'
+            diagram_types = diagram_types + self.kroki_mermaid
+
+        frence_prefix = self.config['FencePrefix']
+        diagram_types_re = "|".join(diagram_types)
+        self.kroki_re = rf'(?:```{frence_prefix})({diagram_types_re})\n(.*?)(?:```)'
 
         self._dir = tempfile.TemporaryDirectory(prefix="mkdocs_kroki_")
         self._output_dir = pathlib.Path(config.get("site_dir", "site"))
@@ -93,20 +92,20 @@ class KrokiPlugin(BasePlugin):
         info(f'on_config: {self.config}')
         return config
 
-    def _krokiurl(self, matchobj):
+    def _kroki_url(self, matchobj):
         kroki_type = matchobj.group(1).lower()
-        kroki_path = base64.urlsafe_b64encode(
+        kroki_data = base64.urlsafe_b64encode(
             zlib.compress(str.encode(matchobj.group(2)), 9)
         ).decode()
-        kroki_url = self.config["ServerURL"] + "/" + kroki_type + "/svg/" + kroki_path
+        kroki_url = f'{self.config["ServerURL"]}/{kroki_type}/svg/{kroki_data}'
 
         return kroki_url
 
     def _kroki_link(self, matchobj):
-        return "![Kroki](" + self._krokiurl(matchobj) + ")"
+        return f"![Kroki]({self._kroki_url(matchobj)})"
 
     def _download_image(self, matchobj, target, page, files):
-        url = self._krokiurl(matchobj)
+        url = self._kroki_url(matchobj)
         hash = hashlib.md5(url.encode("utf8")).hexdigest()
         prefix = page.file.name.split(".")[0]
         dest_path = pathlib.Path(self.config["DownloadDir"])
