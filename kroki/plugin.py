@@ -114,6 +114,7 @@ class KrokiPlugin(BasePlugin):
         (target / dest_path).mkdir(parents=True, exist_ok=True)
 
         filename = dest_path / f"{ prefix }-{ hash }.svg"
+
         debug(f'downloading {url[:50]}..')
         try:
             urllib.request.urlretrieve(url, target / filename)
@@ -129,7 +130,7 @@ class KrokiPlugin(BasePlugin):
 
         return f"![Kroki](./{ pref }/{ filename })"
 
-    def on_page_markdown(self, markdown, files, page, **kwargs):
+    def on_page_markdown(self, markdown, files, page, **_kwargs):
         pattern = re.compile(self.kroki_re, flags=re.IGNORECASE + re.DOTALL)
 
         if not self.config["DownloadImages"]:
