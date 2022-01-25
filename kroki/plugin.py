@@ -114,7 +114,6 @@ class KrokiPlugin(BasePlugin):
         (target / dest_path).mkdir(parents=True, exist_ok=True)
 
         filename = dest_path / f"{ prefix }-{ hash }.svg"
-        
         debug(f'downloading {url[:50]}..')
         try:
             urllib.request.urlretrieve(url, target / filename)
