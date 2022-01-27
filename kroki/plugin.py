@@ -5,9 +5,17 @@ import re
 import tempfile
 import pathlib
 import urllib.request
+
+from functools import partial
 from mkdocs.plugins import BasePlugin
 from mkdocs.structure.files import File
 from mkdocs import config
+from mkdocs.plugins import log
+
+
+info = partial(log.info, f'{__name__} %s')
+debug = partial(log.debug, f'{__name__} %s')
+error = partial(log.error, f'{__name__} %s')
 
 
 class KrokiPlugin(BasePlugin):
@@ -43,6 +51,7 @@ class KrokiPlugin(BasePlugin):
         "vegalite",
         "wavedrom",
         "pikchr",
+        "umlet",
     )
 
     kroki_blockdiag = (
@@ -66,7 +75,7 @@ class KrokiPlugin(BasePlugin):
         "mermaid",
     )
 
-    def on_config(self, config, **kwargs):
+    def on_config(self, config, **_kwargs):
         self.kroki_re += "|".join(self.kroki_base)
         if self.config['EnableBlockDiag']:
             self.kroki_re += "|" + "|".join(self.kroki_blockdiag)
@@ -81,6 +90,7 @@ class KrokiPlugin(BasePlugin):
         self._dir = tempfile.TemporaryDirectory(prefix="mkdocs_kroki_")
         self._output_dir = pathlib.Path(config.get("site_dir", "site"))
 
+        info(f'on_config: {self.config}')
         return config
 
     def _krokiurl(self, matchobj):
@@ -104,7 +114,13 @@ class KrokiPlugin(BasePlugin):
         (target / dest_path).mkdir(parents=True, exist_ok=True)
 
         filename = dest_path / f"{ prefix }-{ hash }.svg"
-        urllib.request.urlretrieve(url, target / filename)
+
+        debug(f'downloading {url[:50]}..')
+        try:
+            urllib.request.urlretrieve(url, target / filename)
+        except Exception as e:
+            error(f'{e}: {url[:50]}..')
+            return f'!!! error "Could not render!"\n\n```\n{matchobj.group(2)}\n```'
 
         file = File(
             filename, target, self._output_dir, False)
@@ -114,7 +130,7 @@ class KrokiPlugin(BasePlugin):
 
         return f"![Kroki](./{ pref }/{ filename })"
 
-    def on_page_markdown(self, markdown, files, page, **kwargs):
+    def on_page_markdown(self, markdown, files, page, **_kwargs):
         pattern = re.compile(self.kroki_re, flags=re.IGNORECASE + re.DOTALL)
 
         if not self.config["DownloadImages"]:
@@ -128,6 +144,7 @@ class KrokiPlugin(BasePlugin):
 
         return re.sub(pattern, do_download, markdown)
 
-    def on_post_build(self, **kwargs):
+    def on_post_build(self, **_kwargs):
         if hasattr(self, "_dir"):
+            info(f'Cleaing {self._dir}')
             self._dir.cleanup()
