@@ -20,15 +20,20 @@ error = partial(log.error, f'{__name__} %s')
 
 class KrokiPlugin(BasePlugin):
     config_scheme = (
-        ('ServerURL', config.config_options.Type(str, default='https://kroki.io')),
-        ('EnableBlockDiag', config.config_options.Type(bool, default=True)),
-        ('Enablebpmn', config.config_options.Type(bool, default=True)),
-        ('EnableExcalidraw', config.config_options.Type(bool, default=True)),
-        ('EnableMermaid', config.config_options.Type(bool, default=True)),
-        ('DownloadImages', config.config_options.Type(bool, default=False)),
-        ('EmbedImages', config.config_options.Type(bool, default=False)),
-        ('DownloadDir', config.config_options.Type(str, default='images/kroki_generated')),
-        ('FencePrefix', config.config_options.Type(str, default='kroki-')),
+        ('ServerURL', config.config_options.Type(
+            str, default='https://kroki.io')),
+        ('EnableBlockDiag', config.config_options.Type(
+            bool, default=True)),
+        ('Enablebpmn', config.config_options.Type(
+            bool, default=True)),
+        ('EnableExcalidraw', config.config_options.Type(
+            bool, default=True)),
+        ('EnableMermaid', config.config_options.Type(
+            bool, default=True)),
+        ('DownloadImages', config.config_options.Type(
+            bool, default=False)),
+        ('DownloadDir', config.config_options.Type(
+            str, default='images/kroki_generated')),
     )
 
     kroki_re = ""

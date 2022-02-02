@@ -8,7 +8,7 @@ with open(PROJ_DIR / 'README.md', encoding='utf-8') as f:
 
 setup(
     name='mkdocs-kroki-plugin',
-    version='0.2.0',
+    version='0.2.1',
     description='MkDocs plugin for Kroki-Diagrams',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -25,11 +25,16 @@ setup(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Intended Audience :: Information Technology',
+        'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7'
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
     ],
     packages=find_packages(),
     entry_points={
