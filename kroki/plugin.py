@@ -74,13 +74,13 @@ class KrokiPlugin(BasePlugin):
         diagram_types = self.kroki_base
 
         if self.config['EnableBlockDiag']:
-            diagram_types = diagram_types + self.kroki_blockdiag
+            diagram_types += self.kroki_blockdiag
         if self.config['Enablebpmn']:
-            diagram_types = diagram_types + self.kroki_bpmn
+            diagram_types += self.kroki_bpmn
         if self.config['EnableExcalidraw']:
-            diagram_types = diagram_types + self.kroki_excalidraw
+            diagram_types += self.kroki_excalidraw
         if self.config['EnableMermaid']:
-            diagram_types = diagram_types + self.kroki_mermaid
+            diagram_types += self.kroki_mermaid
 
         frence_prefix = self.config['FencePrefix']
         diagram_types_re = "|".join(diagram_types)
