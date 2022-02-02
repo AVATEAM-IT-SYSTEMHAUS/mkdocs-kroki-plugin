@@ -19,6 +19,7 @@ plugins:
 ## Config
 
 * `ServerURL` - URL of your kroki-Server, default: <https://kroki.io>
+* `FencePrefix` - Diagram prefix, default: `kroki-`
 * `EnableBlockDiag` - Enable BlockDiag (and the related Diagrams), default: True
 * `Enablebpmn` - Enable BPMN, default: True
 * `EnableExcalidraw` - Enable Excalidraw, default: True
