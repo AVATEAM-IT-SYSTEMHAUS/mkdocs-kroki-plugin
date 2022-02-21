@@ -145,5 +145,5 @@ class KrokiPlugin(BasePlugin):
 
     def on_post_build(self, **_kwargs):
         if hasattr(self, "_dir"):
-            info(f'Cleaing {self._dir}')
+            info(f'Cleaning {self._dir}')
             self._dir.cleanup()
