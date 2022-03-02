@@ -13,16 +13,12 @@ tag_blocklist = ('script')
 
 def _sanitize_svg(svg_soup):
     for tag in svg_soup.findAll():
-        is_blocked = tag.name.lower() in tag_blocklist
-        conatins_external_refs = 'http' in tag.text.lower()
-        if is_blocked or conatins_external_refs:
+        if tag.name.lower() in tag_blocklist:
             tag.extract()
             continue
 
         for attr in tag.attrs:
-            is_script_function = attr.lower().startswith('on')
-            has_external_refs = 'http' in ''.join(tag.attrs[attr]).lower()
-            if any([is_script_function, has_external_refs]):
+            if attr.lower().startswith('on'):
                 tag.attrs.remove(attr)
 
 
