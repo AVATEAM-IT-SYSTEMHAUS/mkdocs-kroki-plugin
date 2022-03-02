@@ -58,8 +58,10 @@ class KrokiClient():
 
             debug(f'get_image_data [Response: {r}]')
 
-            if r.status_code != requests.codes.ok:
-                error(f'Could not retrive image data, got: {r}')
-                return None
+            if r.status_code == requests.codes.ok:
+                return r.text
+
         except Exception as e:
             error(e)
+
+        error(f'Could not retrive image data, got: {r}')
