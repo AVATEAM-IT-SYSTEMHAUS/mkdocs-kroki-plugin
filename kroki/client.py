@@ -47,23 +47,25 @@ class KrokiClient():
         return self._get_url(kroki_type, kroki_diagram_data)
 
     def get_image_data(self, kroki_type, kroki_diagram_data):
-        if self.http_method == 'GET':
-            url = self._get_url(kroki_type, kroki_diagram_data)
+        try:
+            if self.http_method == 'GET':
+                url = self._get_url(kroki_type, kroki_diagram_data)
 
-            debug(f'get_image_data [GET {url[:50]}..]')
-            r = requests.get(url)
-        else:  # POST
-            url = self._kroki_uri(kroki_type)
+                debug(f'get_image_data [GET {url[:50]}..]')
+                r = requests.get(url)
+            else:  # POST
+                url = self._kroki_uri(kroki_type)
 
-            debug(f'get_image_data [POST {url}]')
-            r = requests.post(url, json={
-                "diagram_source": kroki_diagram_data
-            })
+                debug(f'get_image_data [POST {url}]')
 
-        debug(f'get_image_data [Response: {r}]')
+                r = requests.post(url, json={
+                    "diagram_source": kroki_diagram_data
+                })
 
-        if r.status_code != requests.codes.ok:
-            error(f'Could not retrive image data, got: {r}')
-            return None
+            debug(f'get_image_data [Response: {r}]')
 
-        return r.text
+            if r.status_code != requests.codes.ok:
+                error(f'Could not retrive image data, got: {r}')
+                return None
+        except Exception as e:
+            error(e)
