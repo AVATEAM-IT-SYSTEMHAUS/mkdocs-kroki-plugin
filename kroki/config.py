@@ -51,3 +51,10 @@ class KrokiDiagramTypes():
     def get_block_regex(self, fence_prefix):
         diagram_types_re = "|".join(self.diagram_types)
         return rf'(?:```{fence_prefix})({diagram_types_re})\n(.*?)(?:```)'
+
+    def __iter__(self):
+        self._iter = iter(self.diagram_types)
+        return self._iter
+
+    def __next__(self):
+        return next(self._iter)

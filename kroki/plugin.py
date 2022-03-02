@@ -2,21 +2,16 @@ import hashlib
 import re
 import tempfile
 
-from functools import partial
+from bs4 import BeautifulSoup
 from mkdocs.plugins import BasePlugin
 from mkdocs.structure.files import File
 from mkdocs import config
-from mkdocs.plugins import log
-from pathlib import Path
 from os.path import relpath
+from pathlib import Path
 
-from .config import KrokiDiagramTypes
 from .client import KrokiClient
-
-
-info = partial(log.info, f'{__name__} %s')
-debug = partial(log.debug, f'{__name__} %s')
-error = partial(log.error, f'{__name__} %s')
+from .config import KrokiDiagramTypes
+from .util import info, debug, clean_svg
 
 
 class KrokiPlugin(BasePlugin):
@@ -27,6 +22,7 @@ class KrokiPlugin(BasePlugin):
         ('EnableExcalidraw', config.config_options.Type(bool, default=True)),
         ('EnableMermaid', config.config_options.Type(bool, default=True)),
         ('HttpMethod', config.config_options.Type(str, default='GET')),
+        ('InlineImages', config.config_options.Type(bool, default=False)),
         ('DownloadImages', config.config_options.Type(bool, default=False)),
         ('EmbedImages', config.config_options.Type(bool, default=False)),
         ('DownloadDir', config.config_options.Type(str, default='images/kroki_generated')),
@@ -100,6 +96,9 @@ class KrokiPlugin(BasePlugin):
         return f'!!! error "Could not render!"\n\n```\n{kroki_data}\n```'
 
     def on_page_markdown(self, markdown, files, page, **_kwargs):
+        if self.config['InlineImages']:
+            return markdown
+
         debug(f'on_page_markdown [page: {page}]')
 
         kroki_regex = self.diagram_types.get_block_regex(self.fence_prefix)
@@ -110,6 +109,35 @@ class KrokiPlugin(BasePlugin):
             return self._replace_kroki_block(match_obj, files, page)
 
         return re.sub(pattern, replace_kroki_block, markdown)
+
+    def on_page_content(self, html, page, config, files, **_kwargs):
+        if not self.config['InlineImages']:
+            return html
+
+        soup = BeautifulSoup(html, 'html.parser')
+
+        for diagram_type in self.diagram_types:
+            diagram_fence = f'{self.fence_prefix}{diagram_type}'
+
+            debug(f'looking for {diagram_fence} in {page.title}')
+            pre_code_tags = (soup.select(f'pre code.{diagram_fence}')
+                             or soup.select(f'pre code.language-{diagram_fence}'))
+
+            for pre_code_tag in pre_code_tags:
+                debug(f'inlining {pre_code_tag.name} in {page}')
+                kroki_data = pre_code_tag.text
+
+                image_data = self.kroki_client.get_image_data(diagram_type,
+                                                              kroki_data)
+                svg_tag = clean_svg(image_data)
+
+                container_tag = soup.new_tag('div', attrs={
+                    'class': f'kroki {diagram_type}'
+                    })
+                container_tag.append(svg_tag)
+
+                pre_code_tag.parent.replaceWith(container_tag)
+        return str(soup)
 
     def on_post_build(self, **_kwargs):
         if hasattr(self, "_tmp_dir"):

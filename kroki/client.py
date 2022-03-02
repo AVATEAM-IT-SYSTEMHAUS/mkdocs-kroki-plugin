@@ -2,13 +2,7 @@ import base64
 import requests
 import zlib
 
-from functools import partial
-from mkdocs.plugins import log
-
-
-info = partial(log.info, f'{__name__} %s')
-debug = partial(log.debug, f'{__name__} %s')
-error = partial(log.error, f'{__name__} %s')
+from .util import info, debug, error
 
 
 class KrokiClient():

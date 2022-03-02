@@ -24,8 +24,9 @@ plugins:
 * `Enablebpmn` - Enable BPMN, default: True
 * `EnableExcalidraw` - Enable Excalidraw, default: True
 * `EnableMermaid` - Enable Mermaid, default: True
-* `HttpMethod` - Http method to use (`GET` or `POST`), default: `GET` (Note: you have to enable `DownloadImages` if you want to use `POST`!)
+* `HttpMethod` - Http method to use (`GET` or `POST`), default: `GET` (Note: you have to enable `DownloadImages` or `InlineImages` if you want to use `POST`!)
 * `DownloadImages` - Download diagrams from kroki as static assets instead of just creating kroki links, default: False
+* `InlineImages` - Download diagrams from kroki as inline content instead of just creating kroki links, default: False
 * `DownloadDir` - The asset directory to place downloaded svg images in, default: images/kroki_generated
 
 ## Usage
