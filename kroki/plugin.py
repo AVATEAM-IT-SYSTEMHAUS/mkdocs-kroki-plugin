@@ -129,14 +129,15 @@ class KrokiPlugin(BasePlugin):
 
                 image_data = self.kroki_client.get_image_data(diagram_type,
                                                               kroki_data)
-                svg_tag = clean_svg(image_data)
+                if image_data:
+                    svg_tag = clean_svg(image_data)
 
-                container_tag = soup.new_tag('div', attrs={
-                    'class': f'kroki {diagram_type}'
-                    })
-                container_tag.append(svg_tag)
+                    container_tag = soup.new_tag('div', attrs={
+                        'class': f'kroki {diagram_type}'
+                        })
+                    container_tag.append(svg_tag)
 
-                pre_code_tag.parent.replaceWith(container_tag)
+                    pre_code_tag.parent.replaceWith(container_tag)
         return str(soup)
 
     def on_post_build(self, **_kwargs):
