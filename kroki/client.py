@@ -66,8 +66,8 @@ class KrokiClient():
 
             if r.status_code == requests.codes.ok:
                 return r.text
+            else:
+                error(f'Could not retrive image data, got: {r}')
 
         except Exception as e:
             error(e)
-
-        error(f'Could not retrive image data, got: {r}')
