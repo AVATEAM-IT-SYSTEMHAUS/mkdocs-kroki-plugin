@@ -41,7 +41,7 @@ class KrokiClient():
         debug(f'get_url: {kroki_type}')
 
         if self.http_method != 'GET':
-            error(f'HTTP method is {self.http_method}!')
+            error(f'HTTP method is {self.http_method}. Config error!')
             return None
 
         return self._get_url(kroki_type, kroki_diagram_data)
