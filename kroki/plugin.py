@@ -43,6 +43,11 @@ class KrokiPlugin(BasePlugin):
 
         self.fence_prefix = self.config['FencePrefix']
 
+        if self.config['HttpMethod'] == 'POST' and not self.config["DownloadImages"]:
+            error('HttpMethod: Can\'t use POST without downloading the images! '
+                  'Falling back to GET')
+            self.config['HttpMethod'] = 'GET'
+
         self.kroki_client = KrokiClient(self.config['ServerURL'], self.config['HttpMethod'])
 
         self._tmp_dir = tempfile.TemporaryDirectory(prefix="mkdocs_kroki_")
@@ -74,7 +79,7 @@ class KrokiPlugin(BasePlugin):
         mkdocs_file = File(get_url, self._tmp_dir.name, self._output_dir, False)
         files.append(mkdocs_file)
 
-        return get_url
+        return f'/{get_url}'
 
     def _replace_kroki_block(self, match_obj, files, page):
         kroki_type = match_obj.group(1).lower()
@@ -91,7 +96,7 @@ class KrokiPlugin(BasePlugin):
             get_url = self.kroki_client.get_url(kroki_type, kroki_data)
 
         if get_url is not None:
-            return f'![Kroki](/{get_url})'
+            return f'![Kroki]({get_url})'
 
         return f'!!! error "Could not render!"\n\n```\n{kroki_data}\n```'
 
@@ -102,7 +107,6 @@ class KrokiPlugin(BasePlugin):
         debug(f'on_page_markdown [page: {page}]')
 
         kroki_regex = self.diagram_types.get_block_regex(self.fence_prefix)
-
         pattern = re.compile(kroki_regex, flags=re.IGNORECASE + re.DOTALL)
 
         def replace_kroki_block(match_obj):
