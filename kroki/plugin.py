@@ -1,16 +1,17 @@
-import base64
 import hashlib
-import zlib
 import re
 import tempfile
-import pathlib
-import urllib.request
 
 from functools import partial
 from mkdocs.plugins import BasePlugin
 from mkdocs.structure.files import File
 from mkdocs import config
 from mkdocs.plugins import log
+from pathlib import Path
+from os.path import relpath
+
+from .config import KrokiDiagramTypes
+from .client import KrokiClient
 
 
 info = partial(log.info, f'{__name__} %s')
@@ -25,125 +26,96 @@ class KrokiPlugin(BasePlugin):
         ('Enablebpmn', config.config_options.Type(bool, default=True)),
         ('EnableExcalidraw', config.config_options.Type(bool, default=True)),
         ('EnableMermaid', config.config_options.Type(bool, default=True)),
+        ('HttpMethod', config.config_options.Type(str, default='GET')),
         ('DownloadImages', config.config_options.Type(bool, default=False)),
         ('EmbedImages', config.config_options.Type(bool, default=False)),
         ('DownloadDir', config.config_options.Type(str, default='images/kroki_generated')),
         ('FencePrefix', config.config_options.Type(str, default='kroki-')),
     )
 
-    kroki_re = ""
-
-    kroki_base = (
-        "bytefield",
-        "ditaa",
-        "erd",
-        "graphviz",
-        "nomnoml",
-        "plantuml",
-        "c4plantuml",
-        "svgbob",
-        "vega",
-        "vegalite",
-        "wavedrom",
-        "pikchr",
-        "umlet",
-    )
-
-    kroki_blockdiag = (
-        "blockdiag",
-        "seqdiag",
-        "actdiag",
-        "nwdiag",
-        "packetdiag",
-        "rackdiag",
-    )
-
-    kroki_bpmn = (
-        "bpmn",
-    )
-
-    kroki_excalidraw = (
-        "excalidraw",
-    )
-
-    kroki_mermaid = (
-        "mermaid",
-    )
+    fence_prefix = None
+    diagram_types = None
+    kroki_client = None
 
     def on_config(self, config, **_kwargs):
-        diagram_types = self.kroki_base
+        info(f'Configuring: {self.config}')
 
-        if self.config['EnableBlockDiag']:
-            diagram_types += self.kroki_blockdiag
-        if self.config['Enablebpmn']:
-            diagram_types += self.kroki_bpmn
-        if self.config['EnableExcalidraw']:
-            diagram_types += self.kroki_excalidraw
-        if self.config['EnableMermaid']:
-            diagram_types += self.kroki_mermaid
+        self.diagram_types = KrokiDiagramTypes(self.config['EnableBlockDiag'],
+                                               self.config['Enablebpmn'],
+                                               self.config['EnableExcalidraw'],
+                                               self.config['EnableMermaid'])
 
-        frence_prefix = self.config['FencePrefix']
-        diagram_types_re = "|".join(diagram_types)
-        self.kroki_re = rf'(?:```{frence_prefix})({diagram_types_re})\n(.*?)(?:```)'
+        self.fence_prefix = self.config['FencePrefix']
 
-        self._dir = tempfile.TemporaryDirectory(prefix="mkdocs_kroki_")
-        self._output_dir = pathlib.Path(config.get("site_dir", "site"))
+        if self.config['HttpMethod'] == 'POST' and not self.config["DownloadImages"]:
+            error('HttpMethod: Can\'t use POST without downloading the images! '
+                  'Falling back to GET')
+            self.config['HttpMethod'] = 'GET'
 
-        info(f'on_config: {self.config}')
+        self.kroki_client = KrokiClient(self.config['ServerURL'], self.config['HttpMethod'])
+
+        self._tmp_dir = tempfile.TemporaryDirectory(prefix="mkdocs_kroki_")
+        self._output_dir = Path(config.get("site_dir", "site"))
+
+        self._prepare_download_dir()
+
         return config
 
-    def _kroki_url(self, matchobj):
-        kroki_type = matchobj.group(1).lower()
-        kroki_data = base64.urlsafe_b64encode(
-            zlib.compress(str.encode(matchobj.group(2)), 9)
-        ).decode()
-        kroki_url = f'{self.config["ServerURL"]}/{kroki_type}/svg/{kroki_data}'
+    def _download_dir(self):
+        return Path(self._tmp_dir.name) / Path(self.config["DownloadDir"])
 
-        return kroki_url
+    def _prepare_download_dir(self):
+        self._download_dir().mkdir(parents=True, exist_ok=True)
 
-    def _kroki_link(self, matchobj):
-        return f"![Kroki]({self._kroki_url(matchobj)})"
-
-    def _download_image(self, matchobj, target, page, files):
-        url = self._kroki_url(matchobj)
-        hash = hashlib.md5(url.encode("utf8")).hexdigest()
+    def _kroki_filename(self, kroki_data, page):
+        digest = hashlib.md5(kroki_data.encode("utf8")).hexdigest()
         prefix = page.file.name.split(".")[0]
-        dest_path = pathlib.Path(self.config["DownloadDir"])
 
-        (target / dest_path).mkdir(parents=True, exist_ok=True)
+        return f'{prefix}-{digest}.svg'
 
-        filename = dest_path / f"{ prefix }-{ hash }.svg"
+    def _save_kroki_image_and_get_url(self, file_name, image_data, files):
+        filepath = self._download_dir() / file_name
+        with open(filepath, 'w') as file:
+            file.write(image_data)
 
-        debug(f'downloading {url[:50]}..')
-        try:
-            urllib.request.urlretrieve(url, target / filename)
-        except Exception as e:
-            error(f'{e}: {url[:50]}..')
-            return f'!!! error "Could not render!"\n\n```\n{matchobj.group(2)}\n```'
+        get_url = relpath(filepath, self._tmp_dir.name)
 
-        file = File(
-            filename, target, self._output_dir, False)
-        files.append(file)
+        mkdocs_file = File(get_url, self._tmp_dir.name, self._output_dir, False)
+        files.append(mkdocs_file)
 
-        pref = "/".join([".." for _ in pathlib.Path(page.file.src_path).parents][1:])
+        return f'/{get_url}'
 
-        return f"![Kroki](./{ pref }/{ filename })"
+    def _replace_kroki_block(self, match_obj, files, page):
+        kroki_type = match_obj.group(1).lower()
+        kroki_data = match_obj.group(2)
+
+        get_url = None
+        if self.config["DownloadImages"]:
+            image_data = self.kroki_client.get_image_data(kroki_type, kroki_data)
+
+            if image_data:
+                file_name = self._kroki_filename(kroki_data, page)
+                get_url = self._save_kroki_image_and_get_url(file_name, image_data, files)
+        else:
+            get_url = self.kroki_client.get_url(kroki_type, kroki_data)
+
+        if get_url is not None:
+            return f'![Kroki]({get_url})'
+
+        return f'!!! error "Could not render!"\n\n```\n{kroki_data}\n```'
 
     def on_page_markdown(self, markdown, files, page, **_kwargs):
-        pattern = re.compile(self.kroki_re, flags=re.IGNORECASE + re.DOTALL)
+        debug(f'on_page_markdown [page: {page}]')
 
-        if not self.config["DownloadImages"]:
-            return re.sub(pattern, self._kroki_link, markdown)
+        kroki_regex = self.diagram_types.get_block_regex(self.fence_prefix)
+        pattern = re.compile(kroki_regex, flags=re.IGNORECASE + re.DOTALL)
 
-        target_dir = pathlib.Path(self._dir.name)
+        def replace_kroki_block(match_obj):
+            return self._replace_kroki_block(match_obj, files, page)
 
-        def do_download(matchobj):
-            return self._download_image(
-                matchobj, target_dir, page, files)
-
-        return re.sub(pattern, do_download, markdown)
+        return re.sub(pattern, replace_kroki_block, markdown)
 
     def on_post_build(self, **_kwargs):
-        if hasattr(self, "_dir"):
-            info(f'Cleaning {self._dir}')
-            self._dir.cleanup()
+        if hasattr(self, "_tmp_dir"):
+            info(f'Cleaning {self._tmp_dir}')
+            self._tmp_dir.cleanup()
