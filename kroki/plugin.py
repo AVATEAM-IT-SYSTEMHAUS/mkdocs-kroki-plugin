@@ -36,6 +36,8 @@ class KrokiPlugin(BasePlugin):
     fence_prefix = None
     diagram_types = None
     kroki_client = None
+    from_file_prefix = '@from_file:'
+    from_file_prefix_len = len(from_file_prefix)
 
     def on_config(self, config, **_kwargs):
         info(f'Configuring: {self.config}')
@@ -88,6 +90,11 @@ class KrokiPlugin(BasePlugin):
     def _replace_kroki_block(self, match_obj, files, page):
         kroki_type = match_obj.group(1).lower()
         kroki_data = match_obj.group(2)
+
+        if kroki_data.startswith(self.from_file_prefix):
+            file_name = kroki_data[self.from_file_prefix_len:].strip()
+            with open(file_name) as data_file:
+                kroki_data = data_file.read()
 
         get_url = None
         if self.config["DownloadImages"]:
