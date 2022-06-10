@@ -32,10 +32,12 @@ plugins:
 
 Use code-fences with a tag of kroki-`<Module>` to replace the code with the wanted diagram.
 
+[Diagram options](https://docs.kroki.io/kroki/setup/diagram-options/) can be set as well.
+
 Example for BlockDiag:
 
 ````markdown
-```kroki-blockdiag
+```kroki-blockdiag no-transparency=false
 blockdiag {
   blockdiag -> generates -> "block-diagrams";
   blockdiag -> is -> "very easy!";
