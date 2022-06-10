@@ -13,6 +13,7 @@ class KrokiDiagramTypes():
         "wavedrom",
         "pikchr",
         "umlet",
+        "structurizr"
     )
 
     kroki_blockdiag = (
@@ -50,4 +51,4 @@ class KrokiDiagramTypes():
 
     def get_block_regex(self, fence_prefix):
         diagram_types_re = "|".join(self.diagram_types)
-        return rf'(?:```{fence_prefix})({diagram_types_re})\n(.*?)(?:```)'
+        return rf'(?:```{fence_prefix})({diagram_types_re})((?:\s?[a-zA-Z0-9\-_]+=[a-zA-Z0-9\-_]+)*)\n(.*?)(?:```)'        
