@@ -5,15 +5,15 @@ class KrokiDiagramTypes():
         "erd",
         "graphviz",
         "nomnoml",
+        "pikchr",
         "plantuml",
         "c4plantuml",
+        "structurizr",
         "svgbob",
+        "umlet",
         "vega",
         "vegalite",
-        "wavedrom",
-        "pikchr",
-        "umlet",
-        "structurizr"
+        "wavedrom"
     )
 
     kroki_blockdiag = (
