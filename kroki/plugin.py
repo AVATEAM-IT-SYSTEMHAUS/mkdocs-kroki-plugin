@@ -9,6 +9,7 @@ from mkdocs import config
 from mkdocs.plugins import log
 from pathlib import Path
 from os.path import relpath
+import os
 
 from .config import KrokiDiagramTypes
 from .client import KrokiClient
@@ -21,7 +22,7 @@ error = partial(log.error, f'{__name__} %s')
 
 class KrokiPlugin(BasePlugin):
     config_scheme = (
-        ('ServerURL', config.config_options.Type(str, default='https://kroki.io')),
+        ('ServerURL', config.config_options.Type(str, default=os.getenv('KROKI_SERVER','https://kroki.io'))),
         ('EnableBlockDiag', config.config_options.Type(bool, default=True)),
         ('Enablebpmn', config.config_options.Type(bool, default=True)),
         ('EnableExcalidraw', config.config_options.Type(bool, default=True)),
