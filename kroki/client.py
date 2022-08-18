@@ -5,6 +5,8 @@ import zlib
 from functools import partial
 from mkdocs.plugins import log
 
+from .config import KrokiDiagramTypes
+
 
 info = partial(log.info, f'{__name__} %s')
 debug = partial(log.debug, f'{__name__} %s')
@@ -12,9 +14,10 @@ error = partial(log.error, f'{__name__} %s')
 
 
 class KrokiClient():
-    def __init__(self, server_url, http_method):
+    def __init__(self, server_url, http_method, diagram_types: KrokiDiagramTypes):
         self.server_url = server_url
         self.http_method = http_method
+        self.diagram_types = diagram_types
 
         if http_method not in ['GET', 'POST']:
             error(f'HttpMethod config error: {http_method} -> using GET!')
@@ -23,7 +26,8 @@ class KrokiClient():
         info(f'Initialized: {self.http_method}, {self.server_url}')
 
     def _kroki_uri(self, kroki_type):
-        return f'{self.server_url}/{kroki_type}/svg'
+        file_type = self.diagram_types.get_file_ext(kroki_type)
+        return f'{self.server_url}/{kroki_type}/{file_type}'
 
     def _get_url(self, kroki_type, kroki_diagram_data):
         kroki_data_param = \
@@ -63,9 +67,8 @@ class KrokiClient():
                 })
 
             debug(f'get_image_data [Response: {r}]')
-
             if r.status_code == requests.codes.ok:
-                return r.text
+                return r.content
             else:
                 error(f'Could not retrive image data, got: {r}')
 
