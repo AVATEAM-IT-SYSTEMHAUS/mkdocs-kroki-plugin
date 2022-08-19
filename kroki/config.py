@@ -1,18 +1,19 @@
 class KrokiDiagramTypes():
     kroki_base = (
         "bytefield",
+        "c4plantuml",
         "ditaa",
         "erd",
         "graphviz",
         "nomnoml",
+        "pikchr",
         "plantuml",
-        "c4plantuml",
+        "structurizr",
         "svgbob",
+        "umlet",
         "vega",
         "vegalite",
         "wavedrom",
-        "pikchr",
-        "umlet",
     )
 
     kroki_blockdiag = (
