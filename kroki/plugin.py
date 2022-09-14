@@ -22,7 +22,7 @@ error = partial(log.error, f'{__name__} %s')
 
 class KrokiPlugin(BasePlugin):
     config_scheme = (
-        ('ServerURL', config.config_options.Type(str, default=os.getenv('KROKI_SERVER','https://kroki.io'))),
+        ('ServerURL', config.config_options.Type(str, default=os.getenv('KROKI_SERVER_URL','https://kroki.io'))),
         ('EnableBlockDiag', config.config_options.Type(bool, default=True)),
         ('Enablebpmn', config.config_options.Type(bool, default=True)),
         ('EnableExcalidraw', config.config_options.Type(bool, default=True)),
@@ -86,7 +86,7 @@ class KrokiPlugin(BasePlugin):
 
         return f'/{get_url}'
 
-    def _replace_kroki_block(self, match_obj, files, page):        
+    def _replace_kroki_block(self, match_obj, files, page):
         kroki_type = match_obj.group(1).lower()
         kroki_options = match_obj.group(2)
         kroki_data = match_obj.group(3)
