@@ -1,6 +1,7 @@
 class KrokiDiagramTypes():
     kroki_base = (
         "bytefield",
+        "c4plantuml",
         "ditaa",
         "erd",
         "graphviz",
