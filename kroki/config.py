@@ -37,7 +37,11 @@ class KrokiDiagramTypes():
         "mermaid",
     )
 
-    def __init__(self, blockdiag_enabled, bpmn_enabled, excalidraw_enabled, mermaid_enabled):
+    kroki_diagramsnet = (
+        "diagramsnet",
+    )
+
+    def __init__(self, blockdiag_enabled, bpmn_enabled, excalidraw_enabled, mermaid_enabled, diagramsnet_enabled):
         self.diagram_types = self.kroki_base
 
         if blockdiag_enabled:
@@ -48,6 +52,8 @@ class KrokiDiagramTypes():
             self.diagram_types += self.kroki_excalidraw
         if mermaid_enabled:
             self.diagram_types += self.kroki_mermaid
+        if diagramsnet_enabled:
+            self.diagram_types += self.kroki_diagramsnet
 
     def get_block_regex(self, fence_prefix):
         diagram_types_re = "|".join(self.diagram_types)
