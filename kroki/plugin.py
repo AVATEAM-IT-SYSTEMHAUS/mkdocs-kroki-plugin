@@ -73,7 +73,7 @@ class KrokiPlugin(BasePlugin):
 
         return f'{prefix}-{digest}.svg'
 
-    def _save_kroki_image_and_get_url(self, file_name, image_data, files):
+    def _save_kroki_image_and_get_url(self, file_name, image_data, files, page):
         filepath = self._download_dir() / file_name
         with open(filepath, 'w') as file:
             file.write(image_data)
@@ -95,7 +95,7 @@ class KrokiPlugin(BasePlugin):
 
             if image_data:
                 file_name = self._kroki_filename(kroki_data, page)
-                get_url = self._save_kroki_image_and_get_url(file_name, image_data, files)
+                get_url = self._save_kroki_image_and_get_url(file_name, image_data, files, page)
         else:
             get_url = self.kroki_client.get_url(kroki_type, kroki_data)
 
