@@ -41,7 +41,7 @@ class KrokiClient():
                   'Kroki may not be able to read the data completely!')
 
         kroki_uri = self._kroki_uri(kroki_type)
-        error(f'{kroki_uri}/{kroki_data_param}?{kroki_query_param}')
+        debug(f'{kroki_uri}/{kroki_data_param}?{kroki_query_param}')
         return f'{kroki_uri}/{kroki_data_param}?{kroki_query_param}'
 
     def get_url(self, kroki_type, kroki_diagram_data, kroki_diagram_options={}):
