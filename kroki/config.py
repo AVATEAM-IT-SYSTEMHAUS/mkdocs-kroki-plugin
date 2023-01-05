@@ -43,9 +43,9 @@ class KrokiDiagramTypes():
         "mermaid": ["png", "svg"],
     }
 
-    kroki_diagramsnet = (
+    kroki_diagramsnet = {
         "diagramsnet": ["svg"],
-    )
+    }
 
     def __init__(self, blockdiag_enabled, bpmn_enabled, excalidraw_enabled,
                  mermaid_enabled, diagramsnet_enabled, file_types, file_type_overrides):
