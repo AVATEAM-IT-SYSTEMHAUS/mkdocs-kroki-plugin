@@ -32,6 +32,8 @@ class KrokiPlugin(BasePlugin):
         ('EmbedImages', config.config_options.Type(bool, default=False)),
         ('DownloadDir', config.config_options.Type(str, default='images/kroki_generated')),
         ('FencePrefix', config.config_options.Type(str, default='kroki-')),
+        ('FileTypes', config.config_options.Type(list, default=['svg'])),
+        ('FileTypeOverrides', config.config_options.Type(dict, default={})),
     )
 
     fence_prefix = None
@@ -44,7 +46,9 @@ class KrokiPlugin(BasePlugin):
         self.diagram_types = KrokiDiagramTypes(self.config['EnableBlockDiag'],
                                                self.config['Enablebpmn'],
                                                self.config['EnableExcalidraw'],
-                                               self.config['EnableMermaid'])
+                                               self.config['EnableMermaid'],
+                                               self.config['FileTypes'],
+                                               self.config['FileTypeOverrides'])
 
         self.fence_prefix = self.config['FencePrefix']
 
@@ -53,7 +57,9 @@ class KrokiPlugin(BasePlugin):
                   'Falling back to GET')
             self.config['HttpMethod'] = 'GET'
 
-        self.kroki_client = KrokiClient(self.config['ServerURL'], self.config['HttpMethod'])
+        self.kroki_client = KrokiClient(self.config['ServerURL'],
+                                        self.config['HttpMethod'],
+                                        self.diagram_types)
 
         self._tmp_dir = tempfile.TemporaryDirectory(prefix="mkdocs_kroki_")
         self._output_dir = Path(config.get("site_dir", "site"))
@@ -68,17 +74,17 @@ class KrokiPlugin(BasePlugin):
     def _prepare_download_dir(self):
         self._download_dir().mkdir(parents=True, exist_ok=True)
 
-    def _kroki_filename(self, kroki_data, page):
+    def _kroki_filename(self, kroki_data, kroki_type, page):
         digest = hashlib.md5(kroki_data.encode("utf8")).hexdigest()
         prefix = page.file.name.split(".")[0]
+        file_type = self.diagram_types.get_file_ext(kroki_type)
 
-        return f'{prefix}-{digest}.svg'
+        return f'{prefix}-{digest}.{file_type}'
 
     def _save_kroki_image_and_get_url(self, file_name, image_data, files):
         filepath = self._download_dir() / file_name
-        with open(filepath, 'w') as file:
+        with open(filepath, 'wb') as file:
             file.write(image_data)
-
         get_url = relpath(filepath, self._tmp_dir.name)
 
         mkdocs_file = File(get_url, self._tmp_dir.name, self._output_dir, False)
@@ -97,7 +103,7 @@ class KrokiPlugin(BasePlugin):
             image_data = self.kroki_client.get_image_data(kroki_type, kroki_data, kroki_diagram_options)
 
             if image_data:
-                file_name = self._kroki_filename(kroki_data, page)
+                file_name = self._kroki_filename(kroki_data, kroki_type, page)
                 get_url = self._save_kroki_image_and_get_url(file_name, image_data, files)
         else:
             get_url = self.kroki_client.get_url(kroki_type, kroki_data, kroki_diagram_options)
