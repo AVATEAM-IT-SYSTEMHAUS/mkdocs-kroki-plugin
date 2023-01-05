@@ -24,18 +24,37 @@ plugins:
 * `Enablebpmn` - Enable BPMN, default: True
 * `EnableExcalidraw` - Enable Excalidraw, default: True
 * `EnableMermaid` - Enable Mermaid, default: True
+* `EnableDiagramsnet` - Enable diagrams.net (draw.io), default: False
 * `HttpMethod` - Http method to use (`GET` or `POST`), default: `GET` (Note: you have to enable `DownloadImages` if you want to use `POST`!)
 * `DownloadImages` - Download diagrams from kroki as static assets instead of just creating kroki links, default: False
-* `DownloadDir` - The asset directory to place downloaded svg images in, default: images/kroki_generated
+* `DownloadDir` - The asset directory to place downloaded images in, default: images/kroki_generated
+* `FileTypes` - File types you want to use, default: [svg], (Note: not all file formats works with all diagram types <https://kroki.io/#support>)
+
+```yaml
+  - kroki:
+      FileTypes:
+        - png
+        - svg
+```
+
+* `FileTypeOverrides` - Overrides for specific diagrams to set the desired file type default: None,
+
+```yaml
+  - kroki:
+      FileTypeOverrides:
+        mermaid: png
+```
 
 ## Usage
 
 Use code-fences with a tag of kroki-`<Module>` to replace the code with the wanted diagram.
 
+[Diagram options](https://docs.kroki.io/kroki/setup/diagram-options/) can be set as well.
+
 Example for BlockDiag:
 
 ````markdown
-```kroki-blockdiag
+```kroki-blockdiag no-transparency=false
 blockdiag {
   blockdiag -> generates -> "block-diagrams";
   blockdiag -> is -> "very easy!";
