@@ -44,7 +44,7 @@ class KrokiDiagramTypes():
     }
 
     kroki_diagramsnet = (
-        "diagramsnet": ["png", "svg"],
+        "diagramsnet": ["svg"],
     )
 
     def __init__(self, blockdiag_enabled, bpmn_enabled, excalidraw_enabled,
