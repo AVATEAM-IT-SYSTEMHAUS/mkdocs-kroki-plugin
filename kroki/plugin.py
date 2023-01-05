@@ -56,8 +56,8 @@ class KrokiPlugin(BasePlugin):
                   'Falling back to GET')
             self.config['HttpMethod'] = 'GET'
 
-        self.kroki_client = KrokiClient(self.config['ServerURL'], 
-                                        self.config['HttpMethod'], 
+        self.kroki_client = KrokiClient(self.config['ServerURL'],
+                                        self.config['HttpMethod'],
                                         self.diagram_types)
 
         self._tmp_dir = tempfile.TemporaryDirectory(prefix="mkdocs_kroki_")

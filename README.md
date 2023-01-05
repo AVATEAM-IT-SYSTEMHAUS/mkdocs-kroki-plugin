@@ -27,14 +27,17 @@ plugins:
 * `HttpMethod` - Http method to use (`GET` or `POST`), default: `GET` (Note: you have to enable `DownloadImages` if you want to use `POST`!)
 * `DownloadImages` - Download diagrams from kroki as static assets instead of just creating kroki links, default: False
 * `DownloadDir` - The asset directory to place downloaded images in, default: images/kroki_generated
-* `FileTypes` - File types you want to use, default: [svg], (Note: not all file formats works with all diagram types https://kroki.io/#support)
+* `FileTypes` - File types you want to use, default: [svg], (Note: not all file formats works with all diagram types <https://kroki.io/#support>)
+
 ```yaml
   - kroki:
       FileTypes:
         - png
         - svg
 ```
+
 * `FileTypeOverrides` - Overrides for specific diagrams to set the desired file type default: None,
+
 ```yaml
   - kroki:
       FileTypeOverrides:

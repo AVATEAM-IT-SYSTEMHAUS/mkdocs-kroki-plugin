@@ -6,33 +6,33 @@ info = partial(log.info, f'{__name__} %s')
 
 class KrokiDiagramTypes():
     kroki_base = {
-        "bytefield" : ["svg"],
-        "ditaa" : ["png", "svg"],
-        "erd" : ["png", "svg", "jpeg", "pdf"],
-        "graphviz" : ["png", "svg", "jpeg", "pdf"],
-        "nomnoml" : ["svg"],
-        "plantuml" : ["png", "svg", "jpeg", "base64"],
+        "bytefield": ["svg"],
+        "ditaa": ["png", "svg"],
+        "erd": ["png", "svg", "jpeg", "pdf"],
+        "graphviz": ["png", "svg", "jpeg", "pdf"],
+        "nomnoml": ["svg"],
+        "plantuml": ["png", "svg", "jpeg", "base64"],
         "structurizr": ["png", "svg"],
-        "c4plantuml" : ["png", "svg", "jpeg", "base64"],
-        "svgbob" : ["svg"],
-        "vega" : ["png", "svg", "pdf"],
-        "vegalite" : ["png", "svg", "pdf"],
-        "wavedrom" : ["svg"],
-        "pikchr" : ["svg"],
-        "umlet" : ["png", "svg"],
+        "c4plantuml": ["png", "svg", "jpeg", "base64"],
+        "svgbob": ["svg"],
+        "vega": ["png", "svg", "pdf"],
+        "vegalite": ["png", "svg", "pdf"],
+        "wavedrom": ["svg"],
+        "pikchr": ["svg"],
+        "umlet": ["png", "svg"],
     }
 
     kroki_blockdiag = {
-        "blockdiag" : ["png", "svg", "pdf"],
-        "seqdiag" : ["png", "svg", "pdf"],
-        "actdiag" : ["png", "svg", "pdf"],
-        "nwdiag" : ["png", "svg", "pdf"],
-        "packetdiag" : ["png", "svg", "pdf"],
-        "rackdiag" : ["png", "svg", "pdf"],
+        "blockdiag": ["png", "svg", "pdf"],
+        "seqdiag": ["png", "svg", "pdf"],
+        "actdiag": ["png", "svg", "pdf"],
+        "nwdiag": ["png", "svg", "pdf"],
+        "packetdiag": ["png", "svg", "pdf"],
+        "rackdiag": ["png", "svg", "pdf"],
     }
 
     kroki_bpmn = {
-        "bpmn" : ["svg"],
+        "bpmn": ["svg"],
     }
 
     kroki_excalidraw = {
@@ -43,7 +43,8 @@ class KrokiDiagramTypes():
         "mermaid": ["png", "svg"],
     }
 
-    def __init__(self, blockdiag_enabled, bpmn_enabled, excalidraw_enabled, mermaid_enabled, file_types, file_type_overrides):
+    def __init__(self, blockdiag_enabled, bpmn_enabled, excalidraw_enabled,
+                 mermaid_enabled, file_types, file_type_overrides):
         diagram_types = self.kroki_base.copy()
 
         if blockdiag_enabled:
