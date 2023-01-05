@@ -27,6 +27,7 @@ class KrokiPlugin(BasePlugin):
         ('Enablebpmn', config.config_options.Type(bool, default=True)),
         ('EnableExcalidraw', config.config_options.Type(bool, default=True)),
         ('EnableMermaid', config.config_options.Type(bool, default=True)),
+        ('EnableDiagramsnet', config.config_options.Type(bool, default=False)),
         ('HttpMethod', config.config_options.Type(str, default='GET')),
         ('DownloadImages', config.config_options.Type(bool, default=False)),
         ('EmbedImages', config.config_options.Type(bool, default=False)),
@@ -47,6 +48,7 @@ class KrokiPlugin(BasePlugin):
                                                self.config['Enablebpmn'],
                                                self.config['EnableExcalidraw'],
                                                self.config['EnableMermaid'],
+                                               self.config['EnableDiagramsnet'],
                                                self.config['FileTypes'],
                                                self.config['FileTypeOverrides'])
 

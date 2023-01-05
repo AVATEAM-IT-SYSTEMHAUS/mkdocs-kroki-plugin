@@ -43,8 +43,12 @@ class KrokiDiagramTypes():
         "mermaid": ["png", "svg"],
     }
 
+    kroki_diagramsnet = (
+        "diagramsnet": ["svg"],
+    )
+
     def __init__(self, blockdiag_enabled, bpmn_enabled, excalidraw_enabled,
-                 mermaid_enabled, file_types, file_type_overrides):
+                 mermaid_enabled, diagramsnet_enabled, file_types, file_type_overrides):
         diagram_types = self.kroki_base.copy()
 
         if blockdiag_enabled:
@@ -55,6 +59,8 @@ class KrokiDiagramTypes():
             diagram_types.update(self.kroki_excalidraw)
         if mermaid_enabled:
             diagram_types.update(self.kroki_mermaid)
+        if diagramsnet_enabled:
+            diagram_types.update(self.kroki_diagramsnet)
 
         self.diagram_types_supporting_file = {}
 
