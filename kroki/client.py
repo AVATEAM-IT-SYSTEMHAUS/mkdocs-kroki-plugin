@@ -33,9 +33,9 @@ class KrokiClient():
         kroki_data_param = \
             base64.urlsafe_b64encode(
                 zlib.compress(str.encode(kroki_diagram_data), 9)).decode()
-    
+
         kroki_query_param = \
-            "&".join([ f'{k}={v}' for k, v in kroki_diagram_options.items()]) if len(kroki_diagram_options)>0 else ''
+            "&".join([f'{k}={v}' for k, v in kroki_diagram_options.items()]) if len(kroki_diagram_options) > 0 else ''
         if len(kroki_data_param) >= 4096:
             debug(f'Length of encoded diagram is {len(kroki_data_param)}. '
                   'Kroki may not be able to read the data completely!')
@@ -44,7 +44,7 @@ class KrokiClient():
         error(f'{kroki_uri}/{kroki_data_param}?{kroki_query_param}')
         return f'{kroki_uri}/{kroki_data_param}?{kroki_query_param}'
 
-    def get_url(self, kroki_type, kroki_diagram_data,kroki_diagram_options={}):
+    def get_url(self, kroki_type, kroki_diagram_data, kroki_diagram_options={}):
         debug(f'get_url: {kroki_type}')
 
         if self.http_method != 'GET':

@@ -22,7 +22,7 @@ error = partial(log.error, f'{__name__} %s')
 
 class KrokiPlugin(BasePlugin):
     config_scheme = (
-        ('ServerURL', config.config_options.Type(str, default=os.getenv('KROKI_SERVER_URL','https://kroki.io'))),
+        ('ServerURL', config.config_options.Type(str, default=os.getenv('KROKI_SERVER_URL', 'https://kroki.io'))),
         ('EnableBlockDiag', config.config_options.Type(bool, default=True)),
         ('Enablebpmn', config.config_options.Type(bool, default=True)),
         ('EnableExcalidraw', config.config_options.Type(bool, default=True)),
@@ -97,7 +97,7 @@ class KrokiPlugin(BasePlugin):
         kroki_options = match_obj.group(2)
         kroki_data = match_obj.group(3)
 
-        kroki_diagram_options=dict(x.split('=') for x in kroki_options.strip().split(' ')) if kroki_options else {}
+        kroki_diagram_options = dict(x.split('=') for x in kroki_options.strip().split(' ')) if kroki_options else {}
         get_url = None
         if self.config["DownloadImages"]:
             image_data = self.kroki_client.get_image_data(kroki_type, kroki_data, kroki_diagram_options)

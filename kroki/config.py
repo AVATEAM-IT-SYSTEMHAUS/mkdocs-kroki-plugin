@@ -61,7 +61,8 @@ class KrokiDiagramTypes():
         for diagram_type, diagram_file_types in diagram_types.items():
             diagram_file_type = next(filter(lambda file: file in diagram_file_types, file_types), None)
             if diagram_file_type is not None:
-                self.diagram_types_supporting_file[diagram_type] = next(filter(lambda file: file in diagram_file_types, file_types), None)
+                self.diagram_types_supporting_file[diagram_type] = next(
+                    filter(lambda file: file in diagram_file_types, file_types), None)
 
         for diagram_type, diagram_file_type in file_type_overrides.items():
             self.diagram_types_supporting_file[diagram_type] = diagram_file_type
