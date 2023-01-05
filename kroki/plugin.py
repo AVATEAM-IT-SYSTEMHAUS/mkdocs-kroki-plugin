@@ -9,6 +9,7 @@ from mkdocs import config
 from mkdocs.plugins import log
 from pathlib import Path
 from os.path import relpath
+import os
 
 from .config import KrokiDiagramTypes
 from .client import KrokiClient
@@ -21,7 +22,7 @@ error = partial(log.error, f'{__name__} %s')
 
 class KrokiPlugin(BasePlugin):
     config_scheme = (
-        ('ServerURL', config.config_options.Type(str, default='https://kroki.io')),
+        ('ServerURL', config.config_options.Type(str, default=os.getenv('KROKI_SERVER_URL','https://kroki.io'))),
         ('EnableBlockDiag', config.config_options.Type(bool, default=True)),
         ('Enablebpmn', config.config_options.Type(bool, default=True)),
         ('EnableExcalidraw', config.config_options.Type(bool, default=True)),
@@ -93,17 +94,19 @@ class KrokiPlugin(BasePlugin):
 
     def _replace_kroki_block(self, match_obj, files, page):
         kroki_type = match_obj.group(1).lower()
-        kroki_data = match_obj.group(2)
+        kroki_options = match_obj.group(2)
+        kroki_data = match_obj.group(3)
 
+        kroki_diagram_options=dict(x.split('=') for x in kroki_options.strip().split(' ')) if kroki_options else {}
         get_url = None
         if self.config["DownloadImages"]:
-            image_data = self.kroki_client.get_image_data(kroki_type, kroki_data)
+            image_data = self.kroki_client.get_image_data(kroki_type, kroki_data, kroki_diagram_options)
 
             if image_data:
                 file_name = self._kroki_filename(kroki_data, kroki_type, page)
                 get_url = self._save_kroki_image_and_get_url(file_name, image_data, files)
         else:
-            get_url = self.kroki_client.get_url(kroki_type, kroki_data)
+            get_url = self.kroki_client.get_url(kroki_type, kroki_data, kroki_diagram_options)
 
         if get_url is not None:
             return f'![Kroki]({get_url})'
