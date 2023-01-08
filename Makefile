@@ -6,6 +6,7 @@ dependencies:
 lint:
 	ruff .
 	isort --check .
+	black --check .
 
 format-code:
 	black .
