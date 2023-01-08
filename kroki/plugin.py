@@ -40,6 +40,8 @@ class KrokiPlugin(BasePlugin):
     fence_prefix = None
     diagram_types = None
     kroki_client = None
+    from_file_prefix = '@from_file:'
+    from_file_prefix_len = len(from_file_prefix)
 
     def on_config(self, config, **_kwargs):
         info(f'Configuring: {self.config}')
@@ -65,6 +67,7 @@ class KrokiPlugin(BasePlugin):
 
         self._tmp_dir = tempfile.TemporaryDirectory(prefix="mkdocs_kroki_")
         self._output_dir = Path(config.get("site_dir", "site"))
+        self._docs_dir = Path(config.get("docs_dir", "docs"))
 
         self._prepare_download_dir()
 
@@ -98,6 +101,18 @@ class KrokiPlugin(BasePlugin):
         kroki_type = match_obj.group(1).lower()
         kroki_options = match_obj.group(2)
         kroki_data = match_obj.group(3)
+
+        if kroki_data.startswith(self.from_file_prefix):
+            file_name = kroki_data[self.from_file_prefix_len:].strip()
+            file_path = self._docs_dir / file_name
+            info(f'reading kroki block from file: "{file_path.absolute()}"')
+            try:
+                with open(file_path) as data_file:
+                    kroki_data = data_file.read()
+            except OSError:
+                msg = f'Can\'t read file: "{file_path.absolute()}"'
+                error(msg)
+                return f'!!! error {msg}'
 
         kroki_diagram_options = dict(x.split('=') for x in kroki_options.strip().split(' ')) if kroki_options else {}
         get_url = None

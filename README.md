@@ -66,6 +66,14 @@ blockdiag {
 ```
 ````
 
+You can render diagram from file with `@from_file:` directive:
+
+````markdown
+```kroki-bpmn
+@from_file:path/to/diagram.bpmn
+```
+````
+
 ## See Also
 
 Diagram examples can be found [here](https://kroki.io/examples.html).
