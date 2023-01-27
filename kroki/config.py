@@ -20,6 +20,7 @@ class KrokiDiagramTypes():
         "wavedrom": ["svg"],
         "pikchr": ["svg"],
         "umlet": ["png", "svg"],
+        "d2": ["svg"],
     }
 
     kroki_blockdiag = {
