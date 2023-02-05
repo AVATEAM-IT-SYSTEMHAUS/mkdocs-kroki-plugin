@@ -86,7 +86,7 @@ class KrokiPlugin(BasePlugin):
 
         return f'{prefix}-{digest}.{file_type}'
 
-    def _save_kroki_image_and_get_url(self, file_name, image_data, files):
+    def _save_kroki_image_and_get_url(self, file_name, image_data, files, page):
         filepath = self._download_dir() / file_name
         with open(filepath, 'wb') as file:
             file.write(image_data)
@@ -95,7 +95,7 @@ class KrokiPlugin(BasePlugin):
         mkdocs_file = File(get_url, self._tmp_dir.name, self._output_dir, False)
         files.append(mkdocs_file)
 
-        return f'/{get_url}'
+        return {mkdocs_file.url_relative_to(page.file)}
 
     def _replace_kroki_block(self, match_obj, files, page):
         kroki_type = match_obj.group(1).lower()
@@ -121,7 +121,7 @@ class KrokiPlugin(BasePlugin):
 
             if image_data:
                 file_name = self._kroki_filename(kroki_data, kroki_type, page)
-                get_url = self._save_kroki_image_and_get_url(file_name, image_data, files)
+                get_url = self._save_kroki_image_and_get_url(file_name, image_data, files, page)
         else:
             get_url = self.kroki_client.get_url(kroki_type, kroki_data, kroki_diagram_options)
 
