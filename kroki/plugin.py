@@ -94,7 +94,7 @@ class KrokiPlugin(BasePlugin):
 
         mkdocs_file = File(get_url, self._tmp_dir.name, self._output_dir, False)
         files.append(mkdocs_file)
-        
+
         return f'/{mkdocs_file.url}'
 
     def _replace_kroki_block(self, match_obj, files, page):
