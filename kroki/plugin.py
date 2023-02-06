@@ -94,8 +94,8 @@ class KrokiPlugin(BasePlugin):
 
         mkdocs_file = File(get_url, self._tmp_dir.name, self._output_dir, False)
         files.append(mkdocs_file)
-
-        return {mkdocs_file.url_relative_to(page.file)}
+        
+        return f'/{mkdocs_file.url}'
 
     def _replace_kroki_block(self, match_obj, files, page):
         kroki_type = match_obj.group(1).lower()
