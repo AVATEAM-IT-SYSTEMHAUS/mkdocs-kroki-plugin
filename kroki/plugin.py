@@ -68,6 +68,7 @@ class KrokiPlugin(BasePlugin):
         self._tmp_dir = tempfile.TemporaryDirectory(prefix="mkdocs_kroki_")
         self._output_dir = Path(config.get("site_dir", "site"))
         self._docs_dir = Path(config.get("docs_dir", "docs"))
+        self._site_url = config.get("site_url", "/")
 
         self._prepare_download_dir()
 
@@ -95,7 +96,7 @@ class KrokiPlugin(BasePlugin):
         mkdocs_file = File(get_url, self._tmp_dir.name, self._output_dir, False)
         files.append(mkdocs_file)
 
-        return f'{files.get_file_from_path("index.md").page.abs_url}{mkdocs_file.url}'
+        return f"{self._site_url}{mkdocs_file.url}"
 
     def _replace_kroki_block(self, match_obj, files, page):
         kroki_type = match_obj.group(1).lower()
