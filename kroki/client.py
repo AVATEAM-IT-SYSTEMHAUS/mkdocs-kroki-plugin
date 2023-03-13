@@ -12,8 +12,14 @@ debug = partial(log.debug, f"{__name__} %s")
 error = partial(log.error, f"{__name__} %s")
 
 
-class KrokiClient():
-    def __init__(self, server_url, http_method, user_agent: str, diagram_types: KrokiDiagramTypes):
+class KrokiClient:
+    def __init__(
+        self,
+        server_url,
+        http_method,
+        user_agent: str,
+        diagram_types: KrokiDiagramTypes,
+    ):
         self.server_url = server_url
         self.http_method = http_method
         self.headers = {"User-Agent": user_agent}
@@ -65,7 +71,7 @@ class KrokiClient():
                     kroki_type, kroki_diagram_data, kroki_diagram_options
                 )
 
-                debug(f'get_image_data [GET {url[:50]}..]')
+                debug(f"get_image_data [GET {url[:50]}..]")
                 r = requests.get(url, headers=self.headers)
             else:  # POST
                 url = self._kroki_uri(kroki_type)
@@ -77,8 +83,9 @@ class KrokiClient():
                     headers=self.headers,
                     json={
                         "diagram_source": kroki_diagram_data,
-                        "diagram_options": kroki_diagram_options
-                    })
+                        "diagram_options": kroki_diagram_options,
+                    },
+                )
 
             debug(f"get_image_data [Response: {r}]")
             if r.status_code == requests.codes.ok:

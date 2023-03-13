@@ -20,21 +20,34 @@ error = partial(log.error, f"{__name__} %s")
 
 class KrokiPlugin(BasePlugin):
     config_scheme = (
-        ('ServerURL', config.config_options.Type(str, default=os.getenv('KROKI_SERVER_URL', 'https://kroki.io'))),
-        ('EnableBlockDiag', config.config_options.Type(bool, default=True)),
-        ('Enablebpmn', config.config_options.Type(bool, default=True)),
-        ('EnableExcalidraw', config.config_options.Type(bool, default=True)),
-        ('EnableMermaid', config.config_options.Type(bool, default=True)),
-        ('EnableDiagramsnet', config.config_options.Type(bool, default=False)),
-        ('HttpMethod', config.config_options.Type(str, default='GET')),
-        ('UserAgent', config.config_options.Type(str,
-            default='Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/109.0')),
-        ('DownloadImages', config.config_options.Type(bool, default=False)),
-        ('EmbedImages', config.config_options.Type(bool, default=False)),
-        ('DownloadDir', config.config_options.Type(str, default='images/kroki_generated')),
-        ('FencePrefix', config.config_options.Type(str, default='kroki-')),
-        ('FileTypes', config.config_options.Type(list, default=['svg'])),
-        ('FileTypeOverrides', config.config_options.Type(dict, default={})),
+        (
+            "ServerURL",
+            config.config_options.Type(
+                str, default=os.getenv("KROKI_SERVER_URL", "https://kroki.io")
+            ),
+        ),
+        ("EnableBlockDiag", config.config_options.Type(bool, default=True)),
+        ("Enablebpmn", config.config_options.Type(bool, default=True)),
+        ("EnableExcalidraw", config.config_options.Type(bool, default=True)),
+        ("EnableMermaid", config.config_options.Type(bool, default=True)),
+        ("EnableDiagramsnet", config.config_options.Type(bool, default=False)),
+        ("HttpMethod", config.config_options.Type(str, default="GET")),
+        (
+            "UserAgent",
+            config.config_options.Type(
+                str,
+                default="Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/109.0",  # noqa
+            ),
+        ),
+        ("DownloadImages", config.config_options.Type(bool, default=False)),
+        ("EmbedImages", config.config_options.Type(bool, default=False)),
+        (
+            "DownloadDir",
+            config.config_options.Type(str, default="images/kroki_generated"),
+        ),
+        ("FencePrefix", config.config_options.Type(str, default="kroki-")),
+        ("FileTypes", config.config_options.Type(list, default=["svg"])),
+        ("FileTypeOverrides", config.config_options.Type(dict, default={})),
     )
 
     fence_prefix = None
@@ -65,10 +78,12 @@ class KrokiPlugin(BasePlugin):
             )
             self.config["HttpMethod"] = "GET"
 
-        self.kroki_client = KrokiClient(server_url=self.config['ServerURL'],
-                                        http_method=self.config['HttpMethod'],
-                                        user_agent=self.config['UserAgent'],
-                                        diagram_types=self.diagram_types)
+        self.kroki_client = KrokiClient(
+            server_url=self.config["ServerURL"],
+            http_method=self.config["HttpMethod"],
+            user_agent=self.config["UserAgent"],
+            diagram_types=self.diagram_types,
+        )
 
         self._tmp_dir = tempfile.TemporaryDirectory(prefix="mkdocs_kroki_")
         self._output_dir = Path(config.get("site_dir", "site"))
@@ -134,7 +149,9 @@ class KrokiPlugin(BasePlugin):
 
             if image_data:
                 file_name = self._kroki_filename(kroki_data, kroki_type, page)
-                get_url = self._save_kroki_image_and_get_url(file_name, image_data, files)
+                get_url = self._save_kroki_image_and_get_url(
+                    file_name, image_data, files
+                )
         else:
             get_url = self.kroki_client.get_url(
                 kroki_type, kroki_data, kroki_diagram_options

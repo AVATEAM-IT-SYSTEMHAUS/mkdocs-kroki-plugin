@@ -8,9 +8,9 @@ with open(PROJ_DIR / "README.md", encoding="utf-8") as f:
     long_description = f.read()
 
 setup(
-    name='mkdocs-kroki-plugin',
-    version='0.6.1',
-    description='MkDocs plugin for Kroki-Diagrams',
+    name="mkdocs-kroki-plugin",
+    version="0.6.1",
+    description="MkDocs plugin for Kroki-Diagrams",
     long_description=long_description,
     long_description_content_type="text/markdown",
     keywords="mkdocs python markdown kroi diagram",
