@@ -29,6 +29,8 @@ class KrokiPlugin(BasePlugin):
         ('EnableMermaid', config.config_options.Type(bool, default=True)),
         ('EnableDiagramsnet', config.config_options.Type(bool, default=False)),
         ('HttpMethod', config.config_options.Type(str, default='GET')),
+        ('UserAgent', config.config_options.Type(str,
+            default='Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/109.0')),
         ('DownloadImages', config.config_options.Type(bool, default=False)),
         ('EmbedImages', config.config_options.Type(bool, default=False)),
         ('DownloadDir', config.config_options.Type(str, default='images/kroki_generated')),
@@ -61,9 +63,10 @@ class KrokiPlugin(BasePlugin):
                   'Falling back to GET')
             self.config['HttpMethod'] = 'GET'
 
-        self.kroki_client = KrokiClient(self.config['ServerURL'],
-                                        self.config['HttpMethod'],
-                                        self.diagram_types)
+        self.kroki_client = KrokiClient(server_url=self.config['ServerURL'],
+                                        http_method=self.config['HttpMethod'],
+                                        user_agent=self.config['UserAgent'],
+                                        diagram_types=self.diagram_types)
 
         self._tmp_dir = tempfile.TemporaryDirectory(prefix="mkdocs_kroki_")
         self._output_dir = Path(config.get("site_dir", "site"))
