@@ -1,10 +1,11 @@
 from functools import partial
+
 from mkdocs.plugins import log
 
-info = partial(log.info, f'{__name__} %s')
+info = partial(log.info, f"{__name__} %s")
 
 
-class KrokiDiagramTypes():
+class KrokiDiagramTypes:
     kroki_base = {
         "bytefield": ["svg"],
         "ditaa": ["png", "svg"],
@@ -48,8 +49,16 @@ class KrokiDiagramTypes():
         "diagramsnet": ["svg"],
     }
 
-    def __init__(self, blockdiag_enabled, bpmn_enabled, excalidraw_enabled,
-                 mermaid_enabled, diagramsnet_enabled, file_types, file_type_overrides):
+    def __init__(
+        self,
+        blockdiag_enabled,
+        bpmn_enabled,
+        excalidraw_enabled,
+        mermaid_enabled,
+        diagramsnet_enabled,
+        file_types,
+        file_type_overrides,
+    ):
         diagram_types = self.kroki_base.copy()
 
         if blockdiag_enabled:
@@ -66,19 +75,22 @@ class KrokiDiagramTypes():
         self.diagram_types_supporting_file = {}
 
         for diagram_type, diagram_file_types in diagram_types.items():
-            diagram_file_type = next(filter(lambda file: file in diagram_file_types, file_types), None)
+            diagram_file_type = next(
+                filter(lambda file: file in diagram_file_types, file_types), None
+            )
             if diagram_file_type is not None:
                 self.diagram_types_supporting_file[diagram_type] = next(
-                    filter(lambda file: file in diagram_file_types, file_types), None)
+                    filter(lambda file: file in diagram_file_types, file_types), None
+                )
 
         for diagram_type, diagram_file_type in file_type_overrides.items():
             self.diagram_types_supporting_file[diagram_type] = diagram_file_type
 
-        info(f'File and Diagram types configured: {self.diagram_types_supporting_file}')
+        info(f"File and Diagram types configured: {self.diagram_types_supporting_file}")
 
     def get_block_regex(self, fence_prefix):
         diagram_types_re = "|".join(self.diagram_types_supporting_file.keys())
-        return rf'(?:```{fence_prefix})({diagram_types_re})((?:\s?[a-zA-Z0-9\-_]+=[a-zA-Z0-9\-_]+)*)\n(.*?)(?:```)'
+        return rf"(?:```{fence_prefix})({diagram_types_re})((?:\s?[a-zA-Z0-9\-_]+=[a-zA-Z0-9\-_]+)*)\n(.*?)(?:```)"  # noqa
 
     def get_file_ext(self, kroki_type):
         return self.diagram_types_supporting_file[kroki_type]
