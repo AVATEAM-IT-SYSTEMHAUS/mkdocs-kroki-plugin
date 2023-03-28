@@ -72,6 +72,8 @@ class KrokiPlugin(BasePlugin):
         self._output_dir = Path(config.get("site_dir", "site"))
         self._docs_dir = Path(config.get("docs_dir", "docs"))
         self._site_url = config.get("site_url", "/")
+        if self._site_url is None:
+            self._site_url = "/"
 
         self._prepare_download_dir()
 
