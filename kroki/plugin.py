@@ -85,9 +85,10 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
     def _replace_kroki_block(
         self, match_obj: re.Match, files: MkDocsFiles, page: MkDocsPage
     ) -> str:
-        kroki_type = match_obj.group(1).lower()
-        kroki_options = match_obj.group(2)
-        kroki_data = match_obj.group(3)
+        kroki_indent = match_obj.group(2)
+        kroki_type = match_obj.group(3).lower()
+        kroki_options = match_obj.group(4)
+        kroki_data = match_obj.group(5)
 
         if kroki_data.startswith(self.from_file_prefix):
             file_name = kroki_data.removeprefix(self.from_file_prefix).strip()
@@ -112,7 +113,7 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
         )
         log.debug(f"{response}")
         if response.is_ok():
-            return f"![Kroki]({response.image_url})"
+            return kroki_indent + f"![Kroki]({response.image_url})"
 
         return f'!!! error "{response.err_msg}"\n\n```\n{kroki_data}\n```'
 
@@ -122,7 +123,7 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
         log.debug(f"on_page_markdown [page: {page}]")
 
         kroki_regex = self.diagram_types.get_block_regex(self.config.FencePrefix)
-        pattern = re.compile(kroki_regex, flags=re.IGNORECASE + re.DOTALL)
+        pattern = re.compile(kroki_regex, flags=re.IGNORECASE + re.DOTALL + re.MULTILINE)
 
         def replace_kroki_block(match_obj):
             return self._replace_kroki_block(match_obj, files, page)

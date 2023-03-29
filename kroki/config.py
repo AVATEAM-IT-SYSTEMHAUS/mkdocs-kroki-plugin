@@ -94,7 +94,7 @@ class KrokiDiagramTypes:
 
     def get_block_regex(self, fence_prefix: str) -> str:
         diagram_types_re = "|".join(self.diagram_types_supporting_file.keys())
-        return rf"(?:```{fence_prefix})({diagram_types_re})((?:\s?[a-zA-Z0-9\-_]+=[a-zA-Z0-9\-_]+)*)\n(.*?)(?:```)"  # noqa
+        return rf"(?P<fence>^([ ]*)(?:````*|~~~~*))[ ]*{fence_prefix}({diagram_types_re})((?:[ ]?[a-zA-Z0-9\-_]+=[a-zA-Z0-9\-_]+)*)\n(.*?)(?<=\n)(?P=fence)[ ]*$"  # noqa
 
     def get_file_ext(self, kroki_type: str) -> str:
         return self.diagram_types_supporting_file[kroki_type]
