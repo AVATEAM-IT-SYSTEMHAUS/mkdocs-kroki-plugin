@@ -32,7 +32,6 @@ class KrokiPlugin(BasePlugin):
         ('UserAgent', config.config_options.Type(str,
             default='Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/109.0')),
         ('DownloadImages', config.config_options.Type(bool, default=False)),
-        ('EmbedImages', config.config_options.Type(bool, default=False)),
         ('DownloadDir', config.config_options.Type(str, default='images/kroki_generated')),
         ('FencePrefix', config.config_options.Type(str, default='kroki-')),
         ('FileTypes', config.config_options.Type(list, default=['svg'])),
