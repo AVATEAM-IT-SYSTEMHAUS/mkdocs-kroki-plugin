@@ -21,6 +21,7 @@ class KrokiDiagramTypes():
         "pikchr": ["svg"],
         "umlet": ["png", "svg"],
         "d2": ["svg"],
+        "dbml": ["svg"],
     }
 
     kroki_blockdiag = {
