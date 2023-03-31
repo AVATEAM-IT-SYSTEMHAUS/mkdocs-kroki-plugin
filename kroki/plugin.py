@@ -38,7 +38,7 @@ class KrokiPlugin(BasePlugin):
             "UserAgent",
             config.config_options.Type(
                 str,
-                default="Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/109.0",
+                default="Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/109.0",  # noqa
             ),
         ),
         ("DownloadImages", config.config_options.Type(bool, default=False)),
@@ -125,7 +125,7 @@ class KrokiPlugin(BasePlugin):
         kroki_data = match_obj.group(3)
 
         if kroki_data.startswith(self.from_file_prefix):
-            file_name = kroki_data[self.from_file_prefix_len :].strip()
+            file_name = kroki_data[self.from_file_prefix_len :].strip()  # noqa
             file_path = self._docs_dir / file_name
             info(f'reading kroki block from file: "{file_path.absolute()}"')
             try:
