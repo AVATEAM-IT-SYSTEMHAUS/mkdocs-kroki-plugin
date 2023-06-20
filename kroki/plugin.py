@@ -101,8 +101,8 @@ class KrokiPlugin(BasePlugin):
     def _prepare_download_dir(self):
         self._download_dir().mkdir(parents=True, exist_ok=True)
 
-    def _kroki_filename(self, kroki_data, kroki_type, page):
-        digest = hashlib.md5(kroki_data.encode("utf8")).hexdigest()
+    def _kroki_filename(self, kroki_data, kroki_options, kroki_type, page):
+        digest = hashlib.md5((kroki_data + kroki_options).encode("utf8")).hexdigest()
         prefix = page.file.name.split(".")[0]
         file_type = self.diagram_types.get_file_ext(kroki_type)
 
@@ -148,7 +148,7 @@ class KrokiPlugin(BasePlugin):
             )
 
             if image_data:
-                file_name = self._kroki_filename(kroki_data, kroki_type, page)
+                file_name = self._kroki_filename(kroki_data, kroki_options, kroki_type, page)
                 get_url = self._save_kroki_image_and_get_url(
                     file_name, image_data, files
                 )
