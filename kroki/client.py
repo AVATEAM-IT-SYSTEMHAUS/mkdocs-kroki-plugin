@@ -8,7 +8,6 @@ from mkdocs.plugins import log
 from .config import KrokiDiagramTypes
 
 
-info = partial(log.info, f"{__name__} %s")
 debug = partial(log.debug, f"{__name__} %s")
 error = partial(log.error, f"{__name__} %s")
 
@@ -26,7 +25,7 @@ class KrokiClient:
             error(f"HttpMethod config error: {http_method} -> using GET!")
             self.http_method = "GET"
 
-        info(f"Initialized: {self.http_method}, {self.server_url}")
+        debug(f"Initialized: {self.http_method}, {self.server_url}")
 
     def _kroki_uri(self, kroki_type):
         file_type = self.diagram_types.get_file_ext(kroki_type)
