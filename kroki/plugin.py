@@ -58,7 +58,7 @@ class KrokiPlugin(BasePlugin):
     from_file_prefix_len = len(from_file_prefix)
 
     def on_config(self, config, **_kwargs):
-        info(f"Configuring: {self.config}")
+        debug(f"Configuring: {self.config}")
 
         self.diagram_types = KrokiDiagramTypes(
             self.config["EnableBlockDiag"],
@@ -175,5 +175,5 @@ class KrokiPlugin(BasePlugin):
 
     def on_post_build(self, **_kwargs):
         if hasattr(self, "_tmp_dir"):
-            info(f"Cleaning {self._tmp_dir}")
+            info(f"Cleaning kroki temp directory: {self.tmp_dir.name}")
             self._tmp_dir.cleanup()

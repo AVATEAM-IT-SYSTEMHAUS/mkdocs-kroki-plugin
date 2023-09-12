@@ -1,7 +1,7 @@
 from functools import partial
 from mkdocs.plugins import log
 
-info = partial(log.info, f"{__name__} %s")
+debug = partial(log.debug, f"{__name__} %s")
 
 
 class KrokiDiagramTypes:
@@ -86,7 +86,7 @@ class KrokiDiagramTypes:
         for diagram_type, diagram_file_type in file_type_overrides.items():
             self.diagram_types_supporting_file[diagram_type] = diagram_file_type
 
-        info(f"File and Diagram types configured: {self.diagram_types_supporting_file}")
+        debug(f"File and Diagram types configured: {self.diagram_types_supporting_file}")
 
     def get_block_regex(self, fence_prefix):
         diagram_types_re = "|".join(self.diagram_types_supporting_file.keys())
