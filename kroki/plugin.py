@@ -7,6 +7,7 @@ from mkdocs.plugins import BasePlugin
 from mkdocs.structure.files import File
 from mkdocs import config
 from mkdocs.plugins import log
+from mkdocs.exceptions import PluginError
 from pathlib import Path
 from os.path import relpath
 import os
@@ -131,10 +132,8 @@ class KrokiPlugin(BasePlugin):
             try:
                 with open(file_path) as data_file:
                     kroki_data = data_file.read()
-            except OSError:
-                msg = f'Can\'t read file: "{file_path.absolute()}"'
-                error(msg)
-                return f"!!! error {msg}"
+            except OSError as e:
+                raise PluginError(f'Can\'t read file: "{file_path.absolute()}"') from e
 
         kroki_diagram_options = (
             dict(x.split("=") for x in kroki_options.strip().split(" "))
@@ -160,7 +159,7 @@ class KrokiPlugin(BasePlugin):
         if get_url is not None:
             return f"![Kroki]({get_url})"
 
-        return f'!!! error "Could not render!"\n\n```\n{kroki_data}\n```'
+        raise PluginError(f"Unable to render diagram: {kroki_data!r}")
 
     def on_page_markdown(self, markdown, files, page, **_kwargs):
         debug(f"on_page_markdown [page: {page}]")
