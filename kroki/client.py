@@ -4,13 +4,13 @@ import zlib
 
 from functools import partial
 from mkdocs.plugins import log
+from mkdocs.exceptions import ConfigurationError, PluginError
 
 from .config import KrokiDiagramTypes
 
 
 info = partial(log.info, f"{__name__} %s")
 debug = partial(log.debug, f"{__name__} %s")
-error = partial(log.error, f"{__name__} %s")
 
 
 class KrokiClient:
@@ -23,8 +23,7 @@ class KrokiClient:
         self.diagram_types = diagram_types
 
         if http_method not in ["GET", "POST"]:
-            error(f"HttpMethod config error: {http_method} -> using GET!")
-            self.http_method = "GET"
+            raise ConfigurationError(f"HttpMethod config error: unknown method {http_method!r}")
 
         info(f"Initialized: {self.http_method}, {self.server_url}")
 
@@ -62,33 +61,29 @@ class KrokiClient:
         return self._get_url(kroki_type, kroki_diagram_data, kroki_diagram_options)
 
     def get_image_data(self, kroki_type, kroki_diagram_data, kroki_diagram_options={}):
-        try:
-            if self.http_method == "GET":
-                url = self._get_url(
-                    kroki_type, kroki_diagram_data, kroki_diagram_options
-                )
+        if self.http_method == "GET":
+            url = self._get_url(
+                kroki_type, kroki_diagram_data, kroki_diagram_options
+            )
 
-                debug(f"get_image_data [GET {url[:50]}..]")
-                r = requests.get(url, headers=self.headers)
-            else:  # POST
-                url = self._kroki_uri(kroki_type)
+            debug(f"get_image_data [GET {url[:50]}..]")
+            r = requests.get(url, headers=self.headers)
+        else:  # POST
+            url = self._kroki_uri(kroki_type)
 
-                debug(f"get_image_data [POST {url}]")
+            debug(f"get_image_data [POST {url}]")
 
-                r = requests.post(
-                    url,
-                    headers=self.headers,
-                    json={
-                        "diagram_source": kroki_diagram_data,
-                        "diagram_options": kroki_diagram_options,
-                    },
-                )
+            r = requests.post(
+                url,
+                headers=self.headers,
+                json={
+                    "diagram_source": kroki_diagram_data,
+                    "diagram_options": kroki_diagram_options,
+                },
+            )
 
-            debug(f"get_image_data [Response: {r}]")
-            if r.status_code == requests.codes.ok:
-                return r.content
-            else:
-                error(f"Could not retrive image data, got: {r}")
-
-        except Exception as e:
-            error(e)
+        debug(f"get_image_data [Response: {r}]")
+        if r.status_code == requests.codes.ok:
+            return r.content
+        else:
+            raise PluginError(f"Could not retrive image data, got: {r}")
