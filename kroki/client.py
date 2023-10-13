@@ -66,7 +66,9 @@ class KrokiClient:
 
         kroki_url = self._kroki_url_base(kroki_type)
         log.debug(f"{kroki_url}/{kroki_data_param}?{kroki_query_param}")
-        KrokiResponse(image_url=f"{kroki_url}/{kroki_data_param}?{kroki_query_param}")
+        return KrokiResponse(
+            image_url=f"{kroki_url}/{kroki_data_param}?{kroki_query_param}"
+        )
 
     def _kroki_post(
         self,
