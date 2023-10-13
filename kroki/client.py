@@ -2,37 +2,53 @@ import base64
 import requests
 import zlib
 
-from functools import partial
-from mkdocs.plugins import log
+from dataclasses import dataclass
+from logging import DEBUG
+from mkdocs.plugins import get_plugin_logger
+from mkdocs.structure.files import Files as MkDocsFiles
+from mkdocs.structure.pages import Page as MkDocsPage
+from typing import Optional
 
-from .config import KrokiDiagramTypes
+from kroki.config import KrokiDiagramTypes
+from kroki.util import DownloadedImage
+
+log = get_plugin_logger(__name__)
 
 
-info = partial(log.info, f"{__name__} %s")
-debug = partial(log.debug, f"{__name__} %s")
-error = partial(log.error, f"{__name__} %s")
+@dataclass
+class KrokiResponse:
+    err_msg: Optional[str] = None
+    image_url: Optional[str] = None
+
+    def is_ok(self) -> bool:
+        return self.image_url is not None and self.err_msg is None
 
 
 class KrokiClient:
     def __init__(
-        self, server_url, http_method, user_agent: str, diagram_types: KrokiDiagramTypes
-    ):
+        self,
+        server_url: str,
+        http_method: str,
+        user_agent: str,
+        diagram_types: KrokiDiagramTypes,
+    ) -> None:
         self.server_url = server_url
         self.http_method = http_method
         self.headers = {"User-Agent": user_agent}
         self.diagram_types = diagram_types
 
-        if http_method not in ["GET", "POST"]:
-            error(f"HttpMethod config error: {http_method} -> using GET!")
-            self.http_method = "GET"
+        log.debug(f"Client initialized: {self.http_method}, {self.server_url}")
 
-        info(f"Initialized: {self.http_method}, {self.server_url}")
-
-    def _kroki_uri(self, kroki_type):
+    def _kroki_url_base(self, kroki_type: str) -> str:
         file_type = self.diagram_types.get_file_ext(kroki_type)
         return f"{self.server_url}/{kroki_type}/{file_type}"
 
-    def _get_url(self, kroki_type, kroki_diagram_data, kroki_diagram_options={}):
+    def _kroki_url_get(
+        self,
+        kroki_type: str,
+        kroki_diagram_data: str,
+        kroki_diagram_options: dict[str, str],
+    ) -> KrokiResponse:
         kroki_data_param = base64.urlsafe_b64encode(
             zlib.compress(str.encode(kroki_diagram_data), 9)
         ).decode()
@@ -43,52 +59,68 @@ class KrokiClient:
             else ""
         )
         if len(kroki_data_param) >= 4096:
-            debug(
+            log.warning(
                 f"Length of encoded diagram is {len(kroki_data_param)}. "
                 "Kroki may not be able to read the data completely!"
             )
 
-        kroki_uri = self._kroki_uri(kroki_type)
-        debug(f"{kroki_uri}/{kroki_data_param}?{kroki_query_param}")
-        return f"{kroki_uri}/{kroki_data_param}?{kroki_query_param}"
+        kroki_url = self._kroki_url_base(kroki_type)
+        log.debug(f"{kroki_url}/{kroki_data_param}?{kroki_query_param}")
+        KrokiResponse(image_url=f"{kroki_url}/{kroki_data_param}?{kroki_query_param}")
 
-    def get_url(self, kroki_type, kroki_diagram_data, kroki_diagram_options={}):
-        debug(f"get_url: {kroki_type}")
-
-        if self.http_method != "GET":
-            error(f"HTTP method is {self.http_method}. Config error!")
-            return None
-
-        return self._get_url(kroki_type, kroki_diagram_data, kroki_diagram_options)
-
-    def get_image_data(self, kroki_type, kroki_diagram_data, kroki_diagram_options={}):
+    def _kroki_post(
+        self,
+        kroki_type: str,
+        kroki_diagram_data: str,
+        kroki_diagram_options: dict[str, str],
+        files: MkDocsFiles,
+        page: MkDocsPage,
+    ) -> KrokiResponse:
         try:
-            if self.http_method == "GET":
-                url = self._get_url(
-                    kroki_type, kroki_diagram_data, kroki_diagram_options
+            url = self._kroki_url_base(kroki_type)
+
+            log.debug(f"_kroki_post [POST {url}]")
+            response = requests.post(
+                url,
+                headers=self.headers,
+                json={
+                    "diagram_source": kroki_diagram_data,
+                    "diagram_options": kroki_diagram_options,
+                },
+            )
+
+            if response.status_code == requests.codes.ok:
+                downloaded_image = DownloadedImage(
+                    response.content,
+                    self.diagram_types.get_file_ext(kroki_type),
+                    kroki_diagram_options,
                 )
+                downloaded_image.save(files, page)
+                return KrokiResponse(image_url=downloaded_image.file_name)
 
-                debug(f"get_image_data [GET {url[:50]}..]")
-                r = requests.get(url, headers=self.headers)
-            else:  # POST
-                url = self._kroki_uri(kroki_type)
-
-                debug(f"get_image_data [POST {url}]")
-
-                r = requests.post(
-                    url,
-                    headers=self.headers,
-                    json={
-                        "diagram_source": kroki_diagram_data,
-                        "diagram_options": kroki_diagram_options,
-                    },
-                )
-
-            debug(f"get_image_data [Response: {r}]")
-            if r.status_code == requests.codes.ok:
-                return r.content
+            elif response.status_code == 400:
+                return KrokiResponse(err_msg="Diagram error!")
             else:
-                error(f"Could not retrive image data, got: {r}")
+                log.error(f"Could not retrive image data, got: {response}")
 
-        except Exception as e:
-            error(e)
+        except Exception as exception:
+            log.error(exception, stack_info=log.isEnabledFor(DEBUG))
+
+        return KrokiResponse(err_msg="Could not render!")
+
+    def get_image_url(
+        self,
+        kroki_type: str,
+        kroki_diagram_data: str,
+        kroki_diagram_options: dict[str, str],
+        files: MkDocsFiles,
+        page: MkDocsPage,
+    ) -> KrokiResponse:
+        if self.http_method == "GET":
+            return self._kroki_url_get(
+                kroki_type, kroki_diagram_data, kroki_diagram_options
+            )
+
+        return self._kroki_post(
+            kroki_type, kroki_diagram_data, kroki_diagram_options, files, page
+        )

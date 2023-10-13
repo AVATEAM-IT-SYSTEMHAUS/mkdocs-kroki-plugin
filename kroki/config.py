@@ -1,7 +1,7 @@
 from functools import partial
-from mkdocs.plugins import log
+from mkdocs.plugins import get_plugin_logger
 
-info = partial(log.info, f"{__name__} %s")
+log = get_plugin_logger(__name__)
 
 
 class KrokiDiagramTypes:
@@ -51,13 +51,13 @@ class KrokiDiagramTypes:
 
     def __init__(
         self,
-        blockdiag_enabled,
-        bpmn_enabled,
-        excalidraw_enabled,
-        mermaid_enabled,
-        diagramsnet_enabled,
-        file_types,
-        file_type_overrides,
+        blockdiag_enabled: bool,
+        bpmn_enabled: bool,
+        excalidraw_enabled: bool,
+        mermaid_enabled: bool,
+        diagramsnet_enabled: bool,
+        file_types: list[str],
+        file_type_overrides: dict[str, str],
     ):
         diagram_types = self.kroki_base.copy()
 
@@ -86,11 +86,13 @@ class KrokiDiagramTypes:
         for diagram_type, diagram_file_type in file_type_overrides.items():
             self.diagram_types_supporting_file[diagram_type] = diagram_file_type
 
-        info(f"File and Diagram types configured: {self.diagram_types_supporting_file}")
+        log.info(
+            f"File and Diagram types configured: {self.diagram_types_supporting_file}"
+        )
 
-    def get_block_regex(self, fence_prefix):
+    def get_block_regex(self, fence_prefix: str) -> str:
         diagram_types_re = "|".join(self.diagram_types_supporting_file.keys())
         return rf"(?:```{fence_prefix})({diagram_types_re})((?:\s?[a-zA-Z0-9\-_]+=[a-zA-Z0-9\-_]+)*)\n(.*?)(?:```)"  # noqa
 
-    def get_file_ext(self, kroki_type):
+    def get_file_ext(self, kroki_type: str) -> str:
         return self.diagram_types_supporting_file[kroki_type]
