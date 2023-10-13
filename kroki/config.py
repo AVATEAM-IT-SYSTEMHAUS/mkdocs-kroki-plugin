@@ -86,7 +86,7 @@ class KrokiDiagramTypes:
         for diagram_type, diagram_file_type in file_type_overrides.items():
             self.diagram_types_supporting_file[diagram_type] = diagram_file_type
 
-        log.info(
+        log.debug(
             f"File and Diagram types configured: {self.diagram_types_supporting_file}"
         )
 

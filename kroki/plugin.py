@@ -20,6 +20,19 @@ from kroki.client import KrokiClient, KrokiResponse
 log = get_plugin_logger(__name__)
 
 
+class DeprecatedDownloadImagesCompat(MKDocsConfigDeprecated):
+    def pre_validation(self, config: "KrokiPluginConfig", key_name: str) -> None:
+        """Set `HttpMethod: 'POST'`, if enabled"""
+        if config.get(key_name) is None:
+            return
+
+        self.warnings.append(self.message.format(key_name))
+
+        DownloadImages: bool = config.pop(key_name)
+        if DownloadImages:
+            config.HttpMethod = "POST"
+
+
 class KrokiPluginConfig(MkDocsBaseConfig):
     ServerURL = MKDocsConfigURL(
         default=os.getenv("KROKI_SERVER_URL", "https://kroki.io")
@@ -35,7 +48,7 @@ class KrokiPluginConfig(MkDocsBaseConfig):
     FileTypes = MkDocsConfigType(list, default=["svg"])
     FileTypeOverrides = MkDocsConfigType(dict, default={})
 
-    DownloadImages = MKDocsConfigDeprecated(moved_to="HttpMethod: 'POST'")
+    DownloadImages = DeprecatedDownloadImagesCompat(moved_to="HttpMethod: 'POST'")
     DownloadDir = MKDocsConfigDeprecated(removed=True)
 
 
