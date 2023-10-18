@@ -4,9 +4,9 @@ import os
 from mkdocs.config.base import Config as MkDocsBaseConfig
 from mkdocs.config.config_options import (
     Type as MkDocsConfigType,
-    URL as MKDocsConfigURL,
-    Choice as MKDocsConfigChoice,
-    Deprecated as MKDocsConfigDeprecated,
+    URL as MkDocsConfigURL,
+    Choice as MkDocsConfigChoice,
+    Deprecated as MkDocsConfigDeprecated,
 )
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.plugins import BasePlugin as MkDocsBasePlugin, get_plugin_logger
@@ -20,7 +20,7 @@ from kroki.client import KrokiClient, KrokiResponse
 log = get_plugin_logger(__name__)
 
 
-class DeprecatedDownloadImagesCompat(MKDocsConfigDeprecated):
+class DeprecatedDownloadImagesCompat(MkDocsConfigDeprecated):
     def pre_validation(self, config: "KrokiPluginConfig", key_name: str) -> None:
         """Set `HttpMethod: 'POST'`, if enabled"""
         if config.get(key_name) is None:
@@ -34,7 +34,7 @@ class DeprecatedDownloadImagesCompat(MKDocsConfigDeprecated):
 
 
 class KrokiPluginConfig(MkDocsBaseConfig):
-    ServerURL = MKDocsConfigURL(
+    ServerURL = MkDocsConfigURL(
         default=os.getenv("KROKI_SERVER_URL", "https://kroki.io")
     )
     EnableBlockDiag = MkDocsConfigType(bool, default=True)
@@ -42,14 +42,14 @@ class KrokiPluginConfig(MkDocsBaseConfig):
     EnableExcalidraw = MkDocsConfigType(bool, default=True)
     EnableMermaid = MkDocsConfigType(bool, default=True)
     EnableDiagramsnet = MkDocsConfigType(bool, default=False)
-    HttpMethod = MKDocsConfigChoice(choices=["GET", "POST"], default="GET")
+    HttpMethod = MkDocsConfigChoice(choices=["GET", "POST"], default="GET")
     UserAgent = MkDocsConfigType(str, default=f"{__name__}/0.6.1")
     FencePrefix = MkDocsConfigType(str, default="kroki-")
     FileTypes = MkDocsConfigType(list, default=["svg"])
     FileTypeOverrides = MkDocsConfigType(dict, default={})
 
     DownloadImages = DeprecatedDownloadImagesCompat(moved_to="HttpMethod: 'POST'")
-    DownloadDir = MKDocsConfigDeprecated(removed=True)
+    DownloadDir = MkDocsConfigDeprecated(removed=True)
 
 
 class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
