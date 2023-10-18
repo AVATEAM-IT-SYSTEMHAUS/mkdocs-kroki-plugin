@@ -1,4 +1,3 @@
-from functools import partial
 from mkdocs.plugins import get_plugin_logger
 
 log = get_plugin_logger(__name__)
