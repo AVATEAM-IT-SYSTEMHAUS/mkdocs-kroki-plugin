@@ -18,17 +18,17 @@ plugins:
 
 ## Config
 
-* `ServerURL` - URL of your kroki-Server, default: <https://kroki.io>
-* `FencePrefix` - Diagram prefix, default: `kroki-`
-* `EnableBlockDiag` - Enable BlockDiag (and the related Diagrams), default: True
-* `Enablebpmn` - Enable BPMN, default: True
-* `EnableExcalidraw` - Enable Excalidraw, default: True
-* `EnableMermaid` - Enable Mermaid, default: True
-* `EnableDiagramsnet` - Enable diagrams.net (draw.io), default: False
-* `HttpMethod` - Http method to use (`GET` or `POST`), default: `GET` (Note: you have to enable `DownloadImages` if you want to use `POST`!)
-* `DownloadImages` - Download diagrams from kroki as static assets instead of just creating kroki links, default: False
-* `DownloadDir` - The asset directory to place downloaded images in, default: images/kroki_generated
-* `FileTypes` - File types you want to use, default: [svg], (Note: not all file formats works with all diagram types <https://kroki.io/#support>)
+| Key | Descriptiion |
+|---|---|
+| `ServerURL` | URL of your kroki-Server, default: `https://kroki.io` |
+| `FencePrefix` | Diagram prefix, default: `kroki-` |
+| `EnableBlockDiag` | Enable BlockDiag (and the related Diagrams), default: `True` |
+| `Enablebpmn` | Enable BPMN, default: `True` |
+| `EnableExcalidraw` | Enable Excalidraw, default: `True` |
+| `EnableMermaid` | Enable Mermaid, default: `True` |
+| `EnableDiagramsnet` | Enable diagrams.net (draw.io), default: `False` |
+| `HttpMethod` | Http method to use (`GET` or `POST`), default: `GET` <br>(Note: On `POST` the retrieved images are stored next to the including page in the build directory) |
+| `FileTypes` | File types you want to use, default: `[svg]`, (Note: not all file formats work with all diagram types <https://kroki.io/#support>) |
 
 ```yaml
   - kroki:
