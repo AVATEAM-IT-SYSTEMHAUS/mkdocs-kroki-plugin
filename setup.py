@@ -18,7 +18,7 @@ setup(
     author_email="benjamin.bittner@avateam.com",
     license="MIT",
     python_requires=">=3.6",
-    install_requires=["mkdocs>=1.3.0", "requests>=2.27.0"],
+    install_requires=["mkdocs>=1.4.0", "requests>=2.27.0"],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
