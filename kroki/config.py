@@ -21,6 +21,9 @@ class KrokiDiagramTypes:
         "umlet": ["png", "svg"],
         "d2": ["svg"],
         "dbml": ["svg"],
+        "tikz": ["png", "svg", "jpeg", "pdf"],
+        "symbolator": ["svg"],
+        "wireviz": ["png", "svg"],
     }
 
     kroki_blockdiag = {
