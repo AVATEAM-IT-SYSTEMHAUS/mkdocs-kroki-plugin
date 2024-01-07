@@ -103,7 +103,7 @@ class KrokiClient:
             elif response.status_code == 400:
                 return KrokiResponse(err_msg="Diagram error!")
             else:
-                log.error(f"Could not retrive image data, got: {response}")
+                log.error(f"Could not retrieve image data, got: {response}")
 
         except Exception as exception:
             log.error(exception, stack_info=log.isEnabledFor(DEBUG))
