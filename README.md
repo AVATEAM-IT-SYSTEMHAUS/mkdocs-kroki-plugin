@@ -18,7 +18,7 @@ plugins:
 
 ## Config
 
-| Key | Descriptiion |
+| Key | Description |
 |---|---|
 | `ServerURL` | URL of your kroki-Server, default: `https://kroki.io` |
 | `FencePrefix` | Diagram prefix, default: `kroki-` |
