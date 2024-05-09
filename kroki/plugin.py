@@ -96,7 +96,7 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
                     kroki_data = data_file.read()
             except OSError as error:
                 msg = f'Can\'t read file: "{file_path.absolute()}"'
-                log.error(msg)
+                log.exception(msg)
                 if self.fail_fast:
                     raise PluginError(msg) from error
 

@@ -93,9 +93,10 @@ class KrokiClient:
             )
         except requests.RequestException as error:
             if self.fail_fast:
-                raise PluginError(f"Request error [url:{url}]: {error}") from error
+                error_message = f"Request error [url:{url}]: {error}"
+                raise PluginError(error_message) from error
 
-            log.error(error, stack_info=log.isEnabledFor(DEBUG))
+            log.exception("Request failed", stack_info=log.isEnabledFor(DEBUG))
         else:
             match response.status_code:
                 case requests.codes.ok:
