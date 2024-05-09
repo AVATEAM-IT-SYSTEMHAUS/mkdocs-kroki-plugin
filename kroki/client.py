@@ -2,7 +2,6 @@ import base64
 import zlib
 from dataclasses import dataclass
 from logging import DEBUG
-from typing import Optional
 
 import requests
 from mkdocs.exceptions import PluginError
@@ -18,8 +17,8 @@ log = get_plugin_logger(__name__)
 
 @dataclass
 class KrokiResponse:
-    err_msg: Optional[str] = None
-    image_url: Optional[str] = None
+    err_msg: None | str = None
+    image_url: None | str = None
 
     def is_ok(self) -> bool:
         return self.image_url is not None and self.err_msg is None
