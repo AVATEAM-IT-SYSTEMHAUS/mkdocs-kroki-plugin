@@ -67,7 +67,7 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
     fail_fast: bool
 
     def on_config(self, config: MkDocsConfig) -> MkDocsConfig:
-        log.debug(f"Configuring: {self.config}")
+        log.debug("Configuring", extra={"config": self.config})
 
         self.diagram_types = KrokiDiagramTypes(
             self.config.EnableBlockDiag,
@@ -101,7 +101,7 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
         if kroki_data.startswith(self.from_file_prefix):
             file_name = kroki_data.removeprefix(self.from_file_prefix).strip()
             file_path = Path(self.global_config.docs_dir) / file_name
-            log.debug(f'Reading kroki block from file: "{file_path.absolute()}"')
+            log.debug('Reading kroki block from file: "%s"', file_path.absolute())
             try:
                 with open(file_path) as data_file:
                     kroki_data = data_file.read()
@@ -118,7 +118,7 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
         response: KrokiResponse = self.kroki_client.get_image_url(
             kroki_type, kroki_data, kroki_diagram_options, files, page
         )
-        log.debug(f"{response}")
+        log.debug("%s", response)
         if response.is_ok():
             return f"![Kroki]({response.image_url})"
 
@@ -128,7 +128,7 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
         return f'!!! error "{response.err_msg}"\n\n```\n{kroki_data}\n```'
 
     def on_page_markdown(self, markdown: str, files: MkDocsFiles, page: MkDocsPage, **_kwargs) -> str:
-        log.debug(f"on_page_markdown [page: {page}]")
+        log.debug("on_page_markdown [page: %s]", page)
 
         kroki_regex = self.diagram_types.get_block_regex(self.config.FencePrefix)
         pattern = re.compile(kroki_regex, flags=re.IGNORECASE + re.DOTALL)

@@ -40,7 +40,7 @@ class KrokiClient:
         self.diagram_types = diagram_types
         self.fail_fast = fail_fast
 
-        log.debug(f"Client initialized: {self.http_method}, {self.server_url}")
+        log.debug("Client initialized", extra={"http_method": self.http_method, "server_url": self.server_url})
 
     def _kroki_url_base(self, kroki_type: str) -> str:
         file_type = self.diagram_types.get_file_ext(kroki_type)
@@ -58,13 +58,10 @@ class KrokiClient:
             "&".join([f"{k}={v}" for k, v in kroki_diagram_options.items()]) if len(kroki_diagram_options) > 0 else ""
         )
         if len(kroki_data_param) >= 4096:
-            log.warning(
-                f"Length of encoded diagram is {len(kroki_data_param)}. "
-                "Kroki may not be able to read the data completely!"
-            )
+            log.warning("Kroki may not be able to read the data completely!", extra={"data_len": len(kroki_data_param)})
 
         kroki_url = self._kroki_url_base(kroki_type)
-        log.debug(f"{kroki_url}/{kroki_data_param}?{kroki_query_param}")
+        log.debug("%s/%s?%s", kroki_url, kroki_data_param, kroki_query_param)
         return KrokiResponse(image_url=f"{kroki_url}/{kroki_data_param}?{kroki_query_param}")
 
     def _kroki_post(
@@ -78,7 +75,7 @@ class KrokiClient:
         try:
             url = self._kroki_url_base(kroki_type)
 
-            log.debug(f"_kroki_post [POST {url}]")
+            log.debug("_kroki_post [POST %s]", url)
             response = requests.post(
                 url,
                 headers=self.headers,
