@@ -27,10 +27,10 @@ jobs:
         pip install --upgrade hatch
     - name: DEBUG
       run: |
-        echo "'$(hatch version)'"
+        echo "'$(hatch version|tr -d '[:space:]')'"
         echo "'$(date +%s)'"
     - name: Bump temp dev release
-      run: hatch version $(hatch version)-$(date +%s)
+      run: hatch version $(hatch version|tr -d '[:space:]')-$(date +%s)
     - name: Build package
       run: hatch build
     - name: Publish package
