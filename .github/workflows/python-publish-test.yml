@@ -29,7 +29,7 @@ jobs:
       run: |
         CURRENT_VERSION=$(hatch version|tr -d '[:space:]')
         echo "'$CURRENT_VERSION'"
-        TIMESTAMP = $(date +%s)
+        TIMESTAMP=$(date +%s)
         echo "'$TIMESTAMP'"
         hatch version "$CURRENT_VERSION-$TIMESTAMP"
     - name: Build package
