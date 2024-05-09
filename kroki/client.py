@@ -4,6 +4,7 @@ import zlib
 
 from dataclasses import dataclass
 from logging import DEBUG
+from mkdocs.exceptions import PluginError
 from mkdocs.plugins import get_plugin_logger
 from mkdocs.structure.files import Files as MkDocsFiles
 from mkdocs.structure.pages import Page as MkDocsPage
@@ -31,11 +32,14 @@ class KrokiClient:
         http_method: str,
         user_agent: str,
         diagram_types: KrokiDiagramTypes,
+        *,
+        fail_fast: bool
     ) -> None:
         self.server_url = server_url
         self.http_method = http_method
         self.headers = {"User-Agent": user_agent}
         self.diagram_types = diagram_types
+        self.fail_fast = fail_fast
 
         log.debug(f"Client initialized: {self.http_method}, {self.server_url}")
 
@@ -103,10 +107,18 @@ class KrokiClient:
             elif response.status_code == 400:
                 return KrokiResponse(err_msg="Diagram error!")
             else:
-                log.error(f"Could not retrieve image data, got: {response}")
+                error_message = f"Could not retrieve image data, got: {response}"
+                if self.fail_fast:
+                    raise PluginError(error_message)
+                else:
+                    log.error(error_message)
 
-        except Exception as exception:
-            log.error(exception, stack_info=log.isEnabledFor(DEBUG))
+
+        except requests.RequestException as error:
+            if self.fail_fast:
+                raise PluginError(f"Request error [url:{url}]: {error}") from error
+            else:
+                log.error(error, stack_info=log.isEnabledFor(DEBUG))
 
         return KrokiResponse(err_msg="Could not render!")
 

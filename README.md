@@ -29,6 +29,7 @@ plugins:
 | `EnableDiagramsnet` | Enable diagrams.net (draw.io), default: `False` |
 | `HttpMethod` | Http method to use (`GET` or `POST`), default: `GET` <br>(Note: On `POST` the retrieved images are stored next to the including page in the build directory) |
 | `FileTypes` | File types you want to use, default: `[svg]`, (Note: not all file formats work with all diagram types <https://kroki.io/#support>) |
+| `FailFast` | Errors are raised as plugin errors. default: `false` |
 
 ```yaml
   - kroki:

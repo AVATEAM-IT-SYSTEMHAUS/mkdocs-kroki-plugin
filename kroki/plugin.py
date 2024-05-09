@@ -9,6 +9,7 @@ from mkdocs.config.config_options import (
     Deprecated as MkDocsConfigDeprecated,
 )
 from mkdocs.config.defaults import MkDocsConfig
+from mkdocs.exceptions import PluginError
 from mkdocs.plugins import BasePlugin as MkDocsBasePlugin, get_plugin_logger
 from mkdocs.structure.files import Files as MkDocsFiles
 from mkdocs.structure.pages import Page as MkDocsPage
@@ -47,6 +48,7 @@ class KrokiPluginConfig(MkDocsBaseConfig):
     FencePrefix = MkDocsConfigType(str, default="kroki-")
     FileTypes = MkDocsConfigType(list, default=["svg"])
     FileTypeOverrides = MkDocsConfigType(dict, default={})
+    FailFast = MkDocsConfigType(bool, default=False)
 
     DownloadImages = DeprecatedDownloadImagesCompat(moved_to="HttpMethod: 'POST'")
     DownloadDir = MkDocsConfigDeprecated(removed=True)
@@ -57,6 +59,7 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
     kroki_client: KrokiClient
     from_file_prefix = "@from_file:"
     global_config: MkDocsConfig
+    fail_fast: bool
 
     def on_config(self, config: MkDocsConfig) -> MkDocsConfig:
         log.debug(f"Configuring: {self.config}")
@@ -76,9 +79,12 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
             http_method=self.config.HttpMethod,
             user_agent=self.config.UserAgent,
             diagram_types=self.diagram_types,
+            fail_fast=self.config.FailFast,
         )
 
         self.global_config = config
+
+        self.fail_fast = self.config.FailFast
 
         return config
 
@@ -96,9 +102,12 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
             try:
                 with open(file_path) as data_file:
                     kroki_data = data_file.read()
-            except OSError:
+            except OSError as error:
                 msg = f'Can\'t read file: "{file_path.absolute()}"'
                 log.error(msg)
+                if self.fail_fast:
+                    raise PluginError(msg) from error
+
                 return f"!!! error {msg}"
 
         kroki_diagram_options = (
@@ -113,6 +122,9 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
         log.debug(f"{response}")
         if response.is_ok():
             return f"![Kroki]({response.image_url})"
+
+        if self.fail_fast:
+            raise PluginError(response.err_msg)
 
         return f'!!! error "{response.err_msg}"\n\n```\n{kroki_data}\n```'
 
