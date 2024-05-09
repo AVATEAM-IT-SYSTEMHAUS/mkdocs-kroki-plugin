@@ -20,30 +20,28 @@ plugins:
 
 | Key | Description |
 |---|---|
-| `ServerURL` | URL of your kroki-Server, default: `https://kroki.io` |
+| `ServerURL` | URL of your kroki-Server, default: `!ENV [KROKI_SERVER_URL, 'https://kroki.io']` |
 | `FencePrefix` | Diagram prefix, default: `kroki-` |
-| `EnableBlockDiag` | Enable BlockDiag (and the related Diagrams), default: `True` |
-| `Enablebpmn` | Enable BPMN, default: `True` |
-| `EnableExcalidraw` | Enable Excalidraw, default: `True` |
-| `EnableMermaid` | Enable Mermaid, default: `True` |
-| `EnableDiagramsnet` | Enable diagrams.net (draw.io), default: `False` |
-| `HttpMethod` | Http method to use (`GET` or `POST`), default: `GET` <br>(Note: On `POST` the retrieved images are stored next to the including page in the build directory) |
-| `FileTypes` | File types you want to use, default: `[svg]`, (Note: not all file formats work with all diagram types <https://kroki.io/#support>) |
-| `FailFast` | Errors are raised as plugin errors. default: `false` |
+| `EnableBlockDiag` | Enable BlockDiag (and the related Diagrams), default: `true` |
+| `Enablebpmn` | Enable BPMN, default: `true` |
+| `EnableExcalidraw` | Enable Excalidraw, default: `true` |
+| `EnableMermaid` | Enable Mermaid, default: `true` |
+| `EnableDiagramsnet` | Enable diagrams.net (draw.io), default: `false` |
+| `HttpMethod` | Http method to use (`GET` or `POST`), default: `GET`<br>__Note:__ On `POST` the retrieved images are stored next to the including page in the build directory |
+| `FileTypes` | File types you want to use, default: `[svg]`<br>__Note:__ not all file formats work with all diagram types <https://kroki.io/#support>  |
+| `FileTypeOverrides` | Overrides for specific diagram types to set the desired file type, default: empty |
+| `FailFast` | Errors are raised as plugin errors, default: `false` |
 
+Example:
 ```yaml
   - kroki:
+      ServerURL: !ENV [KROKI_SERVER_URL, 'https://kroki.io']
       FileTypes:
         - png
         - svg
-```
-
-* `FileTypeOverrides` - Overrides for specific diagrams to set the desired file type default: None,
-
-```yaml
-  - kroki:
       FileTypeOverrides:
         mermaid: png
+      FailFast: !ENV CI
 ```
 
 ## Usage
