@@ -3,18 +3,7 @@ import re
 from pathlib import Path
 
 from mkdocs.config.base import Config as MkDocsBaseConfig
-from mkdocs.config.config_options import (
-    URL as MkDocsConfigURL,
-)
-from mkdocs.config.config_options import (
-    Choice as MkDocsConfigChoice,
-)
-from mkdocs.config.config_options import (
-    Deprecated as MkDocsConfigDeprecated,
-)
-from mkdocs.config.config_options import (
-    Type as MkDocsConfigType,
-)
+from mkdocs.config import config_options
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.exceptions import PluginError
 from mkdocs.plugins import BasePlugin as MkDocsBasePlugin
@@ -28,7 +17,7 @@ from kroki.config import KrokiDiagramTypes
 log = get_plugin_logger(__name__)
 
 
-class DeprecatedDownloadImagesCompat(MkDocsConfigDeprecated):
+class DeprecatedDownloadImagesCompat(config_options.Deprecated):
     def pre_validation(self, config: "KrokiPluginConfig", key_name: str) -> None:
         """Set `HttpMethod: 'POST'`, if enabled"""
         if config.get(key_name) is None:
@@ -42,21 +31,21 @@ class DeprecatedDownloadImagesCompat(MkDocsConfigDeprecated):
 
 
 class KrokiPluginConfig(MkDocsBaseConfig):
-    ServerURL = MkDocsConfigURL(default=os.getenv("KROKI_SERVER_URL", "https://kroki.io"))
-    EnableBlockDiag = MkDocsConfigType(bool, default=True)
-    Enablebpmn = MkDocsConfigType(bool, default=True)
-    EnableExcalidraw = MkDocsConfigType(bool, default=True)
-    EnableMermaid = MkDocsConfigType(bool, default=True)
-    EnableDiagramsnet = MkDocsConfigType(bool, default=False)
-    HttpMethod = MkDocsConfigChoice(choices=["GET", "POST"], default="GET")
-    UserAgent = MkDocsConfigType(str, default=f"{__name__}/0.7.1")
-    FencePrefix = MkDocsConfigType(str, default="kroki-")
-    FileTypes = MkDocsConfigType(list, default=["svg"])
-    FileTypeOverrides = MkDocsConfigType(dict, default={})
-    FailFast = MkDocsConfigType(bool, default=False)
+    ServerURL = config_options.URL(default=os.getenv("KROKI_SERVER_URL", "https://kroki.io"))
+    EnableBlockDiag = config_options.Type(bool, default=True)
+    Enablebpmn = config_options.Type(bool, default=True)
+    EnableExcalidraw = config_options.Type(bool, default=True)
+    EnableMermaid = config_options.Type(bool, default=True)
+    EnableDiagramsnet = config_options.Type(bool, default=False)
+    HttpMethod = config_options.Choice(choices=["GET", "POST"], default="GET")
+    UserAgent = config_options.Type(str, default=f"{__name__}/0.7.1")
+    FencePrefix = config_options.Type(str, default="kroki-")
+    FileTypes = config_options.Type(list, default=["svg"])
+    FileTypeOverrides = config_options.Type(dict, default={})
+    FailFast = config_options.Type(bool, default=False)
 
     DownloadImages = DeprecatedDownloadImagesCompat(moved_to="HttpMethod: 'POST'")
-    DownloadDir = MkDocsConfigDeprecated(removed=True)
+    DownloadDir = config_options.Deprecated(removed=True)
 
 
 class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
