@@ -89,6 +89,7 @@ class KrokiClient:
                     "diagram_source": kroki_diagram_data,
                     "diagram_options": kroki_diagram_options,
                 },
+                timeout=10,
             )
 
             if response.status_code == requests.codes.ok:
