@@ -33,7 +33,7 @@ class KrokiClient:
         user_agent: str,
         diagram_types: KrokiDiagramTypes,
         *,
-        fail_fast: bool
+        fail_fast: bool,
     ) -> None:
         self.server_url = server_url
         self.http_method = http_method
@@ -112,7 +112,6 @@ class KrokiClient:
                     raise PluginError(error_message)
                 else:
                     log.error(error_message)
-
 
         except requests.RequestException as error:
             if self.fail_fast:
