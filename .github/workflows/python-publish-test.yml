@@ -28,9 +28,7 @@ jobs:
     - name: Bump temp dev release
       run: |
         CURRENT_VERSION=$(NO_COLOR="1" hatch version)
-        echo "'$CURRENT_VERSION'"
         TIMESTAMP=$(date +%s)
-        echo "'$TIMESTAMP'"
         hatch version "$CURRENT_VERSION-$TIMESTAMP"
     - name: Build package
       run: hatch build
