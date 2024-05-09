@@ -44,7 +44,7 @@ class KrokiPluginConfig(MkDocsBaseConfig):
     EnableMermaid = MkDocsConfigType(bool, default=True)
     EnableDiagramsnet = MkDocsConfigType(bool, default=False)
     HttpMethod = MkDocsConfigChoice(choices=["GET", "POST"], default="GET")
-    UserAgent = MkDocsConfigType(str, default=f"{__name__}/0.6.1")
+    UserAgent = MkDocsConfigType(str, default=f"{__name__}/0.7.1")
     FencePrefix = MkDocsConfigType(str, default="kroki-")
     FileTypes = MkDocsConfigType(list, default=["svg"])
     FileTypeOverrides = MkDocsConfigType(dict, default={})
