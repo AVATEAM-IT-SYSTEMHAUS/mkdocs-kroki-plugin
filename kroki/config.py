@@ -55,6 +55,7 @@ class KrokiDiagramTypes:
 
     def __init__(
         self,
+        *,
         blockdiag_enabled: bool,
         bpmn_enabled: bool,
         excalidraw_enabled: bool,
