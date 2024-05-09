@@ -1,10 +1,12 @@
+from typing import ClassVar
+
 from mkdocs.plugins import get_plugin_logger
 
 log = get_plugin_logger(__name__)
 
 
 class KrokiDiagramTypes:
-    kroki_base = {
+    kroki_base: ClassVar[dict[str, list[str]]] = {
         "bytefield": ["svg"],
         "ditaa": ["png", "svg"],
         "erd": ["png", "svg", "jpeg", "pdf"],
@@ -26,7 +28,7 @@ class KrokiDiagramTypes:
         "wireviz": ["png", "svg"],
     }
 
-    kroki_blockdiag = {
+    kroki_blockdiag: ClassVar[dict[str, list[str]]] = {
         "blockdiag": ["png", "svg", "pdf"],
         "seqdiag": ["png", "svg", "pdf"],
         "actdiag": ["png", "svg", "pdf"],
@@ -35,19 +37,19 @@ class KrokiDiagramTypes:
         "rackdiag": ["png", "svg", "pdf"],
     }
 
-    kroki_bpmn = {
+    kroki_bpmn: ClassVar[dict[str, list[str]]] = {
         "bpmn": ["svg"],
     }
 
-    kroki_excalidraw = {
+    kroki_excalidraw: ClassVar[dict[str, list[str]]] = {
         "excalidraw": ["svg"],
     }
 
-    kroki_mermaid = {
+    kroki_mermaid: ClassVar[dict[str, list[str]]] = {
         "mermaid": ["png", "svg"],
     }
 
-    kroki_diagramsnet = {
+    kroki_diagramsnet: ClassVar[dict[str, list[str]]] = {
         "diagramsnet": ["svg"],
     }
 

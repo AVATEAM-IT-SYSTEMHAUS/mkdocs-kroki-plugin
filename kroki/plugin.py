@@ -2,8 +2,8 @@ import os
 import re
 from pathlib import Path
 
-from mkdocs.config.base import Config as MkDocsBaseConfig
 from mkdocs.config import config_options
+from mkdocs.config.base import Config as MkDocsBaseConfig
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.exceptions import PluginError
 from mkdocs.plugins import BasePlugin as MkDocsBasePlugin
@@ -25,8 +25,8 @@ class DeprecatedDownloadImagesCompat(config_options.Deprecated):
 
         self.warnings.append(self.message.format(key_name))
 
-        DownloadImages: bool = config.pop(key_name)
-        if DownloadImages:
+        download_images: bool = config.pop(key_name)
+        if download_images:
             config.HttpMethod = "POST"
 
 
