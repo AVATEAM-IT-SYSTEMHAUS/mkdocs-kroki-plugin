@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mkdocs-kroki-plugin"
+dynamic = ["version"]
+description = "MkDocs plugin for Kroki-Diagrams"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Benjamin Bittner", email = "benjamin.bittner@avateam.com" },
+    { name = "Antonia Siegert", email = "oniboni@mailbox.org" },
+]
+keywords = [
+    "diagram",
+    "kroi",
+    "markdown",
+    "mkdocs",
+    "python",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "mkdocs>=1.5.0",
+    "requests>=2.27.0",
+]
+
+[project.entry-points."mkdocs.plugins"]
+kroki = "kroki.plugin:KrokiPlugin"
+
+[project.urls]
+Documentation = "https://github.com/AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin#readme"
+Issues = "https://github.com/AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin/issues"
+Source = "https://github.com/AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin"
+
+[tool.hatch.version]
+path = "kroki/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/kroki",
+]
