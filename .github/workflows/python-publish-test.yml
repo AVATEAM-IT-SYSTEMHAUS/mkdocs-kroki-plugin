@@ -7,6 +7,9 @@ on:
   workflow_dispatch:
   push:
 
+env:
+    FORCE_COLOR: "1"
+
 jobs:
   deploy-test:
 
