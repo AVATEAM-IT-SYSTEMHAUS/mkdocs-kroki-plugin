@@ -53,3 +53,7 @@ path = "kroki/__init__.py"
 include = [
     "/kroki",
 ]
+[tool.hatch.build.targets.wheel]
+include = [
+    "/kroki",
+]
