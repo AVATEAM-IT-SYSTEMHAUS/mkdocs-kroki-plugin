@@ -78,10 +78,10 @@ class KrokiClient:
         files: MkDocsFiles,
         page: MkDocsPage,
     ) -> KrokiResponse:
-        try:
-            url = self._kroki_url_base(kroki_type)
+        url = self._kroki_url_base(kroki_type)
 
-            log.debug("POST %s", url)
+        log.debug("POST %s", url)
+        try:
             response = requests.post(
                 url,
                 headers=self.headers,
@@ -91,30 +91,29 @@ class KrokiClient:
                 },
                 timeout=10,
             )
-
-            if response.status_code == requests.codes.ok:
-                downloaded_image = DownloadedImage(
-                    response.content,
-                    self.diagram_types.get_file_ext(kroki_type),
-                    kroki_diagram_options,
-                )
-                downloaded_image.save(files, page)
-                return KrokiResponse(image_url=downloaded_image.file_name)
-
-            elif response.status_code == requests.codes.bad_request:
-                return KrokiResponse(err_msg="Diagram error!")
-            else:
-                error_message = f"Could not retrieve image data, got: {response}"
-                if self.fail_fast:
-                    raise PluginError(error_message)
-                else:
-                    log.error(error_message)
-
         except requests.RequestException as error:
             if self.fail_fast:
                 raise PluginError(f"Request error [url:{url}]: {error}") from error
-            else:
-                log.error(error, stack_info=log.isEnabledFor(DEBUG))
+
+            log.error(error, stack_info=log.isEnabledFor(DEBUG))
+        else:
+            match response.status_code:
+                case requests.codes.ok:
+                    downloaded_image = DownloadedImage(
+                        response.content,
+                        self.diagram_types.get_file_ext(kroki_type),
+                        kroki_diagram_options,
+                    )
+                    downloaded_image.save(files, page)
+                    return KrokiResponse(image_url=downloaded_image.file_name)
+                case requests.codes.bad_request:
+                    return KrokiResponse(err_msg="Diagram error!")
+                case _:
+                    error_message = f"Could not retrieve image data, got: {response}"
+                    if self.fail_fast:
+                        raise PluginError(error_message)
+
+                    log.error(error_message)
 
         return KrokiResponse(err_msg="Could not render!")
 
