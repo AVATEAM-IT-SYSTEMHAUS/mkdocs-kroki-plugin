@@ -15,7 +15,7 @@ authors = [
 ]
 keywords = [
     "diagram",
-    "kroi",
+    "kroki",
     "markdown",
     "mkdocs",
     "python",
