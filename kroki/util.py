@@ -1,18 +1,16 @@
-from uuid import uuid3, NAMESPACE_OID
-from mkdocs.structure.files import Files as MkDocsFiles, File as MkDocsFile
-from mkdocs.structure.pages import Page as MkDocsPage
+from os import makedirs, path
+from uuid import NAMESPACE_OID, uuid3
+
 from mkdocs.plugins import get_plugin_logger
-
-
-from os import path, makedirs
+from mkdocs.structure.files import File as MkDocsFile
+from mkdocs.structure.files import Files as MkDocsFiles
+from mkdocs.structure.pages import Page as MkDocsPage
 
 log = get_plugin_logger(__name__)
 
 
 class DownloadedImage:
-    def __init__(
-        self, file_content: bytes, file_extension: str, additional_metadata: dict
-    ) -> None:
+    def __init__(self, file_content: bytes, file_extension: str, additional_metadata: dict) -> None:
         file_uuid = uuid3(NAMESPACE_OID, f"{additional_metadata}{file_content}")
 
         self.file_name = f"kroki-generated-{file_uuid}.{file_extension}"

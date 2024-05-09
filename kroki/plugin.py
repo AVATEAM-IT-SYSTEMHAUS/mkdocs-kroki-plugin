@@ -1,22 +1,29 @@
-import re
 import os
+import re
+from pathlib import Path
 
 from mkdocs.config.base import Config as MkDocsBaseConfig
 from mkdocs.config.config_options import (
-    Type as MkDocsConfigType,
     URL as MkDocsConfigURL,
+)
+from mkdocs.config.config_options import (
     Choice as MkDocsConfigChoice,
+)
+from mkdocs.config.config_options import (
     Deprecated as MkDocsConfigDeprecated,
+)
+from mkdocs.config.config_options import (
+    Type as MkDocsConfigType,
 )
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.exceptions import PluginError
-from mkdocs.plugins import BasePlugin as MkDocsBasePlugin, get_plugin_logger
+from mkdocs.plugins import BasePlugin as MkDocsBasePlugin
+from mkdocs.plugins import get_plugin_logger
 from mkdocs.structure.files import Files as MkDocsFiles
 from mkdocs.structure.pages import Page as MkDocsPage
-from pathlib import Path
 
-from kroki.config import KrokiDiagramTypes
 from kroki.client import KrokiClient, KrokiResponse
+from kroki.config import KrokiDiagramTypes
 
 log = get_plugin_logger(__name__)
 
@@ -35,9 +42,7 @@ class DeprecatedDownloadImagesCompat(MkDocsConfigDeprecated):
 
 
 class KrokiPluginConfig(MkDocsBaseConfig):
-    ServerURL = MkDocsConfigURL(
-        default=os.getenv("KROKI_SERVER_URL", "https://kroki.io")
-    )
+    ServerURL = MkDocsConfigURL(default=os.getenv("KROKI_SERVER_URL", "https://kroki.io"))
     EnableBlockDiag = MkDocsConfigType(bool, default=True)
     Enablebpmn = MkDocsConfigType(bool, default=True)
     EnableExcalidraw = MkDocsConfigType(bool, default=True)
@@ -88,9 +93,7 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
 
         return config
 
-    def _replace_kroki_block(
-        self, match_obj: re.Match, files: MkDocsFiles, page: MkDocsPage
-    ) -> str:
+    def _replace_kroki_block(self, match_obj: re.Match, files: MkDocsFiles, page: MkDocsPage) -> str:
         kroki_type = match_obj.group(1).lower()
         kroki_options = match_obj.group(2)
         kroki_data = match_obj.group(3)
@@ -110,11 +113,7 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
 
                 return f"!!! error {msg}"
 
-        kroki_diagram_options = (
-            dict(x.split("=") for x in kroki_options.strip().split(" "))
-            if kroki_options
-            else {}
-        )
+        kroki_diagram_options = dict(x.split("=") for x in kroki_options.strip().split(" ")) if kroki_options else {}
 
         response: KrokiResponse = self.kroki_client.get_image_url(
             kroki_type, kroki_data, kroki_diagram_options, files, page
@@ -128,9 +127,7 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
 
         return f'!!! error "{response.err_msg}"\n\n```\n{kroki_data}\n```'
 
-    def on_page_markdown(
-        self, markdown: str, files: MkDocsFiles, page: MkDocsPage, **_kwargs
-    ) -> str:
+    def on_page_markdown(self, markdown: str, files: MkDocsFiles, page: MkDocsPage, **_kwargs) -> str:
         log.debug(f"on_page_markdown [page: {page}]")
 
         kroki_regex = self.diagram_types.get_block_regex(self.config.FencePrefix)

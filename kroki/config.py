@@ -77,9 +77,7 @@ class KrokiDiagramTypes:
         self.diagram_types_supporting_file = {}
 
         for diagram_type, diagram_file_types in diagram_types.items():
-            diagram_file_type = next(
-                filter(lambda file: file in diagram_file_types, file_types), None
-            )
+            diagram_file_type = next(filter(lambda file: file in diagram_file_types, file_types), None)
             if diagram_file_type is not None:
                 self.diagram_types_supporting_file[diagram_type] = next(
                     filter(lambda file: file in diagram_file_types, file_types), None
@@ -88,13 +86,11 @@ class KrokiDiagramTypes:
         for diagram_type, diagram_file_type in file_type_overrides.items():
             self.diagram_types_supporting_file[diagram_type] = diagram_file_type
 
-        log.debug(
-            f"File and Diagram types configured: {self.diagram_types_supporting_file}"
-        )
+        log.debug(f"File and Diagram types configured: {self.diagram_types_supporting_file}")
 
     def get_block_regex(self, fence_prefix: str) -> str:
         diagram_types_re = "|".join(self.diagram_types_supporting_file.keys())
-        return rf"(?:```{fence_prefix})({diagram_types_re})((?:\s?[a-zA-Z0-9\-_]+=[a-zA-Z0-9\-_]+)*)\n(.*?)(?:```)"  # noqa
+        return rf"(?:```{fence_prefix})({diagram_types_re})((?:\s?[a-zA-Z0-9\-_]+=[a-zA-Z0-9\-_]+)*)\n(.*?)(?:```)"
 
     def get_file_ext(self, kroki_type: str) -> str:
         return self.diagram_types_supporting_file[kroki_type]

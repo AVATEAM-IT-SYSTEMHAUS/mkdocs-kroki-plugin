@@ -1,14 +1,14 @@
 import base64
-import requests
 import zlib
-
 from dataclasses import dataclass
 from logging import DEBUG
+from typing import Optional
+
+import requests
 from mkdocs.exceptions import PluginError
 from mkdocs.plugins import get_plugin_logger
 from mkdocs.structure.files import Files as MkDocsFiles
 from mkdocs.structure.pages import Page as MkDocsPage
-from typing import Optional
 
 from kroki.config import KrokiDiagramTypes
 from kroki.util import DownloadedImage
@@ -53,14 +53,10 @@ class KrokiClient:
         kroki_diagram_data: str,
         kroki_diagram_options: dict[str, str],
     ) -> KrokiResponse:
-        kroki_data_param = base64.urlsafe_b64encode(
-            zlib.compress(str.encode(kroki_diagram_data), 9)
-        ).decode()
+        kroki_data_param = base64.urlsafe_b64encode(zlib.compress(str.encode(kroki_diagram_data), 9)).decode()
 
         kroki_query_param = (
-            "&".join([f"{k}={v}" for k, v in kroki_diagram_options.items()])
-            if len(kroki_diagram_options) > 0
-            else ""
+            "&".join([f"{k}={v}" for k, v in kroki_diagram_options.items()]) if len(kroki_diagram_options) > 0 else ""
         )
         if len(kroki_data_param) >= 4096:
             log.warning(
@@ -70,9 +66,7 @@ class KrokiClient:
 
         kroki_url = self._kroki_url_base(kroki_type)
         log.debug(f"{kroki_url}/{kroki_data_param}?{kroki_query_param}")
-        return KrokiResponse(
-            image_url=f"{kroki_url}/{kroki_data_param}?{kroki_query_param}"
-        )
+        return KrokiResponse(image_url=f"{kroki_url}/{kroki_data_param}?{kroki_query_param}")
 
     def _kroki_post(
         self,
@@ -130,10 +124,6 @@ class KrokiClient:
         page: MkDocsPage,
     ) -> KrokiResponse:
         if self.http_method == "GET":
-            return self._kroki_url_get(
-                kroki_type, kroki_diagram_data, kroki_diagram_options
-            )
+            return self._kroki_url_get(kroki_type, kroki_diagram_data, kroki_diagram_options)
 
-        return self._kroki_post(
-            kroki_type, kroki_diagram_data, kroki_diagram_options, files, page
-        )
+        return self._kroki_post(kroki_type, kroki_diagram_data, kroki_diagram_options, files, page)
