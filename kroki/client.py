@@ -2,6 +2,7 @@ import base64
 import zlib
 from dataclasses import dataclass
 from logging import DEBUG
+from typing import Final
 
 import requests
 from mkdocs.exceptions import PluginError
@@ -13,6 +14,9 @@ from kroki.config import KrokiDiagramTypes
 from kroki.util import DownloadedImage
 
 log = get_plugin_logger(__name__)
+
+
+MAX_URI_SIZE: Final[int] = 4096
 
 
 @dataclass
@@ -57,12 +61,14 @@ class KrokiClient:
         kroki_query_param = (
             "&".join([f"{k}={v}" for k, v in kroki_diagram_options.items()]) if len(kroki_diagram_options) > 0 else ""
         )
-        if len(kroki_data_param) >= 4096:
-            log.warning("Kroki may not be able to read the data completely!", extra={"data_len": len(kroki_data_param)})
 
         kroki_url = self._kroki_url_base(kroki_type)
-        log.debug("%s/%s?%s", kroki_url, kroki_data_param, kroki_query_param)
-        return KrokiResponse(image_url=f"{kroki_url}/{kroki_data_param}?{kroki_query_param}")
+        image_url = f"{kroki_url}/{kroki_data_param}?{kroki_query_param}"
+        if len(image_url) >= MAX_URI_SIZE:
+            log.warning("Kroki may not be able to read the data completely!", extra={"data_len": len(image_url)})
+
+        log.debug("Image url: %s", image_url)
+        return KrokiResponse(image_url=image_url)
 
     def _kroki_post(
         self,
@@ -75,7 +81,7 @@ class KrokiClient:
         try:
             url = self._kroki_url_base(kroki_type)
 
-            log.debug("_kroki_post [POST %s]", url)
+            log.debug("POST %s", url)
             response = requests.post(
                 url,
                 headers=self.headers,
@@ -94,7 +100,7 @@ class KrokiClient:
                 downloaded_image.save(files, page)
                 return KrokiResponse(image_url=downloaded_image.file_name)
 
-            elif response.status_code == 400:
+            elif response.status_code == requests.codes.bad_request:
                 return KrokiResponse(err_msg="Diagram error!")
             else:
                 error_message = f"Could not retrieve image data, got: {response}"
