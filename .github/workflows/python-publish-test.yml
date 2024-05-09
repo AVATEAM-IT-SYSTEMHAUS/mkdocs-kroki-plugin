@@ -27,7 +27,7 @@ jobs:
         pip install --upgrade hatch
     - name: Bump temp dev release
       run: |
-        CURRENT_VERSION=$(hatch version|tr -d '[:space:]')
+        CURRENT_VERSION=$(NO_COLOR="1" hatch version)
         echo "'$CURRENT_VERSION'"
         TIMESTAMP=$(date +%s)
         echo "'$TIMESTAMP'"
