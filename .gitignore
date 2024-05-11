@@ -34,3 +34,10 @@ MANIFEST
 .venv
 .vscode
 test-docs
+
+
+# pytest
+junit/
+.coverage
+coverage.xml
+htmlcov
