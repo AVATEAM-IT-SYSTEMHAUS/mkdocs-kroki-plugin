@@ -1,3 +1,6 @@
+import os
+import pathlib
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -17,14 +20,20 @@ class MockResponse:
     content: None | bytes = None
 
 
-@pytest.fixture
-def datadir_happy_path(shared_datadir: Path) -> Path:
-    return shared_datadir / "happy_path"
+def copy_test_case(tmp_path: Path, test_case: str) -> Path:
+    data_dir = pathlib.Path(os.path.realpath(__file__)).parent / "data"
+    shutil.copytree(data_dir / test_case, tmp_path, dirs_exist_ok=True)
+    return tmp_path
 
 
 @pytest.fixture
-def datadir_missing_from_file(shared_datadir: Path) -> Path:
-    return shared_datadir / "missing_from_file"
+def datadir_happy_path(tmp_path: Path) -> Path:
+    return copy_test_case(tmp_path, "happy_path")
+
+
+@pytest.fixture
+def datadir_missing_from_file(tmp_path: Path) -> Path:
+    return copy_test_case(tmp_path, "missing_from_file")
 
 
 @pytest.fixture

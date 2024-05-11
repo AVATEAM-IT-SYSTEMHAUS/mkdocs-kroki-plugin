@@ -60,7 +60,6 @@ include = [
 
 [tool.hatch.envs.hatch-test]
 extra-dependencies = [
-  "pytest-datadir",
   "mkdocs-material",
   "click",
 ]
