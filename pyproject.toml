@@ -58,16 +58,19 @@ include = [
     "/kroki",
 ]
 
-
-[tool.hatch.envs.default]
-dependencies = [
-  "pytest",
-  "pytest-cov",
+[tool.hatch.envs.hatch-test]
+extra-dependencies = [
   "pytest-datadir",
   "mkdocs-material",
   "click",
 ]
-[tool.hatch.envs.default.scripts]
-test = "pytest {args:tests}"
-test-cov = "test --cov=kroki"
-cov-report = "test-cov --junitxml=junit/test-results.xml --cov-report=term --cov-report=xml"
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.10", "3.11", "3.12"]
+[tool.hatch.envs.hatch-test.scripts]
+run = "pytest {args:tests}"
+run-cov = "coverage run -m pytest {args:tests} --junitxml=junit/test-results.xml"
+cov-combine = "coverage combine"
+cov-report = [
+    "coverage xml",
+    "coverage report --omit='tests/*'",
+]
