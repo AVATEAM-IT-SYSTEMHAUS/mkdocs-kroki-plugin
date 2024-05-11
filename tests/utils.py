@@ -1,4 +1,8 @@
 import logging
+import os
+import pathlib
+import shutil
+import tempfile
 from contextlib import AbstractContextManager
 from pathlib import Path
 from typing import Literal
@@ -17,19 +21,33 @@ class NoPluginEntryError(ValueError):
         super().__init__("No kroki plugin entry found")
 
 
-class MkDocsConfigFile(AbstractContextManager):
-    def __init__(self, data_dir: Path):
-        self.data_dir = data_dir
+class MkDocsHelper(AbstractContextManager):
+    def __init__(self, test_case: str) -> None:
         self.config_file = None
+        self.test_case = test_case
+        self.test_dir = Path(tempfile.mkdtemp())
 
-    def __enter__(self) -> "MkDocsConfigFile":
-        with open(self.data_dir / "mkdocs.yml") as file:
+    def _copy_test_case(self) -> None:
+        # equals to `../data`, using this file as a pin
+        data_dir = pathlib.Path(os.path.realpath(__file__)).parent / "data"
+        shutil.copytree(data_dir / self.test_case, self.test_dir, dirs_exist_ok=True)
+
+    def _load_config(self) -> None:
+        with open(self.test_dir / "mkdocs.yml") as file:
             self.config_file = yaml.safe_load(file)
+
+    def _dump_config(self) -> None:
+        with open(self.test_dir / "mkdocs.yml", mode="w") as file:
+            yaml.safe_dump(self.config_file, file)
+
+    def __enter__(self) -> "MkDocsHelper":
+        self._copy_test_case()
+        self._load_config()
+
         return self
 
     def __exit__(self, *_args) -> None:
-        with open(self.data_dir / "mkdocs.yml", mode="w") as file:
-            yaml.safe_dump(self.config_file, file)
+        shutil.rmtree(self.test_dir)
 
     def _get_plugin_config_entry(self) -> dict:
         for plugin_entry in self.config_file["plugins"]:
@@ -43,12 +61,8 @@ class MkDocsConfigFile(AbstractContextManager):
     def set_http_method(self, method: Literal["GET", "POST"]) -> None:
         self._get_plugin_config_entry()["HttpMethod"] = method
 
-
-class MkDocsHelper:
-    def __init__(self, data_dir: Path) -> None:
-        self.data_dir = data_dir
-
     def invoke_build(self) -> Result:
+        self._dump_config()
         runner = CliRunner()
-        with chdir(self.data_dir):
+        with chdir(self.test_dir):
             return runner.invoke(build_command)
