@@ -1,11 +1,13 @@
 import logging
-from contextlib import AbstractContextManager, chdir
+from contextlib import AbstractContextManager
 from pathlib import Path
 from typing import Literal
 
 import yaml
 from click.testing import CliRunner, Result
 from mkdocs.__main__ import build_command
+
+from tests.compat import chdir
 
 logging.basicConfig(level=logging.INFO)
 
