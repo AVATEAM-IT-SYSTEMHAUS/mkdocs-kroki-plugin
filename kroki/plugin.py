@@ -59,13 +59,13 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
         log.debug("Configuring", extra={"config": self.config})
 
         self.diagram_types = KrokiDiagramTypes(
-            self.config.EnableBlockDiag,
-            self.config.Enablebpmn,
-            self.config.EnableExcalidraw,
-            self.config.EnableMermaid,
-            self.config.EnableDiagramsnet,
-            self.config.FileTypes,
-            self.config.FileTypeOverrides,
+            blockdiag_enabled=self.config.EnableBlockDiag,
+            bpmn_enabled=self.config.Enablebpmn,
+            excalidraw_enabled=self.config.EnableExcalidraw,
+            mermaid_enabled=self.config.EnableMermaid,
+            diagramsnet_enabled=self.config.EnableDiagramsnet,
+            file_types=self.config.FileTypes,
+            file_type_overrides=self.config.FileTypeOverrides,
         )
 
         self.kroki_client = KrokiClient(
@@ -100,7 +100,7 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
                 if self.fail_fast:
                     raise PluginError(msg) from error
 
-                return f"!!! error {msg}"
+                return f'!!! error "{msg}"'
 
         kroki_diagram_options = dict(x.split("=") for x in kroki_options.strip().split(" ")) if kroki_options else {}
 

@@ -92,31 +92,32 @@ class KrokiClient:
                 timeout=10,
             )
         except requests.RequestException as error:
+            error_message = f"Request error [url:{url}]: {error}"
+            log.exception(error_message, stack_info=log.isEnabledFor(DEBUG))
             if self.fail_fast:
-                error_message = f"Request error [url:{url}]: {error}"
                 raise PluginError(error_message) from error
 
-            log.exception("Request failed", stack_info=log.isEnabledFor(DEBUG))
-        else:
-            match response.status_code:
-                case requests.codes.ok:
-                    downloaded_image = DownloadedImage(
-                        response.content,
-                        self.diagram_types.get_file_ext(kroki_type),
-                        kroki_diagram_options,
-                    )
-                    downloaded_image.save(files, page)
-                    return KrokiResponse(image_url=downloaded_image.file_name)
-                case requests.codes.bad_request:
-                    return KrokiResponse(err_msg="Diagram error!")
-                case _:
-                    error_message = f"Could not retrieve image data, got: {response}"
-                    if self.fail_fast:
-                        raise PluginError(error_message)
+            return KrokiResponse(err_msg=error_message)
 
-                    log.error(error_message)
+        if response.status_code == requests.codes.ok:
+            downloaded_image = DownloadedImage(
+                response.content,
+                self.diagram_types.get_file_ext(kroki_type),
+                kroki_diagram_options,
+            )
+            downloaded_image.save(files, page)
+            return KrokiResponse(image_url=downloaded_image.file_name)
 
-        return KrokiResponse(err_msg="Could not render!")
+        error_message = (
+            "Diagram error!"
+            if response.status_code == requests.codes.bad_request
+            else f"Could not retrieve image data, got: {response}"
+        )
+        log.error(error_message)
+        if self.fail_fast:
+            raise PluginError(error_message)
+
+        return KrokiResponse(err_msg=error_message)
 
     def get_image_url(
         self,
