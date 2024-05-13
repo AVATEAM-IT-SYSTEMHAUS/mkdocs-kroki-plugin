@@ -63,11 +63,13 @@ extra-dependencies = [
   "mkdocs-material",
   "click",
 ]
+# mkdocs log outputs are flaky :(
+retries = 2
 [[tool.hatch.envs.hatch-test.matrix]]
 python = ["3.10", "3.11", "3.12"]
 [tool.hatch.envs.hatch-test.scripts]
-run = "pytest {args:tests}"
-run-cov = "coverage run -m pytest {args:tests} --junitxml=junit/test-results.xml"
+run = "pytest {env:HATCH_TEST_ARGS:} {args:tests}"
+run-cov = "coverage run -m pytest {env:HATCH_TEST_ARGS:} {args:tests} --junitxml=junit/test-results.xml"
 cov-combine = "coverage combine"
 cov-report = [
     "coverage xml",
