@@ -28,7 +28,7 @@ class MkDocsHelper(AbstractContextManager):
         self.test_dir = Path(tempfile.mkdtemp())
 
     def _copy_test_case(self) -> None:
-        # equals to `../data`, using this file as a pin
+        # equals to `../data`, using current source file as a pin
         data_dir = pathlib.Path(os.path.realpath(__file__)).parent / "data"
         shutil.copytree(data_dir / self.test_case, self.test_dir, dirs_exist_ok=True)
 
