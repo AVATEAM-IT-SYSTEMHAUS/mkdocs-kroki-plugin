@@ -61,6 +61,9 @@ class MkDocsHelper(AbstractContextManager):
     def set_http_method(self, method: Literal["GET", "POST"]) -> None:
         self._get_plugin_config_entry()["HttpMethod"] = method
 
+    def set_fence_prefix(self, fence_prefix: str) -> None:
+        self._get_plugin_config_entry()["FencePrefix"] = fence_prefix
+
     def invoke_build(self) -> Result:
         self._dump_config()
         runner = CliRunner()
