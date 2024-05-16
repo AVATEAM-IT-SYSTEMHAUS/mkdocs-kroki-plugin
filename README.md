@@ -87,3 +87,28 @@ More Plugins for MkDocs can be found [here](http://www.mkdocs.org/user-guide/plu
 Install the newest pre-release version using pip:
 
 `pip install -i https://test.pypi.org/simple/ mkdocs-kroki-plugin`
+
+
+## Development
+
+Setup:
+
+```sh
+git clone git@github.com:AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin.git
+cd mkdocs-kroki-plugin
+pipx install hatch
+pipx install pre-commit
+pre-commit install
+```
+
+Run tests (for all supported python versions):
+
+```sh
+hatch test -a
+```
+
+Run static code analysis:
+
+```sh
+hatch fmt
+```

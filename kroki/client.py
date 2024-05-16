@@ -1,14 +1,14 @@
 import base64
-import requests
 import zlib
-
 from dataclasses import dataclass
 from logging import DEBUG
+from typing import Final
+
+import requests
 from mkdocs.exceptions import PluginError
 from mkdocs.plugins import get_plugin_logger
 from mkdocs.structure.files import Files as MkDocsFiles
 from mkdocs.structure.pages import Page as MkDocsPage
-from typing import Optional
 
 from kroki.config import KrokiDiagramTypes
 from kroki.util import DownloadedImage
@@ -16,10 +16,13 @@ from kroki.util import DownloadedImage
 log = get_plugin_logger(__name__)
 
 
+MAX_URI_SIZE: Final[int] = 4096
+
+
 @dataclass
 class KrokiResponse:
-    err_msg: Optional[str] = None
-    image_url: Optional[str] = None
+    err_msg: None | str = None
+    image_url: None | str = None
 
     def is_ok(self) -> bool:
         return self.image_url is not None and self.err_msg is None
@@ -41,7 +44,7 @@ class KrokiClient:
         self.diagram_types = diagram_types
         self.fail_fast = fail_fast
 
-        log.debug(f"Client initialized: {self.http_method}, {self.server_url}")
+        log.debug("Client initialized", extra={"http_method": self.http_method, "server_url": self.server_url})
 
     def _kroki_url_base(self, kroki_type: str) -> str:
         file_type = self.diagram_types.get_file_ext(kroki_type)
@@ -53,26 +56,19 @@ class KrokiClient:
         kroki_diagram_data: str,
         kroki_diagram_options: dict[str, str],
     ) -> KrokiResponse:
-        kroki_data_param = base64.urlsafe_b64encode(
-            zlib.compress(str.encode(kroki_diagram_data), 9)
-        ).decode()
+        kroki_data_param = base64.urlsafe_b64encode(zlib.compress(str.encode(kroki_diagram_data), 9)).decode()
 
         kroki_query_param = (
-            "&".join([f"{k}={v}" for k, v in kroki_diagram_options.items()])
-            if len(kroki_diagram_options) > 0
-            else ""
+            "&".join([f"{k}={v}" for k, v in kroki_diagram_options.items()]) if len(kroki_diagram_options) > 0 else ""
         )
-        if len(kroki_data_param) >= 4096:
-            log.warning(
-                f"Length of encoded diagram is {len(kroki_data_param)}. "
-                "Kroki may not be able to read the data completely!"
-            )
 
         kroki_url = self._kroki_url_base(kroki_type)
-        log.debug(f"{kroki_url}/{kroki_data_param}?{kroki_query_param}")
-        return KrokiResponse(
-            image_url=f"{kroki_url}/{kroki_data_param}?{kroki_query_param}"
-        )
+        image_url = f"{kroki_url}/{kroki_data_param}?{kroki_query_param}"
+        if len(image_url) >= MAX_URI_SIZE:
+            log.warning("Kroki may not be able to read the data completely!", extra={"data_len": len(image_url)})
+
+        log.debug("Image url: %s", image_url)
+        return KrokiResponse(image_url=image_url)
 
     def _kroki_post(
         self,
@@ -82,10 +78,10 @@ class KrokiClient:
         files: MkDocsFiles,
         page: MkDocsPage,
     ) -> KrokiResponse:
-        try:
-            url = self._kroki_url_base(kroki_type)
+        url = self._kroki_url_base(kroki_type)
 
-            log.debug(f"_kroki_post [POST {url}]")
+        log.debug("POST %s", url)
+        try:
             response = requests.post(
                 url,
                 headers=self.headers,
@@ -93,33 +89,35 @@ class KrokiClient:
                     "diagram_source": kroki_diagram_data,
                     "diagram_options": kroki_diagram_options,
                 },
+                timeout=10,
             )
-
-            if response.status_code == requests.codes.ok:
-                downloaded_image = DownloadedImage(
-                    response.content,
-                    self.diagram_types.get_file_ext(kroki_type),
-                    kroki_diagram_options,
-                )
-                downloaded_image.save(files, page)
-                return KrokiResponse(image_url=downloaded_image.file_name)
-
-            elif response.status_code == 400:
-                return KrokiResponse(err_msg="Diagram error!")
-            else:
-                error_message = f"Could not retrieve image data, got: {response}"
-                if self.fail_fast:
-                    raise PluginError(error_message)
-                else:
-                    log.error(error_message)
-
         except requests.RequestException as error:
+            error_message = f"Request error [url:{url}]: {error}"
+            log.exception(error_message, stack_info=log.isEnabledFor(DEBUG))
             if self.fail_fast:
-                raise PluginError(f"Request error [url:{url}]: {error}") from error
-            else:
-                log.error(error, stack_info=log.isEnabledFor(DEBUG))
+                raise PluginError(error_message) from error
 
-        return KrokiResponse(err_msg="Could not render!")
+            return KrokiResponse(err_msg=error_message)
+
+        if response.status_code == requests.codes.ok:
+            downloaded_image = DownloadedImage(
+                response.content,
+                self.diagram_types.get_file_ext(kroki_type),
+                kroki_diagram_options,
+            )
+            downloaded_image.save(files, page)
+            return KrokiResponse(image_url=downloaded_image.file_name)
+
+        error_message = (
+            "Diagram error!"
+            if response.status_code == requests.codes.bad_request
+            else f"Could not retrieve image data, got: {response}"
+        )
+        log.error(error_message)
+        if self.fail_fast:
+            raise PluginError(error_message)
+
+        return KrokiResponse(err_msg=error_message)
 
     def get_image_url(
         self,
@@ -130,10 +128,6 @@ class KrokiClient:
         page: MkDocsPage,
     ) -> KrokiResponse:
         if self.http_method == "GET":
-            return self._kroki_url_get(
-                kroki_type, kroki_diagram_data, kroki_diagram_options
-            )
+            return self._kroki_url_get(kroki_type, kroki_diagram_data, kroki_diagram_options)
 
-        return self._kroki_post(
-            kroki_type, kroki_diagram_data, kroki_diagram_options, files, page
-        )
+        return self._kroki_post(kroki_type, kroki_diagram_data, kroki_diagram_options, files, page)

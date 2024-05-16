@@ -1,4 +1,4 @@
-name: Project lint
+name: Project test
 
 on:
   workflow_dispatch:
@@ -16,18 +16,22 @@ env:
     FORCE_COLOR: "1"
 
 jobs:
-  lint:
+  test:
 
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.10", "3.11", "3.12"]
 
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python }}
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.x'
+        python-version: ${{ matrix.python }}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install --upgrade hatch
-    - name: Lint
-      run: hatch fmt --check
+    - name: Test coverage
+      run: hatch test --cover
