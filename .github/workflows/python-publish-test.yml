@@ -6,6 +6,9 @@ name: Upload Python Package to Test-Pypi
 on:
   workflow_dispatch:
   push:
+    branches:
+      - '**'
+      - '!dependabot/**'
 
 env:
     FORCE_COLOR: "1"
@@ -16,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
