@@ -6,6 +6,9 @@ name: Upload Python Package to Test-Pypi
 on:
   workflow_dispatch:
   push:
+    branches:
+      - '**'
+      - '!dependabot/**'
 
 env:
     FORCE_COLOR: "1"
