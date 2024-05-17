@@ -1,6 +1,7 @@
 import os
 import re
 from pathlib import Path
+import textwrap
 
 from mkdocs.config import config_options
 from mkdocs.config.base import Config as MkDocsBaseConfig
@@ -54,6 +55,12 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
     from_file_prefix = "@from_file:"
     global_config: MkDocsConfig
     fail_fast: bool
+    _FENCE_RE = re.compile(r"(?P<fence>^(?P<indent>[ ]*)(?:````*|~~~~*))[ ]*"
+                           r"(\.?(?P<lang>[\w#.+-]*)[ ]*)?"
+                           r"(?P<opts>(?:[ ]?[a-zA-Z0-9\-_]+=[a-zA-Z0-9\-_]+)*)\n"
+                           r"(?P<code>.*?)(?<=\n)"
+                           r"(?P=fence)[ ]*$",
+                           flags=re.IGNORECASE + re.DOTALL + re.MULTILINE)
 
     def on_config(self, config: MkDocsConfig) -> MkDocsConfig:
         log.debug("Configuring", extra={"config": self.config})
@@ -82,10 +89,9 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
 
         return config
 
-    def _replace_kroki_block(self, match_obj: re.Match, files: MkDocsFiles, page: MkDocsPage) -> str:
-        kroki_type = match_obj.group(1).lower()
-        kroki_options = match_obj.group(2)
-        kroki_data = match_obj.group(3)
+    def _replace_kroki_block(
+        self, kroki_type: str, kroki_options: str, kroki_data: str, files: MkDocsFiles, page: MkDocsPage
+    ) -> str:
 
         if kroki_data.startswith(self.from_file_prefix):
             file_name = kroki_data.removeprefix(self.from_file_prefix).strip()
@@ -119,10 +125,21 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
     def on_page_markdown(self, markdown: str, files: MkDocsFiles, page: MkDocsPage, **_kwargs) -> str:
         log.debug("on_page_markdown [page: %s]", page)
 
-        kroki_regex = self.diagram_types.get_block_regex(self.config.FencePrefix)
-        pattern = re.compile(kroki_regex, flags=re.IGNORECASE + re.DOTALL)
+        key_types = self.diagram_types.diagram_types_supporting_file.keys()
+        fence_prefix = self.config.FencePrefix
 
-        def replace_kroki_block(match_obj):
-            return self._replace_kroki_block(match_obj, files, page)
+        def replace_kroki_block(match_obj: re.Match):
+            kroki_type = match_obj.group('lang').lower()
+            if kroki_type.startswith(fence_prefix):
+                kroki_type = kroki_type[len(fence_prefix):]
 
-        return re.sub(pattern, replace_kroki_block, markdown)
+                if kroki_type in key_types:
+                    return match_obj.group('indent') + \
+                        self._replace_kroki_block(kroki_type, match_obj.group('opts'),
+                                                  textwrap.dedent(match_obj.group('code')),
+                                                  files, page)
+
+            # Not supported, skip over whole block
+            return match_obj.group()
+
+        return re.sub(self._FENCE_RE, replace_kroki_block, markdown)
