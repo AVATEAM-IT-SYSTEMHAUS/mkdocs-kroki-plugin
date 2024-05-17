@@ -1,10 +1,10 @@
-import logging
 import os
 import pathlib
 import shutil
 import tempfile
 from contextlib import AbstractContextManager
 from pathlib import Path
+from string import Template
 from typing import Literal
 
 import yaml
@@ -12,8 +12,6 @@ from click.testing import CliRunner, Result
 from mkdocs.__main__ import build_command
 
 from tests.compat import chdir
-
-logging.basicConfig(level=logging.INFO)
 
 
 class NoPluginEntryError(ValueError):
@@ -26,6 +24,7 @@ class MkDocsHelper(AbstractContextManager):
         self.config_file = None
         self.test_case = test_case
         self.test_dir = Path(tempfile.mkdtemp())
+        self._copy_test_case()
 
     def _copy_test_case(self) -> None:
         # equals to `../data`, using current source file as a pin
@@ -41,7 +40,6 @@ class MkDocsHelper(AbstractContextManager):
             yaml.safe_dump(self.config_file, file)
 
     def __enter__(self) -> "MkDocsHelper":
-        self._copy_test_case()
         self._load_config()
 
         return self
@@ -69,3 +67,15 @@ class MkDocsHelper(AbstractContextManager):
         runner = CliRunner()
         with chdir(self.test_dir):
             return runner.invoke(build_command)
+
+
+class MkDocsTemplateHelper(MkDocsHelper):
+    def _substitute_code_block(self, code_block: str):
+        with open(self.test_dir / "docs/index.md") as in_file:
+            file_content = Template(in_file.read())
+            with open(self.test_dir / "docs/index.md", "w") as out_file:
+                out_file.write(file_content.substitute(code_block=code_block))
+
+    def __init__(self, code_block: str) -> None:
+        super().__init__("template")
+        self._substitute_code_block(code_block)
