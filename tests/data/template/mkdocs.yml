@@ -1,0 +1,8 @@
+site_name: Test pages for mkdocs-kroki-plugin
+
+theme:
+  name: material
+
+plugins:
+  - kroki:
+      FencePrefix: ''
