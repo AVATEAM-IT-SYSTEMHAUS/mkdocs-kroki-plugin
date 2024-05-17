@@ -116,7 +116,7 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
         )
         log.debug("%s", response)
         if response.is_ok():
-            return f"![Kroki]({response.image_url})"
+            return f'<p>\n<img alt="Kroki" src="{response.image_url}">\n</p>'
 
         if self.fail_fast:
             raise PluginError(response.err_msg)
