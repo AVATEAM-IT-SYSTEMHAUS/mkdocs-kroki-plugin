@@ -8,14 +8,12 @@ from mkdocs.config.base import Config as MkDocsBaseConfig
 from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.exceptions import PluginError
 from mkdocs.plugins import BasePlugin as MkDocsBasePlugin
-from mkdocs.plugins import get_plugin_logger
 from mkdocs.structure.files import Files as MkDocsFiles
 from mkdocs.structure.pages import Page as MkDocsPage
 
 from kroki.client import KrokiClient, KrokiResponse
 from kroki.config import KrokiDiagramTypes
-
-log = get_plugin_logger(__name__)
+from kroki.logging import log
 
 
 class DeprecatedDownloadImagesCompat(config_options.Deprecated):
@@ -65,7 +63,7 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
     )
 
     def on_config(self, config: MkDocsConfig) -> MkDocsConfig:
-        log.debug("Configuring", extra={"config": self.config})
+        log.debug("Configuring config: %s", self.config)
 
         self.diagram_types = KrokiDiagramTypes(
             blockdiag_enabled=self.config.EnableBlockDiag,

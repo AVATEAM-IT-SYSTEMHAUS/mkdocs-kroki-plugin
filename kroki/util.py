@@ -1,12 +1,11 @@
 from os import makedirs, path
 from uuid import NAMESPACE_OID, uuid3
 
-from mkdocs.plugins import get_plugin_logger
 from mkdocs.structure.files import File as MkDocsFile
 from mkdocs.structure.files import Files as MkDocsFiles
 from mkdocs.structure.pages import Page as MkDocsPage
 
-log = get_plugin_logger(__name__)
+from kroki.logging import log
 
 
 class DownloadedImage:
@@ -24,6 +23,7 @@ class DownloadedImage:
 
         file_path = path.join(page_abs_dest_dir, self.file_name)
 
+        log.debug("Saving image data: %s", file_path)
         with open(file_path, "wb") as file:
             file.write(self.file_content)
 
@@ -41,4 +41,5 @@ class DownloadedImage:
         # MkDocs will not copy the file in this case
         dummy_file.abs_src_path = dummy_file.abs_dest_path = file_path
 
+        log.debug("Appending dummy mkdocs file: %s", dummy_file)
         files.append(dummy_file)

@@ -6,15 +6,12 @@ from typing import Final
 
 import requests
 from mkdocs.exceptions import PluginError
-from mkdocs.plugins import get_plugin_logger
 from mkdocs.structure.files import Files as MkDocsFiles
 from mkdocs.structure.pages import Page as MkDocsPage
 
 from kroki.config import KrokiDiagramTypes
+from kroki.logging import log
 from kroki.util import DownloadedImage
-
-log = get_plugin_logger(__name__)
-
 
 MAX_URI_SIZE: Final[int] = 4096
 
@@ -44,7 +41,7 @@ class KrokiClient:
         self.diagram_types = diagram_types
         self.fail_fast = fail_fast
 
-        log.debug("Client initialized", extra={"http_method": self.http_method, "server_url": self.server_url})
+        log.debug("Client initialized [http_method: %s, server_url: %s]", self.http_method, self.server_url)
 
     def _kroki_url_base(self, kroki_type: str) -> str:
         file_type = self.diagram_types.get_file_ext(kroki_type)

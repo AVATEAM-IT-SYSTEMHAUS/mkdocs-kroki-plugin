@@ -1,8 +1,6 @@
 from typing import ClassVar
 
-from mkdocs.plugins import get_plugin_logger
-
-log = get_plugin_logger(__name__)
+from kroki.logging import log
 
 
 class KrokiDiagramTypes:
