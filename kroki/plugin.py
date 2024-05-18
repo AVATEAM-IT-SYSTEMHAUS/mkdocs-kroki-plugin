@@ -11,6 +11,7 @@ from mkdocs.plugins import BasePlugin as MkDocsBasePlugin
 from mkdocs.structure.files import Files as MkDocsFiles
 from mkdocs.structure.pages import Page as MkDocsPage
 
+from kroki import version
 from kroki.client import KrokiClient, KrokiResponse
 from kroki.config import KrokiDiagramTypes
 from kroki.logging import log
@@ -37,7 +38,7 @@ class KrokiPluginConfig(MkDocsBaseConfig):
     EnableMermaid = config_options.Type(bool, default=True)
     EnableDiagramsnet = config_options.Type(bool, default=False)
     HttpMethod = config_options.Choice(choices=["GET", "POST"], default="GET")
-    UserAgent = config_options.Type(str, default=f"{__name__}/0.7.1")
+    UserAgent = config_options.Type(str, default=f"{__name__}/{version}")
     FencePrefix = config_options.Type(str, default="kroki-")
     FileTypes = config_options.Type(list, default=["svg"])
     FileTypeOverrides = config_options.Type(dict, default={})
