@@ -58,13 +58,22 @@ include = [
     "/kroki",
 ]
 
+# this enables you to run arbitrary commands inside of the hatch-managed hatch-test environment
+# e.g.
+#   REPL:
+#     hatch run test:python
+#   serve happy path test:
+#     hatch run test:mkdocs serve -f tests/data/happy_path/mkdocs.yml
+[tool.hatch.envs.test]
+template = "hatch-test"
+[tool.hatch.envs.test.env-vars]
+KROKI_SERVER_URL = "http://localhost:8080"
+
 [tool.hatch.envs.hatch-test]
 extra-dependencies = [
   "mkdocs-material",
   "click",
 ]
-# mkdocs log outputs are flaky :(
-retries = 2
 [[tool.hatch.envs.hatch-test.matrix]]
 python = ["3.10", "3.11", "3.12"]
 [tool.hatch.envs.hatch-test.scripts]
