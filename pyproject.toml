@@ -36,6 +36,7 @@ classifiers = [
 dependencies = [
     "mkdocs>=1.5.0",
     "requests>=2.27.0",
+    "result",
 ]
 
 [project.entry-points."mkdocs.plugins"]

@@ -1,10 +1,11 @@
+from collections import ChainMap
 from typing import ClassVar
 
 from kroki.logging import log
 
 
 class KrokiDiagramTypes:
-    kroki_base: ClassVar[dict[str, list[str]]] = {
+    _kroki_base: ClassVar[dict[str, list[str]]] = {
         "bytefield": ["svg"],
         "ditaa": ["png", "svg"],
         "erd": ["png", "svg", "jpeg", "pdf"],
@@ -26,7 +27,7 @@ class KrokiDiagramTypes:
         "wireviz": ["png", "svg"],
     }
 
-    kroki_blockdiag: ClassVar[dict[str, list[str]]] = {
+    _kroki_blockdiag: ClassVar[dict[str, list[str]]] = {
         "blockdiag": ["png", "svg", "pdf"],
         "seqdiag": ["png", "svg", "pdf"],
         "actdiag": ["png", "svg", "pdf"],
@@ -35,59 +36,69 @@ class KrokiDiagramTypes:
         "rackdiag": ["png", "svg", "pdf"],
     }
 
-    kroki_bpmn: ClassVar[dict[str, list[str]]] = {
+    _kroki_bpmn: ClassVar[dict[str, list[str]]] = {
         "bpmn": ["svg"],
     }
 
-    kroki_excalidraw: ClassVar[dict[str, list[str]]] = {
+    _kroki_excalidraw: ClassVar[dict[str, list[str]]] = {
         "excalidraw": ["svg"],
     }
 
-    kroki_mermaid: ClassVar[dict[str, list[str]]] = {
+    _kroki_mermaid: ClassVar[dict[str, list[str]]] = {
         "mermaid": ["png", "svg"],
     }
 
-    kroki_diagramsnet: ClassVar[dict[str, list[str]]] = {
+    _kroki_diagramsnet: ClassVar[dict[str, list[str]]] = {
         "diagramsnet": ["svg"],
     }
 
     def __init__(
         self,
+        fence_prefix: str,
+        file_types: list[str],
+        file_type_overrides: dict[str, str],
         *,
         blockdiag_enabled: bool,
         bpmn_enabled: bool,
         excalidraw_enabled: bool,
         mermaid_enabled: bool,
         diagramsnet_enabled: bool,
-        file_types: list[str],
-        file_type_overrides: dict[str, str],
     ):
-        diagram_types = self.kroki_base.copy()
+        self._fence_prefix = fence_prefix
 
-        if blockdiag_enabled:
-            diagram_types.update(self.kroki_blockdiag)
-        if bpmn_enabled:
-            diagram_types.update(self.kroki_bpmn)
-        if excalidraw_enabled:
-            diagram_types.update(self.kroki_excalidraw)
-        if mermaid_enabled:
-            diagram_types.update(self.kroki_mermaid)
-        if diagramsnet_enabled:
-            diagram_types.update(self.kroki_diagramsnet)
+        kroki_types = ChainMap(
+            self._kroki_base,
+            self._kroki_blockdiag if blockdiag_enabled else {},
+            self._kroki_bpmn if bpmn_enabled else {},
+            self._kroki_excalidraw if excalidraw_enabled else {},
+            self._kroki_mermaid if mermaid_enabled else {},
+            self._kroki_diagramsnet if diagramsnet_enabled else {},
+        )
 
-        self.diagram_types_supporting_file = {}
+        self._kroki_types_supporting_file = {}
 
-        for diagram_type, diagram_file_types in diagram_types.items():
-            diagram_file_type = next(filter(lambda file: file in diagram_file_types, file_types), None)
-            if diagram_file_type is not None:
-                self.diagram_types_supporting_file[diagram_type] = next(
-                    filter(lambda file: file in diagram_file_types, file_types), None
+        for kroki_type, kroki_file_types in kroki_types.items():
+            kroki_file_type = next(filter(lambda file: file in kroki_file_types, file_types), None)
+            if kroki_file_type is not None:
+                self._kroki_types_supporting_file[kroki_type] = next(
+                    filter(lambda file: file in kroki_file_types, file_types), None
                 )
 
-        for diagram_type, diagram_file_type in file_type_overrides.items():
-            self.diagram_types_supporting_file[diagram_type] = diagram_file_type
+        for kroki_type, kroki_file_type in file_type_overrides.items():
+            self._kroki_types_supporting_file[kroki_type] = kroki_file_type
 
-        log.debug("File and Diagram types configured: %s", self.diagram_types_supporting_file)
+        log.debug("File and Diagram types configured: %s", self._kroki_types_supporting_file)
 
     def get_file_ext(self, kroki_type: str) -> str:
-        return self.diagram_types_supporting_file[kroki_type]
+        return self._kroki_types_supporting_file[kroki_type]
+
+    def get_kroki_type(self, block_type: None | str) -> None | str:
+        if block_type is None:
+            return
+        if not block_type.startswith(self._fence_prefix):
+            return
+        kroki_type = block_type.removeprefix(self._fence_prefix).lower()
+        if kroki_type not in self._kroki_types_supporting_file:
+            return
+
+        return kroki_type

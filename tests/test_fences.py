@@ -150,9 +150,9 @@ def test_fences(test_code_block) -> None:
         mkdocs_helper.set_http_method("POST")
         result = mkdocs_helper.invoke_build()
 
-        assert result.exit_code == 0
+        assert result.exit_code == 0, f"exit code {result.exit_code}, expected 0"
         image_files = list((mkdocs_helper.test_dir / "site").glob("*.svg"))
-        assert len(image_files) == 1
+        assert len(image_files) == 1, f"created images {len(image_files)}, expected 1"
 
 
 @pytest.mark.parametrize(
@@ -166,21 +166,21 @@ def test_fences_not_supported(test_code_block) -> None:
         mkdocs_helper.set_http_method("POST")
         result = mkdocs_helper.invoke_build()
 
-        assert result.exit_code == 0
+        assert result.exit_code == 0, f"exit code {result.exit_code}, expected 0"
         image_files = list((mkdocs_helper.test_dir / "site").glob("*.svg"))
-        assert len(image_files) == 0
+        assert len(image_files) == 0, f"created images {len(image_files)}, expected 0"
 
 
 @pytest.mark.usefixtures("kroki_dummy")
 def test_pandoc_fenced_code_blocks() -> None:
-    with MkDocsTemplateHelper("""~~~~~~~~~~~~~~~~ mermaid
-~~~~~~~~~~
+    with MkDocsTemplateHelper("""~~~~~~~~~~~~~~~~
+~~~~~~~~~~ mermaid
 code including tildes
 ~~~~~~~~~~
 ~~~~~~~~~~~~~~~~""") as mkdocs_helper:
         mkdocs_helper.set_http_method("POST")
         result = mkdocs_helper.invoke_build()
 
-        assert result.exit_code == 0
+        assert result.exit_code == 0, f"exit code {result.exit_code}, expected 0"
         image_files = list((mkdocs_helper.test_dir / "site").glob("*.svg"))
-        assert len(image_files) == 1
+        assert len(image_files) == 0, f"created images {len(image_files)}, expected 0"

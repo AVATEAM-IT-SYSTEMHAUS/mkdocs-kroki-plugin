@@ -14,6 +14,7 @@ def no_actual_requests_please(monkeypatch):
 class MockResponse:
     status_code: int
     content: None | bytes = None
+    text: None | str = None
 
 
 @pytest.fixture
@@ -31,7 +32,7 @@ def kroki_bad_request(monkeypatch) -> None:
     """Let request post calls always return a mocked response with status code 400"""
 
     def mock_post(*_args, **_kwargs):
-        return MockResponse(status_code=400)
+        return MockResponse(status_code=400, text="Error 400: Syntax Error? (line: 10)")
 
     monkeypatch.setattr(requests, "post", mock_post)
 

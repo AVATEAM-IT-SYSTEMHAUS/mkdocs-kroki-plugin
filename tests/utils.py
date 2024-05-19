@@ -11,7 +11,12 @@ import yaml
 from click.testing import CliRunner, Result
 from mkdocs.__main__ import build_command
 
+from kroki.logging import log
 from tests.compat import chdir
+
+
+def get_expected_log_line(log_msg) -> str:
+    return f"{log.prefix}: {log_msg}"
 
 
 class NoPluginEntryError(ValueError):
