@@ -22,7 +22,7 @@ class DeprecatedDownloadImagesCompat(config_options.Deprecated):
 class KrokiPluginConfig(MkDocsBaseConfig):
     ServerURL = config_options.URL(default=os.getenv("KROKI_SERVER_URL", "https://kroki.io"))
     EnableBlockDiag = config_options.Type(bool, default=True)
-    Enablebpmn = config_options.Type(bool, default=True)
+    EnableBpmn = config_options.Type(bool, default=True)
     EnableExcalidraw = config_options.Type(bool, default=True)
     EnableMermaid = config_options.Type(bool, default=True)
     EnableDiagramsnet = config_options.Type(bool, default=False)
@@ -34,4 +34,5 @@ class KrokiPluginConfig(MkDocsBaseConfig):
     FailFast = config_options.Type(bool, default=False)
 
     DownloadImages = DeprecatedDownloadImagesCompat(moved_to="HttpMethod: 'POST'")
+    Enablebpmn = config_options.Deprecated(moved_to="EnableBpmn")
     DownloadDir = config_options.Deprecated(removed=True)
