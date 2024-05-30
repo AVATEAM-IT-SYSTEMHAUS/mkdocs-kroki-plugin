@@ -8,7 +8,7 @@ from uuid import NAMESPACE_OID, uuid3
 import requests
 from result import Err, Ok, Result
 
-from kroki.common import ErrorResult, KrokiImageContext, MkDocsEventContext, MkDocsFile
+from kroki.common import ErrorResult, ImageSrc, KrokiImageContext, MkDocsEventContext, MkDocsFile
 from kroki.diagram_types import KrokiDiagramTypes
 from kroki.logging import log
 
@@ -63,26 +63,33 @@ class KrokiClient:
         log.debug("Client initialized [http_method: %s, server_url: %s]", self.http_method, self.server_url)
 
     def _kroki_url_base(self, kroki_type: str) -> str:
-        file_type = self.diagram_types.get_file_ext(kroki_type)
-        return f"{self.server_url}/{kroki_type}/{file_type}"
+        return f"{self.server_url}/{kroki_type}"
 
-    def _kroki_url_get(self, kroki_context: KrokiImageContext) -> Result[str, ErrorResult]:
+    def _get_file_ext(self, kroki_type: str) -> str:
+        return self.diagram_types.get_file_ext(kroki_type)
+
+    def _kroki_url_get(self, kroki_context: KrokiImageContext) -> Result[ImageSrc, ErrorResult]:
         kroki_data_param = base64.urlsafe_b64encode(zlib.compress(str.encode(kroki_context.data.unwrap()), 9)).decode()
 
         kroki_query_param = (
             "&".join([f"{k}={v}" for k, v in kroki_context.options.items()]) if len(kroki_context.options) > 0 else ""
         )
 
-        kroki_url = self._kroki_url_base(kroki_context.endpoint)
-        image_url = f"{kroki_url}/{kroki_data_param}?{kroki_query_param}"
+        kroki_endpoint = self._kroki_url_base(kroki_type=kroki_context.kroki_type)
+        file_ext = self._get_file_ext(kroki_context.kroki_type)
+        image_url = f"{kroki_endpoint}/{file_ext}/{kroki_data_param}?{kroki_query_param}"
         if len(image_url) >= MAX_URI_SIZE:
             log.warning("Kroki may not be able to read the data completely! [data_len: %i]", len(image_url))
 
         log.debug("Image url: %s", textwrap.shorten(image_url, 50))
-        return Ok(image_url)
+        return Ok(ImageSrc(url=image_url, file_ext=file_ext))
 
-    def _kroki_post(self, kroki_context: KrokiImageContext, context: MkDocsEventContext) -> Result[str, ErrorResult]:
-        url = self._kroki_url_base(kroki_context.endpoint)
+    def _kroki_post(
+        self, kroki_context: KrokiImageContext, context: MkDocsEventContext
+    ) -> Result[ImageSrc, ErrorResult]:
+        kroki_endpoint = self._kroki_url_base(kroki_context.kroki_type)
+        file_ext = self._get_file_ext(kroki_context.kroki_type)
+        url = f"{kroki_endpoint}/{file_ext}"
 
         log.debug("POST %s", textwrap.shorten(url, 50))
         try:
@@ -102,11 +109,11 @@ class KrokiClient:
         if response.status_code == requests.codes.ok:
             downloaded_image = DownloadedContent(
                 response.content,
-                self.diagram_types.get_file_ext(kroki_context.endpoint),
+                file_ext,
                 kroki_context.options,
             )
             downloaded_image.save(context)
-            return Ok(downloaded_image.file_name)
+            return Ok(ImageSrc(url=downloaded_image.file_name, file_ext=file_ext))
 
         if response.status_code == requests.codes.bad_request:
             return Err(ErrorResult(err_msg="Diagram error!", response_text=response.text))
@@ -114,10 +121,8 @@ class KrokiClient:
         return Err(ErrorResult(err_msg=f"Could not retrieve image data, got: {response}"))
 
     def get_image_url(
-        self,
-        kroki_context: KrokiImageContext,
-        context: MkDocsEventContext,
-    ) -> Result[str, ErrorResult]:
+        self, kroki_context: KrokiImageContext, context: MkDocsEventContext
+    ) -> Result[ImageSrc, ErrorResult]:
         if self.http_method == "GET":
             return self._kroki_url_get(kroki_context)
 

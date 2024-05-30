@@ -57,7 +57,7 @@ class MarkdownParser:
 
             kroki_options = match_obj.group("opts")
             kroki_context = KrokiImageContext(
-                endpoint=kroki_type,
+                kroki_type=kroki_type,
                 options=dict(x.split("=") for x in kroki_options.strip().split(" ")) if kroki_options else {},
                 data=self._get_block_content(textwrap.dedent(match_obj.group("code"))),
             )

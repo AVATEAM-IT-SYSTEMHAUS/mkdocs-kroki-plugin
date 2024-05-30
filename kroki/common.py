@@ -12,6 +12,12 @@ MkDocsFile = File
 
 
 @dataclass
+class ImageSrc:
+    url: str
+    file_ext: str
+
+
+@dataclass
 class ErrorResult:
     err_msg: str
     error: None | Exception = None
@@ -27,6 +33,6 @@ class MkDocsEventContext:
 
 @dataclass
 class KrokiImageContext:
-    endpoint: str
+    kroki_type: str
     options: dict
     data: Result[str, ErrorResult]
