@@ -3,11 +3,27 @@ from dataclasses import dataclass
 import pytest
 import requests
 
+from kroki.diagram_types import KrokiDiagramTypes
+
 
 @pytest.fixture(autouse=True)
 def no_actual_requests_please(monkeypatch):
     """Safeguard for missing requests mocks."""
     monkeypatch.delattr("requests.sessions.Session.request")
+
+
+@pytest.fixture
+def mock_kroki_diagram_types() -> KrokiDiagramTypes:
+    return KrokiDiagramTypes(
+        "",
+        ["svg"],
+        {},
+        blockdiag_enabled=True,
+        bpmn_enabled=True,
+        excalidraw_enabled=True,
+        mermaid_enabled=True,
+        diagramsnet_enabled=True,
+    )
 
 
 @dataclass

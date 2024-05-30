@@ -72,8 +72,9 @@ KROKI_SERVER_URL = "http://localhost:8080"
 
 [tool.hatch.envs.hatch-test]
 extra-dependencies = [
-  "mkdocs-material",
-  "click",
+    "pytest-mock",
+    "mkdocs-material",
+    "click",
 ]
 [[tool.hatch.envs.hatch-test.matrix]]
 python = ["3.10", "3.11", "3.12"]
