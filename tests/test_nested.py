@@ -26,6 +26,4 @@ graph TD
         assert result.exit_code == 0, f"exit code {result.exit_code}, expected 0"
         with open(mkdocs_helper.test_dir / "site/index.html") as index_html:
             index_soup = bs4.BeautifulSoup(index_html.read())
-            for string in index_soup.strings:
-                assert "![Kroki]" not in string, f"markdown image was not rendered to HTML: {string}"
-            assert len(index_soup.find_all("img", alt="Kroki")) == 2, "no image was included"
+            assert len(index_soup.find_all("object", attrs={"name": "Kroki"})) == 2, "not all image were included"

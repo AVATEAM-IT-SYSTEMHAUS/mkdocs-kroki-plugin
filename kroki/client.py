@@ -17,11 +17,20 @@ FILE_PREFIX: Final[str] = "kroki-generated-"
 
 
 class DownloadedContent:
+    def _ugly_temp_excalidraw_fix(self) -> None:
+        """TODO: remove me, when excalidraw container works again..
+        ref: https://github.com/excalidraw/excalidraw/issues/7366"""
+        self.file_content = self.file_content.replace(
+            b"https://unpkg.com/@excalidraw/excalidraw@undefined/dist",
+            b"https://unpkg.com/@excalidraw/excalidraw@0.17.1/dist",
+        )
+
     def __init__(self, file_content: bytes, file_extension: str, additional_metadata: None | dict) -> None:
         file_uuid = uuid3(NAMESPACE_OID, f"{additional_metadata}{file_content}")
 
         self.file_name = f"{FILE_PREFIX}{file_uuid}.{file_extension}"
         self.file_content = file_content
+        self._ugly_temp_excalidraw_fix()
 
     def save(self, context: MkDocsEventContext) -> None:
         # wherever MkDocs wants to host or build, we plant the image next
@@ -118,7 +127,9 @@ class KrokiClient:
         if response.status_code == requests.codes.bad_request:
             return Err(ErrorResult(err_msg="Diagram error!", response_text=response.text))
 
-        return Err(ErrorResult(err_msg=f"Could not retrieve image data, got: {response}"))
+        return Err(
+            ErrorResult(err_msg=f"Could not retrieve image data, got: {response.reason} [{response.status_code}]")
+        )
 
     def get_image_url(
         self, kroki_context: KrokiImageContext, context: MkDocsEventContext

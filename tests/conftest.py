@@ -32,6 +32,10 @@ class MockResponse:
     content: None | bytes = None
     text: None | str = None
 
+    @property
+    def reason(self) -> str:
+        return requests.codes.get(self.status_code)
+
 
 @pytest.fixture
 def kroki_timeout(monkeypatch) -> None:

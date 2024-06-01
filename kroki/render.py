@@ -11,8 +11,22 @@ class ContentRenderer:
         self.fail_fast = fail_fast
         self.kroki_client = kroki_client
 
+    def _get_media_type(self, file_ext: str) -> str:
+        match file_ext:
+            case "png":
+                return "image/png"
+            case "svg":
+                return "image/svg+xml"
+            case "jpeg":
+                return "image/jpg"
+            case "pdf":
+                return "application/pdf"
+            case _:
+                raise NotImplementedError(file_ext)
+
     def _image_response(self, image_src: ImageSrc) -> str:
-        return f"![Kroki]({image_src.url})"
+        media_type = self._get_media_type(image_src.file_ext)
+        return f'<object name="Kroki" type="{media_type}" data="{image_src.url}" style="max-width:100%"></object>'
 
     def _err_response(self, err_result: ErrorResult, kroki_data: None | str = None) -> str:
         if ErrorResult.error is None:
@@ -23,7 +37,13 @@ class ContentRenderer:
         if self.fail_fast:
             raise PluginError(err_result.err_msg) from err_result.error
 
-        return f'!!! error "{err_result.err_msg}"\n{err_result.response_text or ""}\n```\n{kroki_data or ""}\n```'
+        return (
+            '<details open="">'
+            f"<summary>{err_result.err_msg}</summary>"
+            f'<p>{err_result.response_text or ""}</p>'
+            f'<pre><code linenums="1">{kroki_data or ""}</code></pre>'
+            "</details>"
+        )
 
     def render_kroki_block(self, kroki_context: KrokiImageContext, context: MkDocsEventContext) -> str:
         match kroki_context.data:
