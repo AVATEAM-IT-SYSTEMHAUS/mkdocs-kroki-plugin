@@ -2,6 +2,7 @@
 
 ```c4plantuml
 !include <C4/C4_Context>
+!include <C4/C4_Container>
 
 title System Context diagram for MkDocs Kroki Plugin
 

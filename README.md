@@ -23,7 +23,7 @@ plugins:
 | `ServerURL` | URL of your kroki-Server, default: `!ENV [KROKI_SERVER_URL, 'https://kroki.io']` |
 | `FencePrefix` | Diagram prefix, default: `kroki-` |
 | `EnableBlockDiag` | Enable BlockDiag (and the related Diagrams), default: `true` |
-| `Enablebpmn` | Enable BPMN, default: `true` |
+| `EnableBpmn` | Enable BPMN, default: `true` |
 | `EnableExcalidraw` | Enable Excalidraw, default: `true` |
 | `EnableMermaid` | Enable Mermaid, default: `true` |
 | `EnableDiagramsnet` | Enable diagrams.net (draw.io), default: `false` |

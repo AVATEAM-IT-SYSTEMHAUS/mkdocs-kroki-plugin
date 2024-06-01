@@ -1,133 +1,140 @@
 import base64
+import textwrap
 import zlib
-from dataclasses import dataclass
-from logging import DEBUG
+from os import makedirs, path
 from typing import Final
+from uuid import NAMESPACE_OID, uuid3
 
 import requests
-from mkdocs.exceptions import PluginError
-from mkdocs.plugins import get_plugin_logger
-from mkdocs.structure.files import Files as MkDocsFiles
-from mkdocs.structure.pages import Page as MkDocsPage
+from result import Err, Ok, Result
 
-from kroki.config import KrokiDiagramTypes
-from kroki.util import DownloadedImage
-
-log = get_plugin_logger(__name__)
-
+from kroki.common import ErrorResult, ImageSrc, KrokiImageContext, MkDocsEventContext, MkDocsFile
+from kroki.diagram_types import KrokiDiagramTypes
+from kroki.logging import log
 
 MAX_URI_SIZE: Final[int] = 4096
+FILE_PREFIX: Final[str] = "kroki-generated-"
 
 
-@dataclass
-class KrokiResponse:
-    err_msg: None | str = None
-    image_url: None | str = None
+class DownloadedContent:
+    def _ugly_temp_excalidraw_fix(self) -> None:
+        """TODO: remove me, when excalidraw container works again..
+        ref: https://github.com/excalidraw/excalidraw/issues/7366"""
+        self.file_content = self.file_content.replace(
+            b"https://unpkg.com/@excalidraw/excalidraw@undefined/dist",
+            b"https://unpkg.com/@excalidraw/excalidraw@0.17.1/dist",
+        )
 
-    def is_ok(self) -> bool:
-        return self.image_url is not None and self.err_msg is None
+    def __init__(self, file_content: bytes, file_extension: str, additional_metadata: None | dict) -> None:
+        file_uuid = uuid3(NAMESPACE_OID, f"{additional_metadata}{file_content}")
+
+        self.file_name = f"{FILE_PREFIX}{file_uuid}.{file_extension}"
+        self.file_content = file_content
+        self._ugly_temp_excalidraw_fix()
+
+    def save(self, context: MkDocsEventContext) -> None:
+        # wherever MkDocs wants to host or build, we plant the image next
+        # to the generated static page
+        page_abs_dest_dir = path.dirname(context.page.file.abs_dest_path)
+        makedirs(page_abs_dest_dir, exist_ok=True)
+
+        file_path = path.join(page_abs_dest_dir, self.file_name)
+
+        log.debug("Saving downloaded data: %s", file_path)
+        with open(file_path, "wb") as file:
+            file.write(self.file_content)
+
+        # make MkDocs believe that the file was present from the beginning
+        file_src_uri = path.join(path.dirname(context.page.file.src_uri), self.file_name)
+        file_dest_uri = path.join(path.dirname(context.page.file.dest_uri), self.file_name)
+
+        dummy_file = MkDocsFile(
+            path=file_src_uri,
+            src_dir="",
+            dest_dir="",
+            use_directory_urls=False,
+            dest_uri=file_dest_uri,
+        )
+        # MkDocs will not copy the file in this case
+        dummy_file.abs_src_path = dummy_file.abs_dest_path = file_path
+
+        log.debug("Appending dummy mkdocs file: %s", dummy_file)
+        context.files.append(dummy_file)
 
 
 class KrokiClient:
-    def __init__(
-        self,
-        server_url: str,
-        http_method: str,
-        user_agent: str,
-        diagram_types: KrokiDiagramTypes,
-        *,
-        fail_fast: bool,
-    ) -> None:
+    def __init__(self, server_url: str, http_method: str, user_agent: str, diagram_types: KrokiDiagramTypes) -> None:
         self.server_url = server_url
         self.http_method = http_method
         self.headers = {"User-Agent": user_agent}
         self.diagram_types = diagram_types
-        self.fail_fast = fail_fast
 
-        log.debug("Client initialized", extra={"http_method": self.http_method, "server_url": self.server_url})
+        log.debug("Client initialized [http_method: %s, server_url: %s]", self.http_method, self.server_url)
 
     def _kroki_url_base(self, kroki_type: str) -> str:
-        file_type = self.diagram_types.get_file_ext(kroki_type)
-        return f"{self.server_url}/{kroki_type}/{file_type}"
+        return f"{self.server_url}/{kroki_type}"
 
-    def _kroki_url_get(
-        self,
-        kroki_type: str,
-        kroki_diagram_data: str,
-        kroki_diagram_options: dict[str, str],
-    ) -> KrokiResponse:
-        kroki_data_param = base64.urlsafe_b64encode(zlib.compress(str.encode(kroki_diagram_data), 9)).decode()
+    def _get_file_ext(self, kroki_type: str) -> str:
+        return self.diagram_types.get_file_ext(kroki_type)
+
+    def _kroki_url_get(self, kroki_context: KrokiImageContext) -> Result[ImageSrc, ErrorResult]:
+        kroki_data_param = base64.urlsafe_b64encode(zlib.compress(str.encode(kroki_context.data.unwrap()), 9)).decode()
 
         kroki_query_param = (
-            "&".join([f"{k}={v}" for k, v in kroki_diagram_options.items()]) if len(kroki_diagram_options) > 0 else ""
+            "&".join([f"{k}={v}" for k, v in kroki_context.options.items()]) if len(kroki_context.options) > 0 else ""
         )
 
-        kroki_url = self._kroki_url_base(kroki_type)
-        image_url = f"{kroki_url}/{kroki_data_param}?{kroki_query_param}"
+        kroki_endpoint = self._kroki_url_base(kroki_type=kroki_context.kroki_type)
+        file_ext = self._get_file_ext(kroki_context.kroki_type)
+        image_url = f"{kroki_endpoint}/{file_ext}/{kroki_data_param}?{kroki_query_param}"
         if len(image_url) >= MAX_URI_SIZE:
-            log.warning("Kroki may not be able to read the data completely!", extra={"data_len": len(image_url)})
+            log.warning("Kroki may not be able to read the data completely! [data_len: %i]", len(image_url))
 
-        log.debug("Image url: %s", image_url)
-        return KrokiResponse(image_url=image_url)
+        log.debug("Image url: %s", textwrap.shorten(image_url, 50))
+        return Ok(ImageSrc(url=image_url, file_ext=file_ext))
 
     def _kroki_post(
-        self,
-        kroki_type: str,
-        kroki_diagram_data: str,
-        kroki_diagram_options: dict[str, str],
-        files: MkDocsFiles,
-        page: MkDocsPage,
-    ) -> KrokiResponse:
-        url = self._kroki_url_base(kroki_type)
+        self, kroki_context: KrokiImageContext, context: MkDocsEventContext
+    ) -> Result[ImageSrc, ErrorResult]:
+        kroki_endpoint = self._kroki_url_base(kroki_context.kroki_type)
+        file_ext = self._get_file_ext(kroki_context.kroki_type)
+        url = f"{kroki_endpoint}/{file_ext}"
 
-        log.debug("POST %s", url)
+        log.debug("POST %s", textwrap.shorten(url, 50))
         try:
             response = requests.post(
                 url,
                 headers=self.headers,
                 json={
-                    "diagram_source": kroki_diagram_data,
-                    "diagram_options": kroki_diagram_options,
+                    "diagram_source": kroki_context.data.unwrap(),
+                    "diagram_options": kroki_context.options,
                 },
                 timeout=10,
+                stream=True,
             )
         except requests.RequestException as error:
-            error_message = f"Request error [url:{url}]: {error}"
-            log.exception(error_message, stack_info=log.isEnabledFor(DEBUG))
-            if self.fail_fast:
-                raise PluginError(error_message) from error
-
-            return KrokiResponse(err_msg=error_message)
+            return Err(ErrorResult(err_msg=f"Request error [url:{url}]: {error}", error=error))
 
         if response.status_code == requests.codes.ok:
-            downloaded_image = DownloadedImage(
+            downloaded_image = DownloadedContent(
                 response.content,
-                self.diagram_types.get_file_ext(kroki_type),
-                kroki_diagram_options,
+                file_ext,
+                kroki_context.options,
             )
-            downloaded_image.save(files, page)
-            return KrokiResponse(image_url=downloaded_image.file_name)
+            downloaded_image.save(context)
+            return Ok(ImageSrc(url=downloaded_image.file_name, file_ext=file_ext))
 
-        error_message = (
-            "Diagram error!"
-            if response.status_code == requests.codes.bad_request
-            else f"Could not retrieve image data, got: {response}"
+        if response.status_code == requests.codes.bad_request:
+            return Err(ErrorResult(err_msg="Diagram error!", response_text=response.text))
+
+        return Err(
+            ErrorResult(err_msg=f"Could not retrieve image data, got: {response.reason} [{response.status_code}]")
         )
-        log.error(error_message)
-        if self.fail_fast:
-            raise PluginError(error_message)
-
-        return KrokiResponse(err_msg=error_message)
 
     def get_image_url(
-        self,
-        kroki_type: str,
-        kroki_diagram_data: str,
-        kroki_diagram_options: dict[str, str],
-        files: MkDocsFiles,
-        page: MkDocsPage,
-    ) -> KrokiResponse:
+        self, kroki_context: KrokiImageContext, context: MkDocsEventContext
+    ) -> Result[ImageSrc, ErrorResult]:
         if self.http_method == "GET":
-            return self._kroki_url_get(kroki_type, kroki_diagram_data, kroki_diagram_options)
+            return self._kroki_url_get(kroki_context)
 
-        return self._kroki_post(kroki_type, kroki_diagram_data, kroki_diagram_options, files, page)
+        return self._kroki_post(kroki_context, context)

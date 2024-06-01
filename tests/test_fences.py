@@ -1,120 +1,264 @@
-import pytest
+from dataclasses import dataclass
 
-from tests.utils import MkDocsTemplateHelper
+import pytest
+from pytest_mock import MockerFixture
+from result import Ok
+
+from kroki.common import KrokiImageContext
+from kroki.parsing import KrokiDiagramTypes, MarkdownParser
+
+
+@dataclass
+class StubInput:
+    page_data: str
+    expected_code_block_data: str | None = None
+    epxected_options: dict | None = None
+    expected_kroki_type: str | None = None
+
 
 TEST_CASES = {
-    "#35": """
+    "#35": StubInput(
+        page_data="""
 ```` plantuml
     stuff containing ```
+
 ````
 """,
-    "https://spec.commonmark.org/0.31.2/#example-119": """
+        expected_code_block_data="stuff containing ```\n\n",
+        expected_kroki_type="plantuml",
+        epxected_options={},
+    ),
+    "https://pandoc.org/MANUAL.html#fenced-code-blocks": StubInput(
+        page_data="""~~~~~~~~~~~~~~~~ mermaid
+~~~~~~~~~~
+code including tildes
+~~~~~~~~~~
+~~~~~~~~~~~~~~~~""",
+        expected_code_block_data="~~~~~~~~~~\ncode including tildes\n~~~~~~~~~~\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-119": StubInput(
+        page_data="""
 ``` mermaid
 <
  >
 ```
 """,
-    "https://spec.commonmark.org/0.31.2/#example-120": """
+        expected_code_block_data="<\n >\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-120": StubInput(
+        page_data="""
 ~~~ mermaid
 <
  >
 ~~~
 """,
-    "https://spec.commonmark.org/0.31.2/#example-122": """
+        expected_code_block_data="<\n >\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-122": StubInput(
+        page_data="""
 ``` mermaid
 aaa
 ~~~
 ```
 """,
-    "https://spec.commonmark.org/0.31.2/#example-123": """
+        expected_code_block_data="aaa\n~~~\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-123": StubInput(
+        page_data="""
 ~~~ mermaid
 aaa
 ```
 ~~~
 """,
-    "https://spec.commonmark.org/0.31.2/#example-125": """
+        expected_code_block_data="aaa\n```\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-125": StubInput(
+        page_data="""
 ~~~~ mermaid
 aaa
 ~~~
 ~~~~
 """,
-    "https://spec.commonmark.org/0.31.2/#example-129": """
+        expected_code_block_data="aaa\n~~~\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-129": StubInput(
+        page_data="""
 ``` mermaid
 
 
 ```
 """,
-    "https://spec.commonmark.org/0.31.2/#example-130": """
+        expected_code_block_data="\n\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-130": StubInput(
+        page_data="""
 ``` mermaid
 ```
 """,
+        expected_code_block_data="",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-147": StubInput(
+        page_data="""
+``` mermaid
+``` aaa
+```
+""",
+        expected_code_block_data="``` aaa\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
 }
 
-TEST_CASES_NOT_SUPPORTED = {
-    "https://spec.commonmark.org/0.31.2/#example-121": """
-`` mermaid
-foo
-``
-""",
-    "https://spec.commonmark.org/0.31.2/#example-124": """
-```` mermaid
-aaa
-```
-``````
-""",
-    "https://spec.commonmark.org/0.31.2/#example-126": """
-``` mermaid
-""",
-    "https://spec.commonmark.org/0.31.2/#example-127": """
-````` mermaid
-
-```
-aaa
-""",
-    "https://spec.commonmark.org/0.31.2/#example-128": """
-> ``` mermaid
-> aaa
-
-bbb
-""",
-    "https://spec.commonmark.org/0.31.2/#example-131": """
- ``` mermaid
- aaa
-aaa
-```
-""",
-    "https://spec.commonmark.org/0.31.2/#example-132": """
-  ```
+TEST_CASES_NOT_COMPLYING = {
+    "https://spec.commonmark.org/0.31.2/#example-132": StubInput(
+        page_data="""
+  ``` mermaid
 aaa
   aaa
 aaa
   ```
 """,
-    "https://spec.commonmark.org/0.31.2/#example-133": """
-   ```
+        expected_code_block_data="aaa\n  aaa\naaa\n",  # "aaa\naaa\naaa\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-133": StubInput(
+        page_data="""
+   ``` mermaid
    aaa
     aaa
   aaa
    ```
 """,
-    "https://spec.commonmark.org/0.31.2/#example-135": """
+        expected_code_block_data=" aaa\n  aaa\naaa\n",  # "aaa\n aaa\naaa\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+}
+
+TEST_CASES_NOT_SUPPORTED = {
+    "https://spec.commonmark.org/0.31.2/#example-121": StubInput(
+        page_data="""
+`` mermaid
+foo
+``
+""",
+        expected_code_block_data="foo\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-124": StubInput(
+        page_data="""
+```` mermaid
+aaa
+```
+``````
+""",
+        expected_code_block_data="aaa\n```\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-126": StubInput(
+        page_data="""
+``` mermaid
+""",
+        expected_code_block_data="\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-127": StubInput(
+        page_data="""
+````` mermaid
+
+```
+aaa
+""",
+        expected_code_block_data="\n```\naaa\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-128": StubInput(
+        page_data="""
+> ``` mermaid
+> aaa
+
+bbb
+""",
+        expected_code_block_data="aaa\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-131": StubInput(
+        page_data="""
+ ``` mermaid
+ aaa
+aaa
+```
+""",
+        expected_code_block_data="aaa\naaa\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-134": StubInput(
+        page_data="""
+    ``` mermaid
+    aaa
+    ```,
+            expected_code_block_data="aaa\n",  # should not be replaced..
+        expected_kroki_type="mermaid",
+        epxected_options={},
+"""
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-135": StubInput(
+        page_data="""
 ```
 aaa
   ```
 """,
-    "https://spec.commonmark.org/0.31.2/#example-136": """
+        expected_code_block_data="aaa\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-136": StubInput(
+        page_data="""
    ```
 aaa
   ```
 """,
-    "https://spec.commonmark.org/0.31.2/#example-140": """
+        expected_code_block_data="aaa\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-140": StubInput(
+        page_data="""
 foo
 ```
 bar
 ```
 baz
 """,
-    "https://spec.commonmark.org/0.31.2/#example-141": """
+        expected_code_block_data="bar\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-141": StubInput(
+        page_data="""
 foo
 ---
 ~~~
@@ -122,65 +266,55 @@ bar
 ~~~
 # baz
 """,
-    "https://spec.commonmark.org/0.31.2/#example-146": """
-~~~ aa ``` ~~~
+        expected_code_block_data="bar\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-146": StubInput(
+        page_data="""
+~~~ mermaid ``` ~~~
 foo
 ~~~
 """,
-    "https://spec.commonmark.org/0.31.2/#example-147": """
-```
-``` aaa
-```
-""",
+        expected_code_block_data="foo\n",
+        expected_kroki_type="mermaid",
+        epxected_options={},
+    ),
 }
-
-TEST_CASES_ESCAPED = {
-    "https://spec.commonmark.org/0.31.2/#example-134": """
-    ```
-    aaa
-    ```
-""",
-}
-
-
-@pytest.mark.parametrize("test_code_block", [pytest.param(v, id=k) for k, v in TEST_CASES.items()])
-@pytest.mark.usefixtures("kroki_dummy")
-def test_fences(test_code_block) -> None:
-    with MkDocsTemplateHelper(test_code_block) as mkdocs_helper:
-        mkdocs_helper.set_http_method("POST")
-        result = mkdocs_helper.invoke_build()
-
-        assert result.exit_code == 0
-        image_files = list((mkdocs_helper.test_dir / "site").glob("*.svg"))
-        assert len(image_files) == 1
 
 
 @pytest.mark.parametrize(
-    "test_code_block",
-    [pytest.param(v, id=k) for k, v in TEST_CASES_NOT_SUPPORTED.items()]
-    + [pytest.param(v, id=k) for k, v in TEST_CASES_ESCAPED.items()],
+    "test_data",
+    [pytest.param(v, id=k) for k, v in TEST_CASES.items()]
+    + [pytest.param(v, id=k) for k, v in TEST_CASES_NOT_COMPLYING.items()],
 )
-@pytest.mark.usefixtures("kroki_dummy")
-def test_fences_not_supported(test_code_block) -> None:
-    with MkDocsTemplateHelper(test_code_block) as mkdocs_helper:
-        mkdocs_helper.set_http_method("POST")
-        result = mkdocs_helper.invoke_build()
+def test_fences(test_data: StubInput, mock_kroki_diagram_types: KrokiDiagramTypes, mocker: MockerFixture) -> None:
+    parser = MarkdownParser("", mock_kroki_diagram_types)
 
-        assert result.exit_code == 0
-        image_files = list((mkdocs_helper.test_dir / "site").glob("*.svg"))
-        assert len(image_files) == 0
+    callback_stub = mocker.stub()
+    context_stub = mocker.stub()
+
+    parser.replace_kroki_blocks(test_data.page_data, callback_stub, context_stub)
+
+    callback_stub.assert_called_once_with(
+        KrokiImageContext(
+            kroki_type=test_data.expected_kroki_type,
+            data=Ok(test_data.expected_code_block_data),
+            options=test_data.epxected_options,
+        ),
+        context_stub,
+    )
 
 
-@pytest.mark.usefixtures("kroki_dummy")
-def test_pandoc_fenced_code_blocks() -> None:
-    with MkDocsTemplateHelper("""~~~~~~~~~~~~~~~~ mermaid
-~~~~~~~~~~
-code including tildes
-~~~~~~~~~~
-~~~~~~~~~~~~~~~~""") as mkdocs_helper:
-        mkdocs_helper.set_http_method("POST")
-        result = mkdocs_helper.invoke_build()
+@pytest.mark.parametrize("test_data", [pytest.param(v, id=k) for k, v in TEST_CASES_NOT_SUPPORTED.items()])
+def test_fences_not_supported(
+    test_data: StubInput, mock_kroki_diagram_types: KrokiDiagramTypes, mocker: MockerFixture
+) -> None:
+    parser = MarkdownParser("", mock_kroki_diagram_types)
 
-        assert result.exit_code == 0
-        image_files = list((mkdocs_helper.test_dir / "site").glob("*.svg"))
-        assert len(image_files) == 1
+    callback_stub = mocker.stub()
+    context_stub = mocker.stub()
+
+    parser.replace_kroki_blocks(test_data.page_data, callback_stub, context_stub)
+
+    callback_stub.assert_not_called()

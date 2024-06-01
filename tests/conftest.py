@@ -3,6 +3,8 @@ from dataclasses import dataclass
 import pytest
 import requests
 
+from kroki.diagram_types import KrokiDiagramTypes
+
 
 @pytest.fixture(autouse=True)
 def no_actual_requests_please(monkeypatch):
@@ -10,10 +12,29 @@ def no_actual_requests_please(monkeypatch):
     monkeypatch.delattr("requests.sessions.Session.request")
 
 
+@pytest.fixture
+def mock_kroki_diagram_types() -> KrokiDiagramTypes:
+    return KrokiDiagramTypes(
+        "",
+        ["svg"],
+        {},
+        blockdiag_enabled=True,
+        bpmn_enabled=True,
+        excalidraw_enabled=True,
+        mermaid_enabled=True,
+        diagramsnet_enabled=True,
+    )
+
+
 @dataclass
 class MockResponse:
     status_code: int
     content: None | bytes = None
+    text: None | str = None
+
+    @property
+    def reason(self) -> str:
+        return requests.codes.get(self.status_code)
 
 
 @pytest.fixture
@@ -31,7 +52,7 @@ def kroki_bad_request(monkeypatch) -> None:
     """Let request post calls always return a mocked response with status code 400"""
 
     def mock_post(*_args, **_kwargs):
-        return MockResponse(status_code=400)
+        return MockResponse(status_code=400, text="Error 400: Syntax Error? (line: 10)")
 
     monkeypatch.setattr(requests, "post", mock_post)
 

@@ -1,95 +1,38 @@
-from typing import ClassVar
+import os
 
-from mkdocs.plugins import get_plugin_logger
+from mkdocs.config import config_options
+from mkdocs.config.base import Config as MkDocsBaseConfig
 
-log = get_plugin_logger(__name__)
+from kroki import version
 
 
-class KrokiDiagramTypes:
-    kroki_base: ClassVar[dict[str, list[str]]] = {
-        "bytefield": ["svg"],
-        "ditaa": ["png", "svg"],
-        "erd": ["png", "svg", "jpeg", "pdf"],
-        "graphviz": ["png", "svg", "jpeg", "pdf"],
-        "nomnoml": ["svg"],
-        "plantuml": ["png", "svg", "jpeg", "base64"],
-        "structurizr": ["png", "svg"],
-        "c4plantuml": ["png", "svg", "jpeg", "base64"],
-        "svgbob": ["svg"],
-        "vega": ["png", "svg", "pdf"],
-        "vegalite": ["png", "svg", "pdf"],
-        "wavedrom": ["svg"],
-        "pikchr": ["svg"],
-        "umlet": ["png", "svg"],
-        "d2": ["svg"],
-        "dbml": ["svg"],
-        "tikz": ["png", "svg", "jpeg", "pdf"],
-        "symbolator": ["svg"],
-        "wireviz": ["png", "svg"],
-    }
+class DeprecatedDownloadImagesCompat(config_options.Deprecated):
+    def pre_validation(self, config: "KrokiPluginConfig", key_name: str) -> None:
+        """Set `HttpMethod: 'POST'`, if enabled"""
+        if config.get(key_name) is None:
+            return
 
-    kroki_blockdiag: ClassVar[dict[str, list[str]]] = {
-        "blockdiag": ["png", "svg", "pdf"],
-        "seqdiag": ["png", "svg", "pdf"],
-        "actdiag": ["png", "svg", "pdf"],
-        "nwdiag": ["png", "svg", "pdf"],
-        "packetdiag": ["png", "svg", "pdf"],
-        "rackdiag": ["png", "svg", "pdf"],
-    }
+        self.warnings.append(self.message.format(key_name))
 
-    kroki_bpmn: ClassVar[dict[str, list[str]]] = {
-        "bpmn": ["svg"],
-    }
+        download_images: bool = config.pop(key_name)
+        if download_images:
+            config.HttpMethod = "POST"
 
-    kroki_excalidraw: ClassVar[dict[str, list[str]]] = {
-        "excalidraw": ["svg"],
-    }
 
-    kroki_mermaid: ClassVar[dict[str, list[str]]] = {
-        "mermaid": ["png", "svg"],
-    }
+class KrokiPluginConfig(MkDocsBaseConfig):
+    ServerURL = config_options.URL(default=os.getenv("KROKI_SERVER_URL", "https://kroki.io"))
+    EnableBlockDiag = config_options.Type(bool, default=True)
+    EnableBpmn = config_options.Type(bool, default=True)
+    EnableExcalidraw = config_options.Type(bool, default=True)
+    EnableMermaid = config_options.Type(bool, default=True)
+    EnableDiagramsnet = config_options.Type(bool, default=False)
+    HttpMethod = config_options.Choice(choices=["GET", "POST"], default="GET")
+    UserAgent = config_options.Type(str, default=f"{__name__}/{version}")
+    FencePrefix = config_options.Type(str, default="kroki-")
+    FileTypes = config_options.Type(list, default=["svg"])
+    FileTypeOverrides = config_options.Type(dict, default={})
+    FailFast = config_options.Type(bool, default=False)
 
-    kroki_diagramsnet: ClassVar[dict[str, list[str]]] = {
-        "diagramsnet": ["svg"],
-    }
-
-    def __init__(
-        self,
-        *,
-        blockdiag_enabled: bool,
-        bpmn_enabled: bool,
-        excalidraw_enabled: bool,
-        mermaid_enabled: bool,
-        diagramsnet_enabled: bool,
-        file_types: list[str],
-        file_type_overrides: dict[str, str],
-    ):
-        diagram_types = self.kroki_base.copy()
-
-        if blockdiag_enabled:
-            diagram_types.update(self.kroki_blockdiag)
-        if bpmn_enabled:
-            diagram_types.update(self.kroki_bpmn)
-        if excalidraw_enabled:
-            diagram_types.update(self.kroki_excalidraw)
-        if mermaid_enabled:
-            diagram_types.update(self.kroki_mermaid)
-        if diagramsnet_enabled:
-            diagram_types.update(self.kroki_diagramsnet)
-
-        self.diagram_types_supporting_file = {}
-
-        for diagram_type, diagram_file_types in diagram_types.items():
-            diagram_file_type = next(filter(lambda file: file in diagram_file_types, file_types), None)
-            if diagram_file_type is not None:
-                self.diagram_types_supporting_file[diagram_type] = next(
-                    filter(lambda file: file in diagram_file_types, file_types), None
-                )
-
-        for diagram_type, diagram_file_type in file_type_overrides.items():
-            self.diagram_types_supporting_file[diagram_type] = diagram_file_type
-
-        log.debug("File and Diagram types configured: %s", self.diagram_types_supporting_file)
-
-    def get_file_ext(self, kroki_type: str) -> str:
-        return self.diagram_types_supporting_file[kroki_type]
+    DownloadImages = DeprecatedDownloadImagesCompat(moved_to="HttpMethod: 'POST'")
+    Enablebpmn = config_options.Deprecated(moved_to="EnableBpmn")
+    DownloadDir = config_options.Deprecated(removed=True)
