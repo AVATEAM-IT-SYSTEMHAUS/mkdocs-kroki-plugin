@@ -68,6 +68,7 @@ include = [
 [tool.hatch.envs.test]
 template = "hatch-test"
 [tool.hatch.envs.test.env-vars]
+# start local test kroki:
 KROKI_SERVER_URL = "http://localhost:8080"
 
 [tool.hatch.envs.hatch-test]
@@ -78,7 +79,7 @@ extra-dependencies = [
     "click",
 ]
 [[tool.hatch.envs.hatch-test.matrix]]
-python = ["3.10", "3.11", "3.12"]
+python = ["3.9", "3.10", "3.11", "3.12", "3.13"]
 [tool.hatch.envs.hatch-test.scripts]
 run = "pytest {env:HATCH_TEST_ARGS:} {args:tests}"
 run-cov = "coverage run -m pytest {env:HATCH_TEST_ARGS:} {args:tests} --junitxml=junit/test-results.xml"
@@ -87,3 +88,11 @@ cov-report = [
     "coverage xml",
     "coverage report --omit='tests/*'",
 ]
+
+[tool.hatch.envs.types]
+template = "hatch-test"
+extra-dependencies = [
+  "mypy",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive ."
