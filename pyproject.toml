@@ -28,7 +28,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -69,6 +68,7 @@ include = [
 template = "hatch-test"
 [tool.hatch.envs.test.env-vars]
 # start local test kroki:
+#   docker-compose up
 KROKI_SERVER_URL = "http://localhost:8080"
 
 [tool.hatch.envs.hatch-test]
@@ -79,7 +79,7 @@ extra-dependencies = [
     "click",
 ]
 [[tool.hatch.envs.hatch-test.matrix]]
-python = ["3.9", "3.10", "3.11", "3.12", "3.13"]
+python = ["3.10", "3.11", "3.12"]
 [tool.hatch.envs.hatch-test.scripts]
 run = "pytest {env:HATCH_TEST_ARGS:} {args:tests}"
 run-cov = "coverage run -m pytest {env:HATCH_TEST_ARGS:} {args:tests} --junitxml=junit/test-results.xml"
