@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import pytest
 from pytest_mock import MockerFixture
@@ -11,9 +11,9 @@ from kroki.parsing import KrokiDiagramTypes, MarkdownParser
 @dataclass
 class StubInput:
     page_data: str
-    expected_code_block_data: str | None = None
-    epxected_options: dict | None = None
-    expected_kroki_type: str | None = None
+    expected_code_block_data: str = ""
+    epxected_options: dict = field(default_factory=dict)
+    expected_kroki_type: str = ""
 
 
 TEST_CASES = {
@@ -26,7 +26,6 @@ TEST_CASES = {
 """,
         expected_code_block_data="stuff containing ```\n\n",
         expected_kroki_type="plantuml",
-        epxected_options={},
     ),
     "https://pandoc.org/MANUAL.html#fenced-code-blocks": StubInput(
         page_data="""~~~~~~~~~~~~~~~~ mermaid
@@ -36,7 +35,6 @@ code including tildes
 ~~~~~~~~~~~~~~~~""",
         expected_code_block_data="~~~~~~~~~~\ncode including tildes\n~~~~~~~~~~\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-119": StubInput(
         page_data="""
@@ -47,7 +45,6 @@ code including tildes
 """,
         expected_code_block_data="<\n >\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-120": StubInput(
         page_data="""
@@ -58,7 +55,6 @@ code including tildes
 """,
         expected_code_block_data="<\n >\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-122": StubInput(
         page_data="""
@@ -69,7 +65,6 @@ aaa
 """,
         expected_code_block_data="aaa\n~~~\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-123": StubInput(
         page_data="""
@@ -80,7 +75,6 @@ aaa
 """,
         expected_code_block_data="aaa\n```\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-125": StubInput(
         page_data="""
@@ -91,7 +85,6 @@ aaa
 """,
         expected_code_block_data="aaa\n~~~\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-129": StubInput(
         page_data="""
@@ -102,7 +95,6 @@ aaa
 """,
         expected_code_block_data="\n\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-130": StubInput(
         page_data="""
@@ -111,7 +103,6 @@ aaa
 """,
         expected_code_block_data="",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-147": StubInput(
         page_data="""
@@ -121,7 +112,6 @@ aaa
 """,
         expected_code_block_data="``` aaa\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
 }
 
@@ -136,7 +126,6 @@ aaa
 """,
         expected_code_block_data="aaa\n  aaa\naaa\n",  # "aaa\naaa\naaa\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-133": StubInput(
         page_data="""
@@ -148,7 +137,15 @@ aaa
 """,
         expected_code_block_data=" aaa\n  aaa\naaa\n",  # "aaa\n aaa\naaa\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
+    ),
+    "https://spec.commonmark.org/0.31.2/#example-134": StubInput(
+        page_data="""
+    ``` mermaid
+    aaa
+    ```
+""",
+        expected_code_block_data="aaa\n",  # should not be replaced..
+        expected_kroki_type="mermaid",
     ),
 }
 
@@ -161,7 +158,6 @@ foo
 """,
         expected_code_block_data="foo\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-124": StubInput(
         page_data="""
@@ -172,7 +168,6 @@ aaa
 """,
         expected_code_block_data="aaa\n```\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-126": StubInput(
         page_data="""
@@ -180,7 +175,6 @@ aaa
 """,
         expected_code_block_data="\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-127": StubInput(
         page_data="""
@@ -191,7 +185,6 @@ aaa
 """,
         expected_code_block_data="\n```\naaa\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-128": StubInput(
         page_data="""
@@ -202,7 +195,6 @@ bbb
 """,
         expected_code_block_data="aaa\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-131": StubInput(
         page_data="""
@@ -213,17 +205,6 @@ aaa
 """,
         expected_code_block_data="aaa\naaa\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
-    ),
-    "https://spec.commonmark.org/0.31.2/#example-134": StubInput(
-        page_data="""
-    ``` mermaid
-    aaa
-    ```,
-            expected_code_block_data="aaa\n",  # should not be replaced..
-        expected_kroki_type="mermaid",
-        epxected_options={},
-"""
     ),
     "https://spec.commonmark.org/0.31.2/#example-135": StubInput(
         page_data="""
@@ -233,7 +214,6 @@ aaa
 """,
         expected_code_block_data="aaa\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-136": StubInput(
         page_data="""
@@ -243,7 +223,6 @@ aaa
 """,
         expected_code_block_data="aaa\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-140": StubInput(
         page_data="""
@@ -255,7 +234,6 @@ baz
 """,
         expected_code_block_data="bar\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-141": StubInput(
         page_data="""
@@ -268,7 +246,6 @@ bar
 """,
         expected_code_block_data="bar\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
     "https://spec.commonmark.org/0.31.2/#example-146": StubInput(
         page_data="""
@@ -278,7 +255,6 @@ foo
 """,
         expected_code_block_data="foo\n",
         expected_kroki_type="mermaid",
-        epxected_options={},
     ),
 }
 
@@ -289,13 +265,13 @@ foo
     + [pytest.param(v, id=k) for k, v in TEST_CASES_NOT_COMPLYING.items()],
 )
 def test_fences(test_data: StubInput, mock_kroki_diagram_types: KrokiDiagramTypes, mocker: MockerFixture) -> None:
+    # Arrange
     parser = MarkdownParser("", mock_kroki_diagram_types)
-
     callback_stub = mocker.stub()
     context_stub = mocker.stub()
-
+    # Act
     parser.replace_kroki_blocks(test_data.page_data, callback_stub, context_stub)
-
+    # Assert
     callback_stub.assert_called_once_with(
         KrokiImageContext(
             kroki_type=test_data.expected_kroki_type,
@@ -310,11 +286,11 @@ def test_fences(test_data: StubInput, mock_kroki_diagram_types: KrokiDiagramType
 def test_fences_not_supported(
     test_data: StubInput, mock_kroki_diagram_types: KrokiDiagramTypes, mocker: MockerFixture
 ) -> None:
+    # Arrange
     parser = MarkdownParser("", mock_kroki_diagram_types)
-
     callback_stub = mocker.stub()
     context_stub = mocker.stub()
-
+    # Act
     parser.replace_kroki_blocks(test_data.page_data, callback_stub, context_stub)
-
+    # Assert
     callback_stub.assert_not_called()

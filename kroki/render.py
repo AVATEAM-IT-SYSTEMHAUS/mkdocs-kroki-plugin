@@ -22,7 +22,8 @@ class ContentRenderer:
             case "pdf":
                 return "application/pdf"
             case _:
-                raise NotImplementedError(file_ext)
+                err_msg = f"Not implemented: '{file_ext}"
+                raise PluginError(err_msg)
 
     def _image_response(self, image_src: ImageSrc) -> str:
         media_type = self._get_media_type(image_src.file_ext)
