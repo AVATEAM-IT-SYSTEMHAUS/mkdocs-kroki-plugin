@@ -17,6 +17,12 @@ repos:
       language: system
       pass_filenames: false
       types: [ python ]
+    - id: check-types
+      name: run mypy
+      entry: hatch run types:check
+      language: system
+      pass_filenames: false
+      types: [ python ]
     - id: format
       name: run the formatter
       entry: hatch fmt -f

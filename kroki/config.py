@@ -7,8 +7,11 @@ from kroki import version
 
 
 class DeprecatedDownloadImagesCompat(config_options.Deprecated):
-    def pre_validation(self, config: "KrokiPluginConfig", key_name: str) -> None:
+    def pre_validation(self, config: MkDocsBaseConfig, key_name: str) -> None:
         """Set `HttpMethod: 'POST'`, if enabled"""
+        if not isinstance(config, KrokiPluginConfig):
+            return
+
         if config.get(key_name) is None:
             return
 

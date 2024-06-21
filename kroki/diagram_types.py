@@ -1,6 +1,8 @@
 from collections import ChainMap
 from typing import ClassVar
 
+from mkdocs.exceptions import PluginError
+
 from kroki.logging import log
 
 
@@ -66,7 +68,7 @@ class KrokiDiagramTypes:
     ):
         self._fence_prefix = fence_prefix
 
-        kroki_types = ChainMap(
+        diagram_type_file_ext_map = ChainMap(
             self._kroki_base,
             self._kroki_blockdiag if blockdiag_enabled else {},
             self._kroki_bpmn if bpmn_enabled else {},
@@ -75,30 +77,52 @@ class KrokiDiagramTypes:
             self._kroki_diagramsnet if diagramsnet_enabled else {},
         )
 
-        self._kroki_types_supporting_file = {}
+        self._kroki_type_file_ext_mapping: dict[str, str] = self._get_kroki_type_file_ext_mapping(
+            diagram_type_file_ext_map, file_types, file_type_overrides
+        )
 
-        for kroki_type, kroki_file_types in kroki_types.items():
-            kroki_file_type = next(filter(lambda file: file in kroki_file_types, file_types), None)
-            if kroki_file_type is not None:
-                self._kroki_types_supporting_file[kroki_type] = next(
-                    filter(lambda file: file in kroki_file_types, file_types), None
+        log.debug("File and Diagram types configured: %s", self._kroki_type_file_ext_mapping)
+
+    def _get_kroki_type_file_ext_mapping(
+        self,
+        diagram_type_file_ext_map: ChainMap[str, list[str]],
+        file_types: list[str],
+        file_type_overrides: dict[str, str],
+    ) -> dict[str, str]:
+        def get_file_type(kroki_type: str) -> str:
+            supported_file_types = diagram_type_file_ext_map[kroki_type]
+            file_type_override = file_type_overrides.get(kroki_type)
+            if file_type_override is not None:
+                if file_type_override not in supported_file_types:
+                    err_msg = (
+                        f"{kroki_type}: {file_type_override} not in supported file types: " f"{supported_file_types}"
+                    )
+                    raise PluginError(err_msg)
+                return file_type_override
+
+            try:
+                target_file_type = next(t for t in file_types if t in supported_file_types)
+            except StopIteration as e:
+                err_msg = (
+                    f"{kroki_type}: Not able to satisfy any of {file_types}, "
+                    f"supported file types: {supported_file_types}"
                 )
+                raise PluginError(err_msg) from e
+            else:
+                return target_file_type
 
-        for kroki_type, kroki_file_type in file_type_overrides.items():
-            self._kroki_types_supporting_file[kroki_type] = kroki_file_type
-
-        log.debug("File and Diagram types configured: %s", self._kroki_types_supporting_file)
+        return {kroki_type: get_file_type(kroki_type) for kroki_type in diagram_type_file_ext_map}
 
     def get_file_ext(self, kroki_type: str) -> str:
-        return self._kroki_types_supporting_file[kroki_type]
+        return self._kroki_type_file_ext_mapping[kroki_type]
 
-    def get_kroki_type(self, block_type: None | str) -> None | str:
+    def get_kroki_type(self, block_type: None | str) -> str | None:
         if block_type is None:
-            return
+            return None
         if not block_type.startswith(self._fence_prefix):
-            return
+            return None
         kroki_type = block_type.removeprefix(self._fence_prefix).lower()
-        if kroki_type not in self._kroki_types_supporting_file:
-            return
+        if kroki_type not in self._kroki_type_file_ext_mapping:
+            return None
 
         return kroki_type

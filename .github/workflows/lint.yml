@@ -31,3 +31,5 @@ jobs:
         pip install --upgrade hatch
     - name: Lint
       run: hatch fmt --check
+    - name: Check types
+      run: hatch run types:check
