@@ -15,7 +15,7 @@ from kroki.logging import log
 from tests.compat import chdir
 
 
-def get_expected_log_line(log_msg) -> str:
+def get_expected_log_line(log_msg: str) -> str:
     return f"{log.prefix}: {log_msg}"
 
 
