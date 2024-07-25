@@ -18,7 +18,7 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
             self.config.FileTypes,
             self.config.FileTypeOverrides,
             blockdiag_enabled=self.config.EnableBlockDiag,
-            bpmn_enabled=self.config.Enablebpmn,
+            bpmn_enabled=self.config.EnableBpmn,
             excalidraw_enabled=self.config.EnableExcalidraw,
             mermaid_enabled=self.config.EnableMermaid,
             diagramsnet_enabled=self.config.EnableDiagramsnet,
