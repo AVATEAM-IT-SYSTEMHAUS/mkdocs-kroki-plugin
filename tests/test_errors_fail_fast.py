@@ -46,7 +46,7 @@ def test_request_other_error() -> None:
 
 
 @pytest.mark.usefixtures("kroki_dummy")
-def test_missing_file_from() -> None:
+def test_missing_from_file() -> None:
     # Arrange
     with MkDocsHelper("missing_from_file") as mkdocs_helper:
         mkdocs_helper.enable_fail_fast()
