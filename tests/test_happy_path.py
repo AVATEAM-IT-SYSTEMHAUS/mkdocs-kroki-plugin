@@ -17,6 +17,6 @@ def test_missing_from_file() -> None:
             index_html = index_html_file.read()
 
         index_soup = bs4.BeautifulSoup(index_html)
-        img_tags = index_soup.find_all(attrs={"name":"Kroki"})
+        img_tags = index_soup.find_all(attrs={"name": "Kroki"})
 
         assert len(img_tags) == 2
