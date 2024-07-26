@@ -1,5 +1,7 @@
 # Test
 
+## inline
+
 ```c4plantuml
 !include <C4/C4_Context>
 !include <C4/C4_Container>
@@ -28,4 +30,10 @@ Rel(mkdocs, db, "build")
 Rel(site_host, db, "read")
 
 Rel(site_host, reader, "serve")
+```
+
+## from file
+
+```plantuml
+@from_file:assets/diagram.plantuml
 ```
