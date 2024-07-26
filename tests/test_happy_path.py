@@ -5,7 +5,7 @@ from tests.utils import MkDocsHelper
 
 
 @pytest.mark.usefixtures("kroki_dummy")
-def test_missing_from_file() -> None:
+def test_happy_path() -> None:
     # Arrange
     with MkDocsHelper("happy_path") as mkdocs_helper:
         mkdocs_helper.set_http_method("POST")
