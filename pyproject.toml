@@ -28,7 +28,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -36,7 +35,7 @@ classifiers = [
 dependencies = [
     "mkdocs>=1.5.0",
     "requests>=2.27.0",
-    "result",
+    "result>=0.17.0",
 ]
 
 [project.entry-points."mkdocs.plugins"]
@@ -68,6 +67,8 @@ include = [
 [tool.hatch.envs.test]
 template = "hatch-test"
 [tool.hatch.envs.test.env-vars]
+# start local test kroki:
+#   docker-compose up
 KROKI_SERVER_URL = "http://localhost:8080"
 
 [tool.hatch.envs.hatch-test]
@@ -87,3 +88,15 @@ cov-report = [
     "coverage xml",
     "coverage report --omit='tests/*'",
 ]
+
+[tool.hatch.envs.types]
+template = "hatch-test"
+extra-dependencies = [
+  "mypy",
+  "types-PyYAML",
+  "types-beautifulsoup4",
+  "types-requests",
+  "types-babel",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:kroki tests}"
