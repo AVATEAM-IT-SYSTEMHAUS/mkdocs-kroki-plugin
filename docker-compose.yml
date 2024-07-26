@@ -1,0 +1,19 @@
+services:
+  kroki:
+    image: docker.io/yuzutech/kroki
+    depends_on:
+      - mermaid
+      - bpmn
+      - excalidraw
+    environment:
+      - KROKI_MERMAID_HOST=mermaid
+      - KROKI_BPMN_HOST=bpmn
+      - KROKI_EXCALIDRAW_HOST=excalidraw
+    ports:
+      - "127.0.0.1:8080:8000"
+  mermaid:
+    image: docker.io/yuzutech/kroki-mermaid
+  bpmn:
+    image: docker.io/yuzutech/kroki-bpmn
+  excalidraw:
+    image: docker.io/yuzutech/kroki-excalidraw
