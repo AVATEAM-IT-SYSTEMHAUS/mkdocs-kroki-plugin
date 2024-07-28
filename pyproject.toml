@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mkdocs-kroki-plugin"
-dynamic = ["version"]
+version = "0.8.1"
 description = "MkDocs plugin for Kroki-Diagrams"
 readme = "README.md"
 license = "MIT"
@@ -47,8 +47,6 @@ Documentation = "https://github.com/AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin#re
 Issues = "https://github.com/AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin/issues"
 Source = "https://github.com/AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin"
 
-[tool.hatch.version]
-path = "kroki/__init__.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
@@ -117,3 +115,11 @@ extra-dependencies = [
 check = "mypy --install-types --non-interactive {args:kroki tests}"
 [tool.mypy]
 disable_error_code="import-untyped"
+
+[tool.commitizen]
+version = "0.8.1"
+tag_format = "v$version"
+version_files = [
+  "pyproject.toml:version",
+  "kroki/__init__.py"
+]
