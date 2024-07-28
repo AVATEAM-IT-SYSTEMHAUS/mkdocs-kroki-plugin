@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mkdocs-kroki-plugin"
-version = "0.9.0"
+version = "0.8.1"
 description = "MkDocs plugin for Kroki-Diagrams"
 readme = "README.md"
 license = "MIT"
@@ -117,7 +117,7 @@ check = "mypy --install-types --non-interactive {args:kroki tests}"
 disable_error_code="import-untyped"
 
 [tool.commitizen]
-version = "0.9.0"
+version = "0.8.1"
 tag_format = "v$version"
 version_files = [
   "pyproject.toml:version",
