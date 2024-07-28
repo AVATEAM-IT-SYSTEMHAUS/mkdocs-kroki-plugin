@@ -1,0 +1,8 @@
+site_name: Test pages for mkdocs-kroki-plugin
+docs_dir: docs
+
+plugins:
+  - techdocs-core
+  - kroki:
+      FencePrefix: ''
+      TagFormat: 'svg'

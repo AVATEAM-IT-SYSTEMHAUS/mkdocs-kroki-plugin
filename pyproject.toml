@@ -36,6 +36,7 @@ dependencies = [
     "mkdocs>=1.5.0",
     "requests>=2.27.0",
     "result>=0.17.0",
+    "defusedxml>=0.7.1"
 ]
 
 [project.entry-points."mkdocs.plugins"]
@@ -71,6 +72,20 @@ template = "hatch-test"
 #   docker-compose up
 KROKI_SERVER_URL = "http://localhost:8080"
 
+[tool.hatch.envs.techdocs]
+template = "test"
+extra-dependencies = [
+    "mkdocs_monorepo_plugin",
+    "mkdocs-techdocs-core",
+    "nodeenv",
+]
+[tool.hatch.envs.techdocs.scripts]
+serve = [
+    "if [ ! $(command -v npm) ];then nodeenv --python-virtualenv; fi",
+    "if [ ! $(command -v techdocs-cli) ];then npm install -g @techdocs/cli; fi",
+    "cd tests/data/techdocs && techdocs-cli serve --no-docker --verbose",
+]
+
 [tool.hatch.envs.hatch-test]
 extra-dependencies = [
     "pytest-mock",
@@ -100,3 +115,5 @@ extra-dependencies = [
 ]
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:kroki tests}"
+[tool.mypy]
+disable_error_code="import-untyped"

@@ -13,8 +13,11 @@ MkDocsFile = File
 
 @dataclass
 class ImageSrc:
+    """Information for the renderer."""
+
     url: str
     file_ext: str
+    file_content: None | bytes = None
 
 
 @dataclass
@@ -26,6 +29,8 @@ class ErrorResult:
 
 @dataclass
 class MkDocsEventContext:
+    """Data supplied by MkDocs on the currently handled page."""
+
     page: MkDocsPage
     config: MkDocsConfig
     files: MkDocsFiles
@@ -33,6 +38,8 @@ class MkDocsEventContext:
 
 @dataclass
 class KrokiImageContext:
+    """Code block contents that are to be used for the diagram generation."""
+
     kroki_type: str
     options: dict
     data: Result[str, ErrorResult]

@@ -122,7 +122,13 @@ class KrokiClient:
                 kroki_context.options,
             )
             downloaded_image.save(context)
-            return Ok(ImageSrc(url=downloaded_image.file_name, file_ext=file_ext))
+            return Ok(
+                ImageSrc(
+                    url=downloaded_image.file_name,
+                    file_ext=file_ext,
+                    file_content=downloaded_image.file_content,
+                )
+            )
 
         if response.status_code == requests.codes.bad_request:
             return Err(ErrorResult(err_msg="Diagram error!", response_text=response.text))

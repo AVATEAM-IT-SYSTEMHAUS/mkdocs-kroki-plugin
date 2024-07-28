@@ -1,9 +1,18 @@
 import os
 
 from mkdocs.config import config_options
-from mkdocs.config.base import Config as MkDocsBaseConfig
+from mkdocs.config.base import (
+    Config as MkDocsBaseConfig,
+)
+from mkdocs.config.base import (
+    ConfigErrors as MkDocsConfigErrors,
+)
+from mkdocs.config.base import (
+    ConfigWarnings as MkDocsConfigWarnings,
+)
 
 from kroki import version
+from kroki.logging import log
 
 
 class DeprecatedDownloadImagesCompat(config_options.Deprecated):
@@ -34,8 +43,18 @@ class KrokiPluginConfig(MkDocsBaseConfig):
     FencePrefix = config_options.Type(str, default="kroki-")
     FileTypes = config_options.Type(list, default=["svg"])
     FileTypeOverrides = config_options.Type(dict, default={})
+    TagFormat = config_options.Choice(choices=["img", "object", "svg"], default="img")
     FailFast = config_options.Type(bool, default=False)
 
     DownloadImages = DeprecatedDownloadImagesCompat(moved_to="HttpMethod: 'POST'")
     Enablebpmn = config_options.Deprecated(moved_to="EnableBpmn")
     DownloadDir = config_options.Deprecated(removed=True)
+
+    def validate(self) -> tuple[MkDocsConfigErrors, MkDocsConfigWarnings]:
+        result = super().validate()
+
+        if self["TagFormat"] == "svg" and self["HttpMethod"] != "POST":
+            log.info("Setting Http method to POST to retrieve svg data for inlining.")
+            self["HttpMethod"] = "POST"
+
+        return result
