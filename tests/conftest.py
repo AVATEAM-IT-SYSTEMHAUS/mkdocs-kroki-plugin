@@ -72,6 +72,6 @@ def kroki_dummy(monkeypatch) -> None:
     """Let request post calls always return a mocked response with status code 200 and dummy content data"""
 
     def mock_post(*_args, **_kwargs):
-        return MockResponse(status_code=200, content=b"dummy data")
+        return MockResponse(status_code=200, content=b"<svg>dummy data</svg>")
 
     monkeypatch.setattr(requests, "post", mock_post)

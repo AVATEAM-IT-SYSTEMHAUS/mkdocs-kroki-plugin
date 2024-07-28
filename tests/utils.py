@@ -51,6 +51,9 @@ class MkDocsHelper(AbstractContextManager):
         def set_fence_prefix(self, fence_prefix: str) -> None:
             self._get_plugin_config_entry()["FencePrefix"] = fence_prefix
 
+        def set_tag_format(self, tag_format: Literal["img", "object", "svg"]) -> None:
+            self._get_plugin_config_entry()["TagFormat"] = tag_format
+
         def invoke_build(self) -> Result:
             self._dump_config()
             runner = CliRunner()

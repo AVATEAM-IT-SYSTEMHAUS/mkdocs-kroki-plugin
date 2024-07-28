@@ -23,6 +23,7 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
             mermaid_enabled=self.config.EnableMermaid,
             diagramsnet_enabled=self.config.EnableDiagramsnet,
         )
+
         self.kroki_client = KrokiClient(
             server_url=self.config.ServerURL,
             http_method=self.config.HttpMethod,
@@ -30,7 +31,11 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
             diagram_types=self.diagram_types,
         )
         self.parser = MarkdownParser(config.docs_dir, self.diagram_types)
-        self.renderer = ContentRenderer(self.kroki_client, fail_fast=self.config.FailFast)
+        self.renderer = ContentRenderer(
+            self.kroki_client,
+            tag_format=self.config.TagFormat,
+            fail_fast=self.config.FailFast,
+        )
 
         return config
 

@@ -36,6 +36,7 @@ dependencies = [
     "mkdocs>=1.5.0",
     "requests>=2.27.0",
     "result>=0.17.0",
+    "defusedxml>=0.7.1"
 ]
 
 [project.entry-points."mkdocs.plugins"]
@@ -100,3 +101,5 @@ extra-dependencies = [
 ]
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:kroki tests}"
+[tool.mypy]
+disable_error_code="import-untyped"
