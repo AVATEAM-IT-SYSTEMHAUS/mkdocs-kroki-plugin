@@ -31,7 +31,7 @@ jobs:
       run: |
         PROJECT_VERSION=$(TERM=dumb hatch version)
 
-        if [ "$PROJECT_VERSION" != "${TAG_NAME#v}" ]; then
+        if [ "$PROJECT_VERSION" != "${TAG_NAME#refs/tags/v}" ]; then
           echo "Wrong project version, cannot release: $PROJECT_VERSION, ${TAG_NAME#v} expected"
           exit 1
         fi
