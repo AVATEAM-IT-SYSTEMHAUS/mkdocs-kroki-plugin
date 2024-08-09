@@ -18,21 +18,32 @@ plugins:
 
 ## Config
 
-| Key | Description |
-|---|---|
-| `ServerURL` | URL of your kroki-Server, default: `!ENV [KROKI_SERVER_URL, 'https://kroki.io']` |
-| `FencePrefix` | Diagram prefix, default: `kroki-` |
-| `EnableBlockDiag` | Enable BlockDiag (and the related Diagrams), default: `true` |
-| `EnableBpmn` | Enable BPMN, default: `true` |
-| `EnableExcalidraw` | Enable Excalidraw, default: `true` |
-| `EnableMermaid` | Enable Mermaid, default: `true` |
-| `EnableDiagramsnet` | Enable diagrams.net (draw.io), default: `false` |
-| `HttpMethod` | Http method to use (`GET` or `POST`), default: `GET`<br>__Note:__ On `POST` the retrieved images are stored next to the including page in the build directory |
-| `UserAgent` | User agent for requests to the kroki server, default: `kroki.plugin/<version>`  |
-| `FileTypes` | File types you want to use, default: `[svg]`<br>__Note:__ not all file formats work with all diagram types <https://kroki.io/#support>  |
-| `FileTypeOverrides` | Overrides for specific diagram types to set the desired file type, default: empty |
-| `TagFormat` | How the image will be included in the resulting HTML, default: `img`<br>(`img`, `object`, `svg`) |
-| `FailFast` | Errors are raised as plugin errors, default: `false` |
+Configuration can either be done through the `mkdocs.yaml` file or through environment variables.
+
+For example, the `ServerURL` follows this priority:
+1. **Config from mkdocs file**: If specified in the `mkdocs.yaml` file, it takes the highest priority.
+2. **Environment Variable**: If not specified in the `mkdocs.yaml` file, it falls back to the `KROKI_SERVER_URL` environment variable.
+3. **Default**: If neither is provided, it defaults to `https://kroki.io`.
+
+Other configurations follow a similar priority order.
+
+| Key | Description | Environment Variable | Default |
+|---|---|---|---|
+| `ServerURL` | URL of your kroki-Server | `KROKI_SERVER_URL` | `https://kroki.io` |
+| `FencePrefix` | Diagram prefix | `KROKI_FENCE_PREFIX` | `kroki-` |
+| `EnableBlockDiag` | Enable BlockDiag (and the related Diagrams) | `KROKI_ENABLE_BLOCKDIAG` | `true` |
+| `EnableBpmn` | Enable BPMN | `KROKI_ENABLE_BPMN` | `true` |
+| `EnableExcalidraw` | Enable Excalidraw | `KROKI_ENABLE_EXCALIDRAW` | `true` |
+| `EnableMermaid` | Enable Mermaid | `KROKI_ENABLE_MERMAID` | `true` |
+| `EnableDiagramsnet` | Enable diagrams.net (draw.io) | `KROKI_ENABLE_DIAGRAMSNET` | `false` |
+| `HttpMethod` | HTTP method to use (`GET` or `POST`)<br>__Note:__ On `POST` the retrieved images are stored next to the including page in the build directory | `KROKI_HTTP_METHOD` | `GET` |
+| `UserAgent` | User agent for requests to the kroki server | `KROKI_USER_AGENT` | `kroki.plugin/<version>` |
+| `FileTypes` | File types you want to use<br>__Note:__ not all file formats work with all diagram types <https://kroki.io/#support> | `KROKI_FILE_TYPES` | `[svg]` |
+| `FileTypeOverrides` | Overrides for specific diagram types to set the desired file type | `KROKI_FILE_TYPE_OVERRIDES` | empty |
+| `TagFormat` | How the image will be included in the resulting HTML<br>(`img`, `object`, `svg`) | `KROKI_TAG_FORMAT` | `img` |
+| `FailFast` | Errors are raised as plugin errors | `KROKI_FAIL_FAST` | `false` |
+
+For boolean environment variables, the values `"true"`, `"1"`, and `"t"` (case-insensitive) are considered `true`.
 
 Example:
 ```yaml
