@@ -45,6 +45,8 @@ Other configurations follow a similar priority order.
 
 For boolean environment variables, the values `"true"`, `"1"`, and `"t"` (case-insensitive) are considered `true`.
 
+For array environment variables, values are handled as comma-separated lists without spaces.
+
 Example:
 ```yaml
   - kroki:
