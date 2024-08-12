@@ -38,16 +38,13 @@ Other configurations follow a similar priority order.
 | `EnableDiagramsnet` | Enable diagrams.net (draw.io) | `KROKI_ENABLE_DIAGRAMSNET` | `false` |
 | `HttpMethod` | HTTP method to use (`GET` or `POST`)<br>__Note:__ On `POST` the retrieved images are stored next to the including page in the build directory | `KROKI_HTTP_METHOD` | `GET` |
 | `UserAgent` | User agent for requests to the kroki server | `KROKI_USER_AGENT` | `kroki.plugin/<version>` |
-| `FileTypes` | File types you want to use<br>__Note:__ not all file formats work with all diagram types <https://kroki.io/#support> | `KROKI_FILE_TYPES` | `[svg]` |
-| `FileTypeOverrides` | Overrides for specific diagram types to set the desired file type as key value pairs. | `KROKI_FILE_TYPE_OVERRIDES` | empty |
+| `FileTypes` | File types you want to use<br>__Note:__ not all file formats work with all diagram types <https://kroki.io/#support> | Not Supported | `[svg]` |
+| `FileTypeOverrides` | Overrides for specific diagram types to set the desired file type as key value pairs. | Not Supported | empty |
 | `TagFormat` | How the image will be included in the resulting HTML<br>(`img`, `object`, `svg`) | `KROKI_TAG_FORMAT` | `img` |
 | `FailFast` | Errors are raised as plugin errors | `KROKI_FAIL_FAST` | `false` |
 
 For `boolean` environment variables, the values `"true"`, `"1"`, and `"t"` (case-insensitive) are considered `true`.
 
-For `list` environment variables, values are handled as comma-separated lists without spaces. E.g. `foo,bar`
-
-For `key value pairs` environment variables, values are parsed as json. E.g `{'foo'='bar'}`
 
 Example:
 ```yaml

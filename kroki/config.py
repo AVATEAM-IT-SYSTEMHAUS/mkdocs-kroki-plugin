@@ -42,8 +42,8 @@ class KrokiPluginConfig(MkDocsBaseConfig):
     HttpMethod = config_options.Choice(choices=["GET", "POST"], default=os.getenv("KROKI_HTTP_METHOD", "GET"))
     UserAgent = config_options.Type(str, default=os.getenv("KROKI_USER_AGENT", f"{__name__}/{version}"))
     FencePrefix = config_options.Type(str, default=os.getenv("KROKI_FENCE_PREFIX", "kroki-"))
-    FileTypes = config_options.Type(dict, default=json.loads(os.getenv("KROKI_FILE_TYPE_OVERRIDES", "{}")))
-    FileTypeOverrides = config_options.Type(dict, default=(os.getenv("KROKI_FILE_TYPE_OVERRIDES", "{}")))
+    FileTypes = config_options.Type(list, default=["svg"])
+    FileTypeOverrides = config_options.Type(dict, default={})
     TagFormat = config_options.Choice(choices=["img", "object", "svg"], default=os.getenv("KROKI_TAG_FORMAT", "img"))
     FailFast = config_options.Type(bool, default=os.getenv("KROKI_FAIL_FAST", "False").lower() in ("true", "1", "t"))
 
