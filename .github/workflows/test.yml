@@ -24,7 +24,7 @@ jobs:
         python: ["3.10", "3.11", "3.12"]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - uses: astral-sh/setup-uv@v4
     - name: Test coverage
       run: uv run --python ${{ matrix.python }} pytest tests --cov --cov-report=xml --junitxml=junit/test-results.xml
