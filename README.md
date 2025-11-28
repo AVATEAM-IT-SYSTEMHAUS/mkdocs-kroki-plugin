@@ -12,32 +12,33 @@ Activate the plugin in `mkdocs.yml`:
 
 ```yaml
 plugins:
-  ...
-  - kroki:
+    ...
+      - kroki:
 ```
 
 ## Config
 
-| Key                 | Description                                                                                                                                                   |
-|---------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `ServerURL`         | URL of your kroki-Server, default: `!ENV [KROKI_SERVER_URL, 'https://kroki.io']`                                                                              |
-| `FencePrefix`       | Diagram prefix, default: `kroki-`                                                                                                                             |
-| `EnableBlockDiag`   | Enable BlockDiag (and the related Diagrams), default: `true`                                                                                                  |
-| `EnableBpmn`        | Enable BPMN, default: `true`                                                                                                                                  |
-| `EnableExcalidraw`  | Enable Excalidraw, default: `true`                                                                                                                            |
-| `EnableMermaid`     | Enable Mermaid, default: `true`                                                                                                                               |
-| `EnableDiagramsnet` | Enable diagrams.net (draw.io), default: `false`                                                                                                               |
-| `HttpMethod`        | Http method to use (`GET` or `POST`), default: `GET`<br>__Note:__ On `POST` the retrieved images are stored next to the including page in the build directory |
-| `UserAgent`         | User agent for requests to the kroki server, default: `kroki.plugin/<version>`                                                                                |
-| `FileTypes`         | File types you want to use, default: `[svg]`<br>__Note:__ not all file formats work with all diagram types <https://kroki.io/#support>                        |
-| `FileTypeOverrides` | Overrides for specific diagram types to set the desired file type, default: empty                                                                             |
-| `TagFormat`         | How the image will be included in the resulting HTML, default: `img`<br>(`img`, `object`, `svg`)                                                              |
-| `FailFast`          | Errors are raised as plugin errors, default: `false`                                                                                                          |
+| Key                 | Description                                                                                                                                | Default                                       |
+|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------|
+| `ServerURL`         | URL of your kroki-Server                                                                                                                   | `!ENV [KROKI_SERVER_URL, 'https://kroki.io']` |
+| `FencePrefix`       | Diagram prefix, set to an empty string to render all diagrams using Kroki                                                                  | `kroki-`                                      |
+| `EnableBlockDiag`   | Enable BlockDiag (and the related Diagrams)                                                                                                | `true`                                        |
+| `EnableBpmn`        | Enable BPMN                                                                                                                                | `true`                                        |
+| `EnableExcalidraw`  | Enable Excalidraw                                                                                                                          | `true`                                        |
+| `EnableMermaid`     | Enable Mermaid                                                                                                                             | `true`                                        |
+| `EnableDiagramsnet` | Enable diagrams.net (draw.io)                                                                                                              | `false`                                       |
+| `HttpMethod`        | Http method to use (`GET` or `POST`)<br> Note: On `POST` the retrieved images are stored next to the including page in the build directory | `GET`                                         |
+| `UserAgent`         | User agent for requests to the kroki server                                                                                                | `kroki.plugin/<version>`                      |
+| `FileTypes`         | File types you want to use<br>Note: not all file formats work with all diagram types <https://kroki.io/#support>                           | `[svg]`                                       |
+| `FileTypeOverrides` | Overrides for specific diagram types to set the desired file type                                                                          | `[]`                                          |
+| `TagFormat`         | How the image will be included in the resulting HTML (`img`, `object`, `svg`)                                                              | `img`                                         |
+| `FailFast`          | Errors are raised as plugin errors                                                                                                         | `false`                                       |
 
 Example:
+
 ```yaml
   - kroki:
-      ServerURL: !ENV [KROKI_SERVER_URL, 'https://kroki.io']
+      ServerURL: !ENV [ KROKI_SERVER_URL, 'https://kroki.io' ]
       FileTypes:
         - png
         - svg
@@ -88,7 +89,6 @@ More Plugins for MkDocs can be found [here](http://www.mkdocs.org/user-guide/plu
 Install the newest pre-release version using pip:
 
 `pip install -i https://test.pypi.org/simple/ mkdocs-kroki-plugin`
-
 
 ## Development
 
