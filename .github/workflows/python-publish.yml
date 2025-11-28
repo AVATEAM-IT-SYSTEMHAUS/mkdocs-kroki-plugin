@@ -16,6 +16,7 @@ jobs:
   deploy:
     if: github.repository == 'AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin'
     runs-on: ubuntu-latest
+    environment: pypi
 
     steps:
     - uses: actions/checkout@v6
