@@ -62,7 +62,7 @@ class ContentRenderer:
             case "svg":
                 return ContentRenderer._svg_data(image_src)
             case "img":
-                return f'<img alt="Kroki" src="{image_src.url}">'
+                return f'<img alt="Kroki" src="{image_src.url}" />'
             case _:
                 err_msg = "Unknown tag format set."
                 raise PluginError(err_msg)
