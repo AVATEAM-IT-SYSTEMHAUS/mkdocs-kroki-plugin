@@ -30,11 +30,12 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-#local dev
+# local dev
 .venv
 .vscode
 test-docs
-
+.claude/
+.idea/
 
 # pytest
 junit/
