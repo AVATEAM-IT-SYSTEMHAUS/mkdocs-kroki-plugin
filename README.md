@@ -92,24 +92,55 @@ Install the newest pre-release version using pip:
 
 ## Development
 
-Setup:
+### Setup
 
 ```sh
 git clone git@github.com:AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin.git
 cd mkdocs-kroki-plugin
-pipx install hatch
-pipx install pre-commit
-pre-commit install
+uv sync
 ```
 
-Run tests (for all supported python versions):
+### Pre-commit Hooks
+
+Install the pre-commit hooks to run linting, type checking, and tests automatically on commit:
 
 ```sh
-hatch test -a
+uv run pre-commit install
 ```
 
-Run static code analysis:
+To run all hooks manually:
 
 ```sh
-hatch fmt
+uv run pre-commit run --all-files
+```
+
+### Testing
+
+Run tests:
+
+```sh
+uv run pytest
+```
+
+Run tests with coverage:
+
+```sh
+uv run pytest --cov
+```
+
+### Linting & Formatting
+
+Run ruff for linting and formatting:
+
+```sh
+uv run ruff check .
+uv run ruff format .
+```
+
+### Type Checking
+
+Run mypy:
+
+```sh
+uv run --group types mypy kroki
 ```
