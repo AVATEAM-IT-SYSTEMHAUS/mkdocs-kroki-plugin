@@ -30,7 +30,7 @@ jobs:
           exit 1
         fi
       env:
-        TAG_NAME: ${{ github.ref }}
+        TAG_NAME: ${{ github.ref_name }}
     - name: Build package
       run: uv build
     - name: Publish package
