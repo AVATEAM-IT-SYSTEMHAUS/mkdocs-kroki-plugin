@@ -1,4 +1,4 @@
-# This workflow will upload a Python Package using Hatch when a release is created
+# This workflow will upload a Python Package using uv when a release is created
 # For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
 
 name: Upload Python Package to Test-Pypi
@@ -20,23 +20,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: '3.x'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install --upgrade hatch
+    - uses: astral-sh/setup-uv@v4
     - name: Bump temp dev release
       run: |
-        CURRENT_VERSION=$(NO_COLOR="1" hatch version)
+        CURRENT_VERSION=$(uv run python -c "from kroki import __version__; print(__version__)")
         TIMESTAMP=$(date +%s)
-        hatch version "$CURRENT_VERSION-$TIMESTAMP"
+        sed -i "s/__version__ = \".*\"/__version__ = \"$CURRENT_VERSION-$TIMESTAMP\"/" kroki/__init__.py
     - name: Build package
-      run: hatch build
+      run: uv build
     - name: Publish package
+      run: uv publish --publish-url https://test.pypi.org/legacy/
       env:
-        HATCH_INDEX_USER: __token__
-        HATCH_INDEX_AUTH: ${{ secrets.TEST_PYPI_API_TOKEN }}
-      run: hatch publish --repo test
+        UV_PUBLISH_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN }}

@@ -264,7 +264,11 @@ foo
     [pytest.param(v, id=k) for k, v in TEST_CASES.items()]
     + [pytest.param(v, id=k) for k, v in TEST_CASES_NOT_COMPLYING.items()],
 )
-def test_fences(test_data: StubInput, mock_kroki_diagram_types: KrokiDiagramTypes, mocker: MockerFixture) -> None:
+def test_fences(
+    test_data: StubInput,
+    mock_kroki_diagram_types: KrokiDiagramTypes,
+    mocker: MockerFixture,
+) -> None:
     # Arrange
     parser = MarkdownParser("", mock_kroki_diagram_types)
     callback_stub = mocker.stub()
@@ -282,9 +286,13 @@ def test_fences(test_data: StubInput, mock_kroki_diagram_types: KrokiDiagramType
     )
 
 
-@pytest.mark.parametrize("test_data", [pytest.param(v, id=k) for k, v in TEST_CASES_NOT_SUPPORTED.items()])
+@pytest.mark.parametrize(
+    "test_data", [pytest.param(v, id=k) for k, v in TEST_CASES_NOT_SUPPORTED.items()]
+)
 def test_fences_not_supported(
-    test_data: StubInput, mock_kroki_diagram_types: KrokiDiagramTypes, mocker: MockerFixture
+    test_data: StubInput,
+    mock_kroki_diagram_types: KrokiDiagramTypes,
+    mocker: MockerFixture,
 ) -> None:
     # Arrange
     parser = MarkdownParser("", mock_kroki_diagram_types)

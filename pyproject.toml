@@ -59,61 +59,31 @@ include = [
     "/kroki",
 ]
 
-# this enables you to run arbitrary commands inside of the hatch-managed hatch-test environment
-# e.g.
-#   REPL:
-#     hatch run test:python
-#   serve happy path test:
-#     hatch run test:mkdocs serve -f tests/data/happy_path/mkdocs.yml
-[tool.hatch.envs.test]
-template = "hatch-test"
-[tool.hatch.envs.test.env-vars]
-# start local test kroki:
-#   docker-compose up
-KROKI_SERVER_URL = "http://localhost:8080"
-
-[tool.hatch.envs.techdocs]
-template = "test"
-extra-dependencies = [
-    "mkdocs_monorepo_plugin",
-    "mkdocs-techdocs-core",
-    "nodeenv",
-]
-[tool.hatch.envs.techdocs.scripts]
-serve = [
-    "if [ ! $(command -v npm) ];then nodeenv --python-virtualenv; fi",
-    "if [ ! $(command -v techdocs-cli) ];then npm install -g @techdocs/cli; fi",
-    "cd tests/data/techdocs && techdocs-cli serve --no-docker --verbose",
-]
-
-[tool.hatch.envs.hatch-test]
-extra-dependencies = [
+[dependency-groups]
+test = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
     "pytest-mock",
     "beautifulsoup4",
     "mkdocs-material",
     "click",
+    "ruff",
 ]
-[[tool.hatch.envs.hatch-test.matrix]]
-python = ["3.10", "3.11", "3.12"]
-[tool.hatch.envs.hatch-test.scripts]
-run = "pytest {env:HATCH_TEST_ARGS:} {args:tests}"
-run-cov = "coverage run -m pytest {env:HATCH_TEST_ARGS:} {args:tests} --junitxml=junit/test-results.xml"
-cov-combine = "coverage combine"
-cov-report = [
-    "coverage xml",
-    "coverage report --omit='tests/*'",
+types = [
+    "mypy",
+    "types-PyYAML",
+    "types-beautifulsoup4",
+    "types-requests",
+    "types-babel",
+]
+techdocs = [
+    "mkdocs_monorepo_plugin",
+    "mkdocs-techdocs-core",
+    "nodeenv",
 ]
 
-[tool.hatch.envs.types]
-template = "hatch-test"
-extra-dependencies = [
-  "mypy",
-  "types-PyYAML",
-  "types-beautifulsoup4",
-  "types-requests",
-  "types-babel",
-]
-[tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:kroki tests}"
+[tool.uv]
+default-groups = ["test", "types"]
+
 [tool.mypy]
-disable_error_code="import-untyped"
+disable_error_code = "import-untyped"

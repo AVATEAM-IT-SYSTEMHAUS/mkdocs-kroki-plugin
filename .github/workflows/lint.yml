@@ -22,14 +22,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-python@v6
-      with:
-        python-version: '3.x'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install --upgrade hatch
+    - uses: astral-sh/setup-uv@v4
     - name: Lint
-      run: hatch fmt --check
+      run: |
+        uv run ruff check .
+        uv run ruff format --check .
     - name: Check types
-      run: hatch run types:check
+      run: uv run mypy kroki tests

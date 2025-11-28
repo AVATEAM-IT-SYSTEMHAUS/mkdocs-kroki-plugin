@@ -10,7 +10,9 @@ from kroki.logging import log
 
 
 class ContentRenderer:
-    def __init__(self, kroki_client: KrokiClient, tag_format: str, *, fail_fast: bool) -> None:
+    def __init__(
+        self, kroki_client: KrokiClient, tag_format: str, *, fail_fast: bool
+    ) -> None:
         self.fail_fast = fail_fast
         self.kroki_client = kroki_client
         self.tag_format = tag_format
@@ -49,7 +51,9 @@ class ContentRenderer:
         tag_format = self.tag_format
         if tag_format == "svg":
             if image_src.file_ext != "svg":
-                log.warning("Cannot render '%s' in svg tag -> using img tag.", image_src.url)
+                log.warning(
+                    "Cannot render '%s' in svg tag -> using img tag.", image_src.url
+                )
                 tag_format = "img"
             if image_src.file_content is None:
                 log.warning("Cannot render missing data in svg tag -> using img tag.")
@@ -67,7 +71,9 @@ class ContentRenderer:
                 err_msg = "Unknown tag format set."
                 raise PluginError(err_msg)
 
-    def _err_response(self, err_result: ErrorResult, kroki_data: None | str = None) -> str:
+    def _err_response(
+        self, err_result: ErrorResult, kroki_data: None | str = None
+    ) -> str:
         if ErrorResult.error is None:
             log.error("%s", err_result.err_msg)
         else:
@@ -79,12 +85,14 @@ class ContentRenderer:
         return (
             '<details open="">'
             f"<summary>{err_result.err_msg}</summary>"
-            f'<p>{err_result.response_text or ""}</p>'
+            f"<p>{err_result.response_text or ''}</p>"
             f'<pre><code linenums="1">{kroki_data or ""}</code></pre>'
             "</details>"
         )
 
-    def render_kroki_block(self, kroki_context: KrokiImageContext, context: MkDocsEventContext) -> str:
+    def render_kroki_block(
+        self, kroki_context: KrokiImageContext, context: MkDocsEventContext
+    ) -> str:
         match kroki_context.data:
             case Ok(kroki_data):
                 match self.kroki_client.get_image_url(kroki_context, context):

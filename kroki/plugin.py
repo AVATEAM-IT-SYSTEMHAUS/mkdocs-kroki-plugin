@@ -39,8 +39,12 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
 
         return config
 
-    def on_page_markdown(self, markdown: str, page: MkDocsPage, config: MkDocsConfig, files: MkDocsFiles) -> str:
+    def on_page_markdown(
+        self, markdown: str, page: MkDocsPage, config: MkDocsConfig, files: MkDocsFiles
+    ) -> str:
         mkdocs_context = MkDocsEventContext(page=page, config=config, files=files)
         log.debug("on_page_content [%s]", mkdocs_context)
 
-        return self.parser.replace_kroki_blocks(markdown, self.renderer.render_kroki_block, mkdocs_context)
+        return self.parser.replace_kroki_blocks(
+            markdown, self.renderer.render_kroki_block, mkdocs_context
+        )
