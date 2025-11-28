@@ -15,7 +15,7 @@ env:
 
 jobs:
   deploy-test:
-
+    if: github.repository == 'AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin'
     runs-on: ubuntu-latest
 
     steps:
