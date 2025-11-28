@@ -76,6 +76,14 @@ You can render diagram from file with `@from_file:` directive:
 ```
 ````
 
+## Contributors
+
+[![Contributors](https://contrib.rocks/image?repo=AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin)](https://github.com/AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin/graphs/contributors)
+
+> Want to appear in the list of contributors?
+>
+> Get started by reading the [Contribution Guidelines](./CONTRIBUTING.md)
+
 ## See Also
 
 Diagram examples can be found [here](https://kroki.io/examples.html).
