@@ -16,7 +16,7 @@ class MarkdownParser:
     _FENCE_RE = re.compile(
         r"(?P<fence>^(?P<indent>[ ]*)(?:````*|~~~~*))[ ]*"
         r"(\.?(?P<lang>[\w#.+-]*)[ ]*)?"
-        r"(?P<opts>(?:[ ]?[\{a-zA-Z0-9\-_]+=[a-zA-Z0-9\-_\}]+)*)\n"
+        r"(?P<opts>\{[^}]*\}|(?:[ ]?[a-zA-Z0-9\-_]+=[a-zA-Z0-9\-_]+)*)\n"
         r"(?P<code>.*?)(?<=\n)"
         r"(?P=fence)[ ]*$",
         flags=re.IGNORECASE + re.DOTALL + re.MULTILINE,
@@ -57,11 +57,18 @@ class MarkdownParser:
                 return match_obj.group()
 
             kroki_options = match_obj.group("opts")
+            if kroki_options:
+                # Strip curly braces if present and parse key=value pairs
+                opts_str = kroki_options.strip().strip("{}")
+                options = dict(
+                    x.split("=") for x in opts_str.split()
+                    if "=" in x and not x.startswith("kroki=")
+                )
+            else:
+                options = {}
             kroki_context = KrokiImageContext(
                 kroki_type=kroki_type,
-                options=dict(x.split("=") for x in kroki_options.strip().split(" "))
-                if kroki_options
-                else {},
+                options=options,
                 data=self._get_block_content(textwrap.dedent(match_obj.group("code"))),
             )
             return textwrap.indent(

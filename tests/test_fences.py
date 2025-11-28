@@ -113,6 +113,16 @@ aaa
         expected_code_block_data="``` aaa\n",
         expected_kroki_type="mermaid",
     ),
+    "#85": StubInput(
+        page_data="""
+```plantuml {kroki=true}
+   Alice -> Bob
+```
+""",
+        expected_code_block_data="Alice -> Bob\n",
+        epxected_options={},
+        expected_kroki_type="plantuml",
+    ),
 }
 
 TEST_CASES_NOT_COMPLYING = {
@@ -255,15 +265,6 @@ foo
 """,
         expected_code_block_data="foo\n",
         expected_kroki_type="mermaid",
-    ),
-    "#85": StubInput(
-        page_data="""
-```plantuml {kroki=true}
-   Alice -> Bob
-```
-""",
-        expected_code_block_data="Alice -> Bob\n",
-        expected_kroki_type="plantuml",
     ),
 }
 
