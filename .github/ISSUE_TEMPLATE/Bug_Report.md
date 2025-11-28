@@ -1,6 +1,6 @@
 ---
 name: 🐛 Bug Report
-description: File a bug report
+about: File a bug report
 labels:
   - bug
 assignees:

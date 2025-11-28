@@ -1,6 +1,6 @@
 ---
 name: 🚀 Feature Request
-description: "I have a suggestion (and might want to implement myself \U0001F642)!"
+about: "I have a suggestion (and might want to implement myself \U0001F642)!"
 labels: 
   - enhancement
 assignees:
