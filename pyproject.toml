@@ -49,6 +49,7 @@ Source = "https://github.com/AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin"
 
 [tool.hatch.version]
 path = "kroki/__init__.py"
+pattern = "__version__ = ['\"](?P<version>[^'\"]+)['\"]"
 
 [tool.hatch.build.targets.sdist]
 include = [
