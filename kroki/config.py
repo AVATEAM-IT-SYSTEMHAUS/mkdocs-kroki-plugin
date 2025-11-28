@@ -32,7 +32,9 @@ class DeprecatedDownloadImagesCompat(config_options.Deprecated):
 
 
 class KrokiPluginConfig(MkDocsBaseConfig):
-    ServerURL = config_options.URL(default=os.getenv("KROKI_SERVER_URL", "https://kroki.io"))
+    ServerURL = config_options.URL(
+        default=os.getenv("KROKI_SERVER_URL", "https://kroki.io")
+    )
     EnableBlockDiag = config_options.Type(bool, default=True)
     EnableBpmn = config_options.Type(bool, default=True)
     EnableExcalidraw = config_options.Type(bool, default=True)

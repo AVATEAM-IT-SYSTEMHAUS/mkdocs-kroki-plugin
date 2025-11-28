@@ -39,7 +39,8 @@ class MarkdownParser:
         except OSError as error:
             return Err(
                 ErrorResult(
-                    err_msg=f'Can\'t read file: "{file_path.absolute()}" from code block "{block_data}"', error=error
+                    err_msg=f'Can\'t read file: "{file_path.absolute()}" from code block "{block_data}"',
+                    error=error,
                 )
             )
 
@@ -58,9 +59,13 @@ class MarkdownParser:
             kroki_options = match_obj.group("opts")
             kroki_context = KrokiImageContext(
                 kroki_type=kroki_type,
-                options=dict(x.split("=") for x in kroki_options.strip().split(" ")) if kroki_options else {},
+                options=dict(x.split("=") for x in kroki_options.strip().split(" "))
+                if kroki_options
+                else {},
                 data=self._get_block_content(textwrap.dedent(match_obj.group("code"))),
             )
-            return textwrap.indent(block_callback(kroki_context, context), match_obj.group("indent"))
+            return textwrap.indent(
+                block_callback(kroki_context, context), match_obj.group("indent")
+            )
 
         return re.sub(self._FENCE_RE, replace_kroki_block, markdown)

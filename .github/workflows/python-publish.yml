@@ -1,4 +1,4 @@
-# This workflow will upload a Python Package using Hatch when a release is created
+# This workflow will upload a Python Package using uv when a release is created
 # For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
 
 name: Upload Python Package
@@ -19,28 +19,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: '3.x'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install --upgrade hatch
+    - uses: astral-sh/setup-uv@v4
     - name: Check project version
       run: |
-        PROJECT_VERSION=$(TERM=dumb hatch version)
+        PROJECT_VERSION=$(uv run python -c "from kroki import __version__; print(__version__)")
 
         if [ "$PROJECT_VERSION" != "${TAG_NAME#v}" ]; then
           echo "Wrong project version, cannot release: $PROJECT_VERSION, ${TAG_NAME#v} expected"
           exit 1
         fi
       env:
-        TAG_NAME: ${{ github.ref }}
+        TAG_NAME: ${{ github.ref_name }}
     - name: Build package
-      run: hatch build
+      run: uv build
     - name: Publish package
+      run: uv publish
       env:
-        HATCH_INDEX_USER: __token__
-        HATCH_INDEX_AUTH: ${{ secrets.PYPI_API_TOKEN }}
-      run: hatch publish
+        UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}

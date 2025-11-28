@@ -7,9 +7,13 @@ from tests.utils import MkDocsHelper, get_expected_log_line
 def _assert_error_block(err_msg: str, index_html: str):
     index_soup = bs4.BeautifulSoup(index_html)
     details_tag = index_soup.find("details")
-    assert isinstance(details_tag, bs4.Tag), "Error message container not in resulting HTML"
+    assert isinstance(details_tag, bs4.Tag), (
+        "Error message container not in resulting HTML"
+    )
     summary_tag = details_tag.summary
-    assert isinstance(summary_tag, bs4.Tag), "Error message container has no summary element"
+    assert isinstance(summary_tag, bs4.Tag), (
+        "Error message container has no summary element"
+    )
     assert err_msg in summary_tag.text
 
 

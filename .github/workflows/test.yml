@@ -25,13 +25,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python }}
-      uses: actions/setup-python@v6
-      with:
-        python-version: ${{ matrix.python }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install --upgrade hatch
+    - uses: astral-sh/setup-uv@v4
     - name: Test coverage
-      run: hatch test --cover
+      run: uv run --python ${{ matrix.python }} pytest tests --cov --cov-report=xml --junitxml=junit/test-results.xml

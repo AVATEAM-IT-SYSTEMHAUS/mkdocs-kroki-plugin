@@ -95,12 +95,15 @@ class KrokiDiagramTypes:
             if file_type_override is not None:
                 if file_type_override not in supported_file_types:
                     err_msg = (
-                        f"{diagram_type}: {file_type_override} not in supported file types: " f"{supported_file_types}"
+                        f"{diagram_type}: {file_type_override} not in supported file types: "
+                        f"{supported_file_types}"
                     )
                     raise PluginError(err_msg)
                 return file_type_override
 
-            target_file_type = next((t for t in file_types if t in supported_file_types), None)
+            target_file_type = next(
+                (t for t in file_types if t in supported_file_types), None
+            )
             if target_file_type is None:
                 err_msg = (
                     f"{diagram_type}: Not able to satisfy any of {file_types}, "
@@ -110,7 +113,10 @@ class KrokiDiagramTypes:
 
             return target_file_type
 
-        return {diagram_type: get_file_type(diagram_type) for diagram_type in diagram_type_file_ext_map}
+        return {
+            diagram_type: get_file_type(diagram_type)
+            for diagram_type in diagram_type_file_ext_map
+        }
 
     def get_file_ext(self, kroki_type: str) -> str:
         return self._file_ext_mapping[kroki_type]
