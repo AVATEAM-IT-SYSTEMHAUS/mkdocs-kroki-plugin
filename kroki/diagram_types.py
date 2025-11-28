@@ -94,10 +94,7 @@ class KrokiDiagramTypes:
             file_type_override = file_type_overrides.get(diagram_type)
             if file_type_override is not None:
                 if file_type_override not in supported_file_types:
-                    err_msg = (
-                        f"{diagram_type}: {file_type_override} not in supported file types: "
-                        f"{supported_file_types}"
-                    )
+                    err_msg = f"{diagram_type}: {file_type_override} not in supported file types: {supported_file_types}"
                     raise PluginError(err_msg)
                 return file_type_override
 

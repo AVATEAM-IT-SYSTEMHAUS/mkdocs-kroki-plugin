@@ -1,37 +1,32 @@
 # See https://pre-commit.com for more information
-# See https://pre-commit.com/hooks.html for more hooks
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.5.0
+  rev: v6.0.0
   hooks:
   - id: trailing-whitespace
   - id: end-of-file-fixer
   - id: check-yaml
+    args: [--allow-multiple-documents]
   - id: check-added-large-files
   - id: detect-private-key
+
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.14.6
+  hooks:
+    - id: ruff-check
+    - id: ruff-format
+
 - repo: local
   hooks:
-    - id: lint
-      name: run the linter
-      entry: hatch fmt -l
-      language: system
-      pass_filenames: false
-      types: [ python ]
     - id: check-types
       name: run mypy
-      entry: hatch run types:check
-      language: system
-      pass_filenames: false
-      types: [ python ]
-    - id: format
-      name: run the formatter
-      entry: hatch fmt -f
+      entry: uv run --group types mypy kroki
       language: system
       pass_filenames: false
       types: [ python ]
     - id: test
       name: run tests
-      entry: hatch test -a
+      entry: uv run pytest
       language: system
       pass_filenames: false
       types: [ python ]
