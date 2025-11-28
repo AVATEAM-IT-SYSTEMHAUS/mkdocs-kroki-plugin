@@ -256,6 +256,15 @@ foo
         expected_code_block_data="foo\n",
         expected_kroki_type="mermaid",
     ),
+    "#85": StubInput(
+        page_data="""
+```plantuml {kroki=true}
+   Alice -> Bob
+```
+""",
+        expected_code_block_data="Alice -> Bob\n",
+        expected_kroki_type="plantuml",
+    ),
 }
 
 
