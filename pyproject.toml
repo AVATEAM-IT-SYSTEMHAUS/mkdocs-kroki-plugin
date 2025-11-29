@@ -96,3 +96,21 @@ default-groups = ["dev", "test", "types"]
 
 [tool.mypy]
 disable_error_code = "import-untyped"
+
+[tool.coverage.run]
+omit = [
+    "tests/*",
+    "*/tests/*",
+    "*/__pycache__/*",
+    "*/.venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
