@@ -30,6 +30,7 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
         self.kroki_client = KrokiClient(
             server_url=self.config.ServerURL,
             http_method=self.config.HttpMethod,
+            timeout_seconds=self.config.RequestTimeout,
             user_agent=self.config.UserAgent,
             diagram_types=self.diagram_types,
             cache=self.cache,

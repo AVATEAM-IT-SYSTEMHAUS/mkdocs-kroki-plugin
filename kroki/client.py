@@ -81,12 +81,14 @@ class KrokiClient:
         server_url: str,
         http_method: str,
         user_agent: str,
+        timeout_seconds: int,
         diagram_types: KrokiDiagramTypes,
         cache: KrokiCache,
     ) -> None:
         self.server_url = server_url
         self.http_method = http_method
         self.headers = {"User-Agent": user_agent}
+        self.timeout_seconds = timeout_seconds
         self.diagram_types = diagram_types
         self.cache = cache
 
@@ -172,7 +174,7 @@ class KrokiClient:
                         "diagram_source": kroki_context.data.unwrap(),
                         "diagram_options": kroki_context.options,
                     },
-                    timeout=10.0,
+                    timeout=float(self.timeout_seconds),
                 )
         except httpx.HTTPError as error:
             return Err(
