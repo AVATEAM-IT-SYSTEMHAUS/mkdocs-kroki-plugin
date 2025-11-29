@@ -59,8 +59,8 @@ class MarkdownParser:
             return markdown
 
         # Process matches to build kroki contexts
-        tasks = []
-        match_data = []
+        tasks: list[Awaitable[str]] = []
+        match_data: list[tuple[re.Match[str], KrokiImageContext | None]] = []
         for match_obj in matches:
             kroki_type = self.diagram_types.get_kroki_type(match_obj.group("lang"))
             if kroki_type is None:
@@ -98,16 +98,16 @@ class MarkdownParser:
             results = []
 
         # Build replacement map
-        replacements = {}
+        replacements: dict[tuple[int, int], str] = {}
         result_idx = 0
-        for match_obj, kroki_context in match_data:
-            if kroki_context is None:
+        for match, ctx in match_data:
+            if ctx is None:
                 # Not a kroki block, keep original
-                replacements[match_obj.span()] = match_obj.group()
+                replacements[match.span()] = match.group()
             else:
                 # Use the async result
-                replacements[match_obj.span()] = textwrap.indent(
-                    results[result_idx], match_obj.group("indent")
+                replacements[match.span()] = textwrap.indent(
+                    results[result_idx], match.group("indent")
                 )
                 result_idx += 1
 
