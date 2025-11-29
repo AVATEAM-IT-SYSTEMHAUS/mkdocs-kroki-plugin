@@ -11,27 +11,27 @@ from kroki.common import ErrorResult, KrokiImageContext, MkDocsEventContext
 from kroki.diagram_types import KrokiDiagramTypes
 from kroki.logging import log
 
+_FENCE_RE = re.compile(
+    r"(?P<fence>^(?P<indent>[ ]*)(?:````*|~~~~*))[ ]*"
+    r"(\.?(?P<lang>[\w#.+-]*)[ ]*)?"
+    r"(?P<opts>\{[^}]*\}|(?:[ ]?[a-zA-Z0-9\-_]+=[a-zA-Z0-9\-_]+)*)\n"
+    r"(?P<code>.*?)(?<=\n)"
+    r"(?P=fence)[ ]*$",
+    flags=re.IGNORECASE + re.DOTALL + re.MULTILINE,
+)
+_FROM_FILE_PREFIX: Final[str] = "@from_file:"
+
 
 class MarkdownParser:
-    from_file_prefix: Final[str] = "@from_file:"
-    _FENCE_RE = re.compile(
-        r"(?P<fence>^(?P<indent>[ ]*)(?:````*|~~~~*))[ ]*"
-        r"(\.?(?P<lang>[\w#.+-]*)[ ]*)?"
-        r"(?P<opts>\{[^}]*\}|(?:[ ]?[a-zA-Z0-9\-_]+=[a-zA-Z0-9\-_]+)*)\n"
-        r"(?P<code>.*?)(?<=\n)"
-        r"(?P=fence)[ ]*$",
-        flags=re.IGNORECASE + re.DOTALL + re.MULTILINE,
-    )
-
     def __init__(self, docs_dir: str, diagram_types: KrokiDiagramTypes) -> None:
         self.diagram_types = diagram_types
         self.docs_dir = docs_dir
 
     def _get_block_content(self, block_data: str) -> Result[str, ErrorResult]:
-        if not block_data.startswith(self.from_file_prefix):
+        if not block_data.startswith(_FROM_FILE_PREFIX):
             return Ok(block_data)
 
-        file_name = block_data.removeprefix(self.from_file_prefix).strip()
+        file_name = block_data.removeprefix(_FROM_FILE_PREFIX).strip()
         file_path = Path(self.docs_dir) / file_name
         log.debug('Reading kroki block from file: "%s"', file_path.absolute())
         try:
@@ -54,7 +54,7 @@ class MarkdownParser:
         context: MkDocsEventContext,
     ) -> str:
         # Collect all matches and their contexts
-        matches = list(self._FENCE_RE.finditer(markdown))
+        matches = list(_FENCE_RE.finditer(markdown))
         if not matches:
             return markdown
 
@@ -72,11 +72,11 @@ class MarkdownParser:
             if kroki_options:
                 # Strip curly braces if present and parse key=value pairs
                 opts_str = kroki_options.strip().strip("{}")
-                options = dict(
+                options = {
                     x.split("=")
                     for x in opts_str.split()
                     if "=" in x and not x.startswith("kroki=")
-                )
+                }
             else:
                 options = {}
 
