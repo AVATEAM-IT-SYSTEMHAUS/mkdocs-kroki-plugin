@@ -39,7 +39,7 @@ plugins:
 | `FileTypeOverrides` | Overrides for specific diagram types to set the desired file type                                                                          | `[]`                                          |
 | `TagFormat`         | How the image will be included in the resulting HTML (`img`, `object`, `svg`)                                                              | `img`                                         |
 | `FailFast`          | Errors are raised as plugin errors                                                                                                         | `false`                                       |
-| `CacheDir`          | Custom directory for caching rendered diagrams<br>By default uses `$XDG_CACHE_HOME/kroki`, `~/.cache/kroki`, or temp directory              | (automatic)                                   |
+| `CacheDir`          | Custom directory for caching rendered diagrams<br>By default uses `$XDG_CACHE_HOME/kroki`, `~/.cache/kroki`, or temp directory             | (automatic)                                   |
 
 Example:
 
@@ -52,6 +52,35 @@ Example:
       FileTypeOverrides:
         mermaid: png
       FailFast: !ENV CI
+```
+
+### Caching
+
+The plugin automatically caches rendered diagrams to improve build performance, especially useful during `mkdocs serve`
+when diagrams would otherwise be re-rendered on every file save.
+
+**Note:** Caching only applies when using `HttpMethod: POST`. The GET method generates URLs pointing to the Kroki server and doesn't download diagram content.
+
+**How it works:**
+
+- Diagrams are cached based on their content, type, format, and options
+- Unchanged diagrams are retrieved from cache instead of being re-rendered
+- Both in-memory and file-based caching are used for optimal performance
+- **LRU strategy**: Frequently accessed diagrams stay in cache, unused ones expire after 3 days
+- Cache cleanup runs automatically on plugin initialization with minimal overhead
+
+**Cache location (fallback hierarchy):**
+
+1. `$XDG_CACHE_HOME/kroki` (if XDG_CACHE_HOME is set)
+2. `~/.cache/kroki` (if HOME is set)
+3. System temp directory + `/kroki` (final fallback)
+4. Custom location: Set `CacheDir` in plugin configuration to override
+
+**Example with custom cache directory:**
+
+```yaml
+  - kroki:
+      CacheDir: .cache/kroki  # Store cache in project directory
 ```
 
 ## Usage
