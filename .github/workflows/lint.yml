@@ -1,4 +1,4 @@
-name: Project lint
+name: lint
 
 on:
   workflow_dispatch:
