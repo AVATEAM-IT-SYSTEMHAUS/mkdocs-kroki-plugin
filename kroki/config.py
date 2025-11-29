@@ -11,22 +11,6 @@ from kroki import __version__
 from kroki.logging import log
 
 
-class DeprecatedDownloadImagesCompat(config_options.Deprecated):
-    def pre_validation(self, config: MkDocsBaseConfig, key_name: str) -> None:
-        """Set `HttpMethod: 'POST'`, if enabled"""
-        if not isinstance(config, KrokiPluginConfig):
-            return
-
-        if config.get(key_name) is None:
-            return
-
-        self.warnings.append(self.message.format(key_name))
-
-        download_images: bool = config.pop(key_name)
-        if download_images:
-            config.HttpMethod = "POST"
-
-
 class KrokiPluginConfig(MkDocsBaseConfig):
     ServerURL = config_options.URL(
         default=os.getenv("KROKI_SERVER_URL", "https://kroki.io")
@@ -45,9 +29,6 @@ class KrokiPluginConfig(MkDocsBaseConfig):
     TagFormat = config_options.Choice(choices=["img", "object", "svg"], default="img")
     FailFast = config_options.Type(bool, default=False)
     CacheDir = config_options.Optional(config_options.Type(str))
-
-    DownloadImages = DeprecatedDownloadImagesCompat(moved_to="HttpMethod: 'POST'")
-    Enablebpmn = config_options.Deprecated(moved_to="EnableBpmn")
     DownloadDir = config_options.Deprecated(removed=True)
 
     def validate(self) -> tuple[MkDocsConfigErrors, MkDocsConfigWarnings]:
