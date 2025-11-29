@@ -5,4 +5,4 @@ theme:
 
 plugins:
   - kroki:
-      FencePrefix: ''
+      fence_prefix: ''

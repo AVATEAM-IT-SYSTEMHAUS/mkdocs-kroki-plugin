@@ -43,16 +43,16 @@ class MkDocsHelper(AbstractContextManager):
             raise NoPluginEntryError
 
         def enable_fail_fast(self) -> None:
-            self._get_plugin_config_entry()["FailFast"] = True
+            self._get_plugin_config_entry()["fail_fast"] = True
 
         def set_http_method(self, method: Literal["GET", "POST"]) -> None:
-            self._get_plugin_config_entry()["HttpMethod"] = method
+            self._get_plugin_config_entry()["http_method"] = method
 
         def set_fence_prefix(self, fence_prefix: str) -> None:
-            self._get_plugin_config_entry()["FencePrefix"] = fence_prefix
+            self._get_plugin_config_entry()["fence_prefix"] = fence_prefix
 
         def set_tag_format(self, tag_format: Literal["img", "object", "svg"]) -> None:
-            self._get_plugin_config_entry()["TagFormat"] = tag_format
+            self._get_plugin_config_entry()["tag_format"] = tag_format
 
         def invoke_build(self) -> Result:
             self._dump_config()
