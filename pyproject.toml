@@ -10,8 +10,9 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [
-    { name = "Benjamin Bittner", email = "benjamin.bittner@avateam.com" },
+    { name = "Timo Reymann", email = "mail@timo-reymann.de" },
     { name = "Antonia Siegert", email = "oniboni@mailbox.org" },
+    { name = "Benjamin Bittner", email = "benjamin.bittner@avateam.com" },
 ]
 keywords = [
     "diagram",
@@ -33,6 +34,9 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Framework :: MkDocs",
+    "Topic :: Documentation",
+    "Topic :: Software Development :: Documentation"
 ]
 dependencies = [
     "mkdocs>=1.5.0",
