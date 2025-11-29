@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from unittest.mock import AsyncMock
 
 import pytest
 from pytest_mock import MockerFixture
@@ -281,7 +282,7 @@ def test_fences(
 ) -> None:
     # Arrange
     parser = MarkdownParser("", mock_kroki_diagram_types)
-    callback_stub = mocker.stub()
+    callback_stub = AsyncMock(return_value="")
     context_stub = mocker.stub()
     # Act
     parser.replace_kroki_blocks(test_data.page_data, callback_stub, context_stub)
@@ -306,7 +307,7 @@ def test_fences_not_supported(
 ) -> None:
     # Arrange
     parser = MarkdownParser("", mock_kroki_diagram_types)
-    callback_stub = mocker.stub()
+    callback_stub = AsyncMock(return_value="")
     context_stub = mocker.stub()
     # Act
     parser.replace_kroki_blocks(test_data.page_data, callback_stub, context_stub)
