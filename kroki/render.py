@@ -90,12 +90,12 @@ class ContentRenderer:
             "</details>"
         )
 
-    def render_kroki_block(
+    async def render_kroki_block(
         self, kroki_context: KrokiImageContext, context: MkDocsEventContext
     ) -> str:
         match kroki_context.data:
             case Ok(kroki_data):
-                match self.kroki_client.get_image_url(kroki_context, context):
+                match await self.kroki_client.get_image_url(kroki_context, context):
                     case Ok(image_src):
                         return self._image_response(image_src)
                     case Err(err_result):
