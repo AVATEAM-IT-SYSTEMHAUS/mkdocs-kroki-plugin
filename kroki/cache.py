@@ -28,7 +28,7 @@ class KrokiCache:
                        3. $TMPDIR/kroki or temp directory/kroki
         """
         self.in_memory_cache: dict[str, bytes] = {}
-        self.cache_path = self._determine_cache_dir(cache_dir)
+        self.cache_path: Path | None = self._determine_cache_dir(cache_dir)
         log.debug("Using cache directory: %s", self.cache_path)
         self._ensure_cache_dir()
         self._cleanup_old_cache_files()
