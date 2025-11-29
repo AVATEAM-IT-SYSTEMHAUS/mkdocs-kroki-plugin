@@ -23,14 +23,6 @@ FILE_PREFIX: Final[str] = "kroki-generated-"
 
 
 class DownloadedContent:
-    def _ugly_temp_excalidraw_fix(self) -> None:
-        """TODO: remove me, when excalidraw container works again..
-        ref: https://github.com/excalidraw/excalidraw/issues/7366"""
-        self.file_content: bytes = self.file_content.replace(
-            b"https://unpkg.com/@excalidraw/excalidraw@undefined/dist",
-            b"https://unpkg.com/@excalidraw/excalidraw@0.17.1/dist",
-        )
-
     def __init__(
         self, file_content: bytes, file_extension: str, additional_metadata: None | dict
     ) -> None:
@@ -38,7 +30,6 @@ class DownloadedContent:
 
         self.file_name = f"{FILE_PREFIX}{file_uuid}.{file_extension}"
         self.file_content = file_content
-        self._ugly_temp_excalidraw_fix()
 
     def save(self, context: MkDocsEventContext) -> None:
         # wherever MkDocs wants to host or build, we plant the image next
