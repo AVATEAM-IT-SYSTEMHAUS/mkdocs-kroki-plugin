@@ -1,0 +1,52 @@
+@startuml
+!include <C4/C4_Container>
+
+title System Overview - Multi-Tier Architecture
+
+Person(admin, "System Admin", "Manages and monitors the system")
+Person(user, "End User", "Uses the application")
+
+System_Boundary(frontend, "Frontend Layer") {
+    Container(web, "Web Application", "React", "User interface")
+    Container(mobile, "Mobile App", "React Native", "Mobile interface")
+}
+
+System_Boundary(backend, "Backend Layer") {
+    Container(api, "API Gateway", "Node.js", "Routes and validates requests")
+    Container(auth, "Auth Service", "OAuth2", "Handles authentication")
+    Container(app, "Application Server", "Java Spring", "Business logic")
+    Container(cache, "Cache", "Redis", "Session and data cache")
+}
+
+System_Boundary(data, "Data Layer") {
+    ContainerDb(db, "Primary Database", "PostgreSQL", "Stores application data")
+    ContainerDb(replica, "Read Replica", "PostgreSQL", "Read-only copy")
+    ContainerDb(analytics, "Analytics DB", "ClickHouse", "Analytics data")
+}
+
+System_Ext(email, "Email Service", "Sends transactional emails")
+System_Ext(monitoring, "Monitoring", "Observability platform")
+
+Rel(user, web, "Uses", "HTTPS")
+Rel(user, mobile, "Uses", "HTTPS")
+Rel(admin, monitoring, "Monitors via")
+
+Rel(web, api, "Calls", "REST/JSON")
+Rel(mobile, api, "Calls", "REST/JSON")
+
+Rel(api, auth, "Authenticates via")
+Rel(api, app, "Routes to")
+
+Rel(app, cache, "Reads/Writes", "Redis Protocol")
+Rel(app, db, "Reads/Writes", "SQL")
+Rel(app, replica, "Reads", "SQL")
+Rel(app, email, "Sends via", "SMTP")
+
+Rel(db, replica, "Replicates to", "Async")
+Rel(app, analytics, "Logs events to", "Batch")
+
+Rel(monitoring, api, "Monitors")
+Rel(monitoring, app, "Monitors")
+Rel(monitoring, db, "Monitors")
+
+@enduml

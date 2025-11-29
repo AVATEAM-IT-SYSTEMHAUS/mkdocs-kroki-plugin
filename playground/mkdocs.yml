@@ -1,0 +1,24 @@
+site_name: Kroki Plugin Playground
+docs_dir: docs
+
+theme:
+  name: material
+  palette:
+    primary: indigo
+    accent: indigo
+  features:
+    - navigation.tabs
+    - navigation.sections
+
+plugins:
+  - search
+  - kroki:
+      FencePrefix: ''
+      HttpMethod: POST
+
+nav:
+  - Home: index.md
+  - Diagrams:
+      - Sequence & Activity: diagrams.md
+      - Network & Infrastructure: network.md
+      - UML & Class Diagrams: uml.md
