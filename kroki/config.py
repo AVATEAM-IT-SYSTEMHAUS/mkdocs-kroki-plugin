@@ -2,13 +2,9 @@ import os
 
 from mkdocs.config import config_options
 from mkdocs.config.base import (
-    Config as MkDocsBaseConfig,
-)
-from mkdocs.config.base import (
     ConfigErrors as MkDocsConfigErrors,
-)
-from mkdocs.config.base import (
     ConfigWarnings as MkDocsConfigWarnings,
+    Config as MkDocsBaseConfig,
 )
 
 from kroki import __version__

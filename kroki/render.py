@@ -9,27 +9,32 @@ from kroki.common import ErrorResult, ImageSrc, KrokiImageContext, MkDocsEventCo
 from kroki.logging import log
 
 
+def _get_object_media_type(file_ext: str) -> str:
+    match file_ext:
+        case "png":
+            return "image/png"
+        case "svg":
+            return "image/svg+xml"
+        case "jpeg":
+            return "image/jpg"
+        case "pdf":
+            return "application/pdf"
+        case _:
+            err_msg = f"Not implemented: '{file_ext}"
+            raise PluginError(err_msg)
+
+
 class ContentRenderer:
     def __init__(
-        self, kroki_client: KrokiClient, tag_format: str, *, fail_fast: bool
+        self,
+        kroki_client: KrokiClient,
+        tag_format: str,
+        *,
+        fail_fast: bool,
     ) -> None:
         self.fail_fast = fail_fast
         self.kroki_client = kroki_client
         self.tag_format = tag_format
-
-    def _get_object_media_type(self, file_ext: str) -> str:
-        match file_ext:
-            case "png":
-                return "image/png"
-            case "svg":
-                return "image/svg+xml"
-            case "jpeg":
-                return "image/jpg"
-            case "pdf":
-                return "application/pdf"
-            case _:
-                err_msg = f"Not implemented: '{file_ext}"
-                raise PluginError(err_msg)
 
     @classmethod
     def _svg_data(cls, image_src: ImageSrc) -> str:
@@ -61,7 +66,7 @@ class ContentRenderer:
 
         match tag_format:
             case "object":
-                media_type = self._get_object_media_type(image_src.file_ext)
+                media_type = _get_object_media_type(image_src.file_ext)
                 return f'<object id="Kroki" type="{media_type}" data="{image_src.url}" style="max-width:100%"></object>'
             case "svg":
                 return ContentRenderer._svg_data(image_src)
