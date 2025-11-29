@@ -19,16 +19,18 @@ jobs:
   test:
     permissions:
       contents: read
+      actions: read
+      checks: write
       pull-requests: write
 
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python: ["3.10", "3.11", "3.12","3.13","3.14"]
-        coverage: [false]
+        report: [false]
         include:
           - python: "3.12"
-            coverage: true
+            report: true
 
     steps:
     - uses: actions/checkout@v6
@@ -37,7 +39,7 @@ jobs:
       run: uv run --python ${{ matrix.python }} pytest tests --cov --cov-report=xml --junitxml=junit/test-results.xml
     - name: Code Coverage Summary
       uses: irongut/CodeCoverageSummary@v1.3.0
-      if: matrix.coverage
+      if: matrix.report
       with:
         filename: coverage.xml
         badge: true
@@ -48,9 +50,31 @@ jobs:
         indicators: true
         output: both
         thresholds: '60 80'
-    - name: Add Coverage PR Comment
+    - name: Publish Test Report
+      id: test-report
+      uses: dorny/test-reporter@v1
+      if: matrix.report && (success() || failure())
+      with:
+        name: 'Test Results'
+        path: 'junit/test-results.xml'
+        reporter: 'java-junit'
+    - name: Create Combined Report
+      if: matrix.report && github.event_name == 'pull_request' && (success() || failure())
+      run: |
+        cat > comment.md << 'EOF'
+        ## 🧪 Test Results
+
+        EOF
+        cat code-coverage-results.md >> comment.md
+        cat >> comment.md << 'EOF'
+
+        ---
+
+        🔗 [View detailed test report](${{ steps.test-report.outputs.url_html }})
+        EOF
+    - name: Add Coverage & Test Report PR Comment
       uses: marocchino/sticky-pull-request-comment@v2
-      if: matrix.coverage && github.event_name == 'pull_request'
+      if: matrix.report && github.event_name == 'pull_request' && (success() || failure())
       with:
         recreate: true
-        path: code-coverage-results.md
+        path: comment.md
