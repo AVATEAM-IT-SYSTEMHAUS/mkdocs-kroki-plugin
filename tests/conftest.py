@@ -1,9 +1,18 @@
+import tempfile
 from dataclasses import dataclass
 
 import httpx
 import pytest
 
 from kroki.diagram_types import KrokiDiagramTypes
+
+
+@pytest.fixture(autouse=True)
+def isolated_cache(monkeypatch):
+    """Use a temporary cache directory for each test to avoid cross-test contamination."""
+    tmpdir = tempfile.mkdtemp()
+    # Point XDG_CACHE_HOME to the temporary directory
+    monkeypatch.setenv("XDG_CACHE_HOME", tmpdir)
 
 
 @pytest.fixture(autouse=True)

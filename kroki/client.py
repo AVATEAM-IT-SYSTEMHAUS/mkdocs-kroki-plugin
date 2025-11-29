@@ -8,6 +8,7 @@ from uuid import NAMESPACE_OID, uuid3
 import httpx
 from result import Err, Ok, Result
 
+from kroki.cache import KrokiCache
 from kroki.common import (
     ErrorResult,
     ImageSrc,
@@ -81,11 +82,13 @@ class KrokiClient:
         http_method: str,
         user_agent: str,
         diagram_types: KrokiDiagramTypes,
+        cache: KrokiCache,
     ) -> None:
         self.server_url = server_url
         self.http_method = http_method
         self.headers = {"User-Agent": user_agent}
         self.diagram_types = diagram_types
+        self.cache = cache
 
         log.debug(
             "Client initialized [http_method: %s, server_url: %s]",
@@ -129,8 +132,34 @@ class KrokiClient:
     async def _kroki_post(
         self, kroki_context: KrokiImageContext, context: MkDocsEventContext
     ) -> Result[ImageSrc, ErrorResult]:
-        kroki_endpoint = self._kroki_url_base(kroki_context.kroki_type)
         file_ext = self._get_file_ext(kroki_context.kroki_type)
+
+        # Check cache first
+        cached_content = self.cache.get(
+            diagram_source=kroki_context.data.unwrap(),
+            diagram_type=kroki_context.kroki_type,
+            file_ext=file_ext,
+            options=kroki_context.options,
+        )
+
+        if cached_content is not None:
+            # Use cached content
+            downloaded_image = DownloadedContent(
+                cached_content,
+                file_ext,
+                kroki_context.options,
+            )
+            downloaded_image.save(context)
+            return Ok(
+                ImageSrc(
+                    url=downloaded_image.file_name,
+                    file_ext=file_ext,
+                    file_content=downloaded_image.file_content,
+                )
+            )
+
+        # Cache miss - fetch from server
+        kroki_endpoint = self._kroki_url_base(kroki_context.kroki_type)
         url = f"{kroki_endpoint}/{file_ext}"
 
         log.debug("POST %s", textwrap.shorten(url, 50))
@@ -151,6 +180,15 @@ class KrokiClient:
             )
 
         if response.status_code == httpx.codes.OK:
+            # Store in cache
+            self.cache.set(
+                diagram_source=kroki_context.data.unwrap(),
+                diagram_type=kroki_context.kroki_type,
+                file_ext=file_ext,
+                options=kroki_context.options,
+                content=response.content,
+            )
+
             downloaded_image = DownloadedContent(
                 response.content,
                 file_ext,
