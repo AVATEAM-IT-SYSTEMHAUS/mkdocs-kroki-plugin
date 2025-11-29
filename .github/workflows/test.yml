@@ -17,14 +17,40 @@ env:
 
 jobs:
   test:
+    permissions:
+      contents: read
+      pull-requests: write
 
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ["3.10", "3.11", "3.12"]
+        python: ["3.10", "3.11", "3.12","3.13","3.14"]
+        coverage: [false]
+        include:
+          - python: "3.12"
+            coverage: true
 
     steps:
     - uses: actions/checkout@v6
     - uses: astral-sh/setup-uv@v4
     - name: Test coverage
       run: uv run --python ${{ matrix.python }} pytest tests --cov --cov-report=xml --junitxml=junit/test-results.xml
+    - name: Code Coverage Summary
+      uses: irongut/CodeCoverageSummary@v1.3.0
+      if: matrix.coverage
+      with:
+        filename: coverage.xml
+        badge: true
+        fail_below_min: false
+        format: markdown
+        hide_branch_rate: false
+        hide_complexity: true
+        indicators: true
+        output: both
+        thresholds: '60 80'
+    - name: Add Coverage PR Comment
+      uses: marocchino/sticky-pull-request-comment@v2
+      if: matrix.coverage && github.event_name == 'pull_request'
+      with:
+        recreate: true
+        path: code-coverage-results.md
