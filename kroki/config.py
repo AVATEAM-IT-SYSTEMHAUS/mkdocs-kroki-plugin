@@ -12,30 +12,30 @@ from kroki.logging import log
 
 
 class KrokiPluginConfig(MkDocsBaseConfig):
-    ServerURL = config_options.URL(
+    server_url = config_options.URL(
         default=os.getenv("KROKI_SERVER_URL", "https://kroki.io")
     )
-    EnableBlockDiag = config_options.Type(bool, default=True)
-    EnableBpmn = config_options.Type(bool, default=True)
-    EnableExcalidraw = config_options.Type(bool, default=True)
-    EnableMermaid = config_options.Type(bool, default=True)
-    EnableDiagramsnet = config_options.Type(bool, default=False)
-    HttpMethod = config_options.Choice(choices=["GET", "POST"], default="GET")
-    RequestTimeout = config_options.Type(int, default=30)
-    UserAgent = config_options.Type(str, default=f"{__name__}/{__version__}")
-    FencePrefix = config_options.Type(str, default="kroki-")
-    FileTypes = config_options.Type(list, default=["svg"])
-    FileTypeOverrides = config_options.Type(dict, default={})
-    TagFormat = config_options.Choice(choices=["img", "object", "svg"], default="img")
-    FailFast = config_options.Type(bool, default=False)
-    CacheDir = config_options.Optional(config_options.Type(str))
-    DownloadDir = config_options.Deprecated(removed=True)
+    enable_block_diag = config_options.Type(bool, default=True)
+    enable_bpmn = config_options.Type(bool, default=True)
+    enable_excalidraw = config_options.Type(bool, default=True)
+    enable_mermaid = config_options.Type(bool, default=True)
+    enable_diagramsnet = config_options.Type(bool, default=False)
+    http_method = config_options.Choice(choices=["GET", "POST"], default="GET")
+    request_timeout = config_options.Type(int, default=30)
+    user_agent = config_options.Type(str, default=f"{__name__}/{__version__}")
+    fence_prefix = config_options.Type(str, default="kroki-")
+    file_types = config_options.Type(list, default=["svg"])
+    file_type_overrides = config_options.Type(dict, default={})
+    tag_format = config_options.Choice(choices=["img", "object", "svg"], default="img")
+    fail_fast = config_options.Type(bool, default=False)
+    cache_dir = config_options.Optional(config_options.Type(str))
+    download_dir = config_options.Deprecated(removed=True)
 
     def validate(self) -> tuple[MkDocsConfigErrors, MkDocsConfigWarnings]:
         result = super().validate()
 
-        if self["TagFormat"] == "svg" and self["HttpMethod"] != "POST":
+        if self["tag_format"] == "svg" and self["http_method"] != "POST":
             log.info("Setting Http method to POST to retrieve svg data for inlining.")
-            self["HttpMethod"] = "POST"
+            self["http_method"] = "POST"
 
         return result
