@@ -24,22 +24,23 @@ plugins:
 
 ## Config
 
-| Key                 | Description                                                                                                                                | Default                                       |
-|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------|
-| `ServerURL`         | URL of your kroki-Server                                                                                                                   | `!ENV [KROKI_SERVER_URL, 'https://kroki.io']` |
-| `FencePrefix`       | Diagram prefix, set to an empty string to render all diagrams using Kroki                                                                  | `kroki-`                                      |
-| `EnableBlockDiag`   | Enable BlockDiag (and the related Diagrams)                                                                                                | `true`                                        |
-| `EnableBpmn`        | Enable BPMN                                                                                                                                | `true`                                        |
-| `EnableExcalidraw`  | Enable Excalidraw                                                                                                                          | `true`                                        |
-| `EnableMermaid`     | Enable Mermaid                                                                                                                             | `true`                                        |
-| `EnableDiagramsnet` | Enable diagrams.net (draw.io)                                                                                                              | `false`                                       |
-| `HttpMethod`        | Http method to use (`GET` or `POST`)<br> Note: On `POST` the retrieved images are stored next to the including page in the build directory | `GET`                                         |
-| `UserAgent`         | User agent for requests to the kroki server                                                                                                | `kroki.plugin/<version>`                      |
-| `FileTypes`         | File types you want to use<br>Note: not all file formats work with all diagram types <https://kroki.io/#support>                           | `[svg]`                                       |
-| `FileTypeOverrides` | Overrides for specific diagram types to set the desired file type                                                                          | `[]`                                          |
-| `TagFormat`         | How the image will be included in the resulting HTML (`img`, `object`, `svg`)                                                              | `img`                                         |
-| `FailFast`          | Errors are raised as plugin errors                                                                                                         | `false`                                       |
-| `CacheDir`          | Custom directory for caching rendered diagrams<br>By default uses `$XDG_CACHE_HOME/kroki`, `~/.cache/kroki`, or temp directory             | (automatic)                                   |
+| Key                 | Description                                                                                                                                   | Default                                       |
+|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------|
+| `ServerURL`         | URL of your kroki-Server                                                                                                                      | `!ENV [KROKI_SERVER_URL, 'https://kroki.io']` |
+| `FencePrefix`       | Diagram prefix, set to an empty string to render all diagrams using Kroki                                                                     | `kroki-`                                      |
+| `EnableBlockDiag`   | Enable BlockDiag (and the related Diagrams)                                                                                                   | `true`                                        |
+| `EnableBpmn`        | Enable BPMN                                                                                                                                   | `true`                                        |
+| `EnableExcalidraw`  | Enable Excalidraw                                                                                                                             | `true`                                        |
+| `EnableMermaid`     | Enable Mermaid                                                                                                                                | `true`                                        |
+| `EnableDiagramsnet` | Enable diagrams.net (draw.io)                                                                                                                 | `false`                                       |
+| `HttpMethod`        | Http method to use (`GET` or `POST`)<br> Note: On `POST` the retrieved images are stored next to the including page in the build directory    | `GET`                                         |
+| `RequestTimeout`    | Timeout for HTTP requests in seconds. Increase this value if you encounter timeouts with large diagrams or overloaded kroki server instances. | `30`                                          |
+| `UserAgent`         | User agent for requests to the kroki server                                                                                                   | `kroki.plugin/<version>`                      |
+| `FileTypes`         | File types you want to use<br>Note: not all file formats work with all diagram types <https://kroki.io/#support>                              | `[svg]`                                       |
+| `FileTypeOverrides` | Overrides for specific diagram types to set the desired file type                                                                             | `[]`                                          |
+| `TagFormat`         | How the image will be included in the resulting HTML (`img`, `object`, `svg`)                                                                 | `img`                                         |
+| `FailFast`          | Errors are raised as plugin errors                                                                                                            | `false`                                       |
+| `CacheDir`          | Custom directory for caching rendered diagrams<br>By default uses `$XDG_CACHE_HOME/kroki`, `~/.cache/kroki`, or temp directory                | (automatic)                                   |
 
 Example:
 
@@ -59,7 +60,8 @@ Example:
 The plugin automatically caches rendered diagrams to improve build performance, especially useful during `mkdocs serve`
 when diagrams would otherwise be re-rendered on every file save.
 
-**Note:** Caching only applies when using `HttpMethod: POST`. The GET method generates URLs pointing to the Kroki server and doesn't download diagram content.
+**Note:** Caching only applies when using `HttpMethod: POST`. The GET method generates URLs pointing to the Kroki server
+and doesn't download diagram content.
 
 **How it works:**
 
