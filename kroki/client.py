@@ -19,7 +19,6 @@ from kroki.common import (
 from kroki.diagram_types import KrokiDiagramTypes
 from kroki.logging import log
 
-MAX_URI_SIZE: Final[int] = 4096
 FILE_PREFIX: Final[str] = "kroki-generated-"
 
 
@@ -122,11 +121,6 @@ class KrokiClient:
         image_url = (
             f"{kroki_endpoint}/{file_ext}/{kroki_data_param}?{kroki_query_param}"
         )
-        if len(image_url) >= MAX_URI_SIZE:
-            log.warning(
-                "Kroki may not be able to read the data completely! [data_len: %i]",
-                len(image_url),
-            )
 
         log.debug("Image url: %s", textwrap.shorten(image_url, 50))
         return Ok(ImageSrc(url=image_url, file_ext=file_ext))
