@@ -190,3 +190,30 @@ Run mypy:
 ```sh
 uv run --group types mypy kroki
 ```
+
+### Creating a Release
+
+Use the release script to create a new version:
+
+```sh
+./release.py <version>
+```
+
+For example:
+
+```sh
+./release.py 1.2.3
+```
+
+The script will:
+1. Validate the version format (semantic versioning: X.Y.Z)
+2. Check that the working tree is clean
+3. Update the `__version__` in `kroki/__init__.py`
+4. Create a commit: `chore: Bump version to X.Y.Z`
+5. Create an annotated git tag: `vX.Y.Z`
+6. Push the commit and tag to GitHub
+7. Open your browser to create a GitHub release where you can add the changelog
+
+**Requirements:**
+- Clean working tree (no uncommitted changes)
+- Version must follow semantic versioning format (e.g., 1.2.3)
