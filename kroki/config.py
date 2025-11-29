@@ -47,6 +47,7 @@ class KrokiPluginConfig(MkDocsBaseConfig):
     FileTypeOverrides = config_options.Type(dict, default={})
     TagFormat = config_options.Choice(choices=["img", "object", "svg"], default="img")
     FailFast = config_options.Type(bool, default=False)
+    CacheDir = config_options.Optional(config_options.Type(str))
 
     DownloadImages = DeprecatedDownloadImagesCompat(moved_to="HttpMethod: 'POST'")
     Enablebpmn = config_options.Deprecated(moved_to="EnableBpmn")

@@ -1,5 +1,6 @@
 from mkdocs.plugins import BasePlugin as MkDocsBasePlugin
 
+from kroki.cache import KrokiCache
 from kroki.client import KrokiClient
 from kroki.common import MkDocsConfig, MkDocsEventContext, MkDocsFiles, MkDocsPage
 from kroki.config import KrokiPluginConfig
@@ -24,11 +25,14 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
             diagramsnet_enabled=self.config.EnableDiagramsnet,
         )
 
+        self.cache = KrokiCache(cache_dir=self.config.CacheDir)
+
         self.kroki_client = KrokiClient(
             server_url=self.config.ServerURL,
             http_method=self.config.HttpMethod,
             user_agent=self.config.UserAgent,
             diagram_types=self.diagram_types,
+            cache=self.cache,
         )
         self.parser = MarkdownParser(config.docs_dir, self.diagram_types)
         self.renderer = ContentRenderer(

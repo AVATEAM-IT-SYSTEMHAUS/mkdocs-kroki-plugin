@@ -39,6 +39,7 @@ plugins:
 | `FileTypeOverrides` | Overrides for specific diagram types to set the desired file type                                                                          | `[]`                                          |
 | `TagFormat`         | How the image will be included in the resulting HTML (`img`, `object`, `svg`)                                                              | `img`                                         |
 | `FailFast`          | Errors are raised as plugin errors                                                                                                         | `false`                                       |
+| `CacheDir`          | Custom directory for caching rendered diagrams<br>By default uses `$XDG_CACHE_HOME/kroki`, `~/.cache/kroki`, or temp directory              | (automatic)                                   |
 
 Example:
 
