@@ -63,6 +63,6 @@ def test_default_request_timeout(monkeypatch) -> None:
 
         # Assert
         assert result.exit_code == 0
-        assert captured_timeout == 10.0, (
-            f"Expected default timeout to be 10.0 seconds, but got {captured_timeout}"
+        assert captured_timeout == 30.0, (
+            f"Expected default timeout to be 30.0 seconds, but got {captured_timeout}"
         )
