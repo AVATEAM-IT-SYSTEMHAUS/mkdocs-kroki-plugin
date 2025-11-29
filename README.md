@@ -1,5 +1,11 @@
 # mkdocs-kroki-plugin
 
+[![PyPI version](https://badge.fury.io/py/mkdocs-kroki-plugin.svg)](https://badge.fury.io/py/mkdocs-kroki-plugin)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/mkdocs-kroki-plugin)](https://pypi.org/project/mkdocs-kroki-plugin/)
+[![Test Status](https://github.com/AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin/actions/workflows/test.yml/badge.svg)](https://github.com/AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin/actions/workflows/test.yml)
+[![Lint Status](https://github.com/AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin/actions/workflows/lint.yml/badge.svg)](https://github.com/AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin/actions/workflows/lint.yml)
+[![Python versions](https://img.shields.io/pypi/pyversions/mkdocs-kroki-plugin.svg)](https://pypi.org/project/mkdocs-kroki-plugin/)
+
 This is a MkDocs plugin to embed Kroki-Diagrams into your documentation.
 
 ## Setup
