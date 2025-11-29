@@ -72,11 +72,11 @@ class MarkdownParser:
             if kroki_options:
                 # Strip curly braces if present and parse key=value pairs
                 opts_str = kroki_options.strip().strip("{}")
-                options = {
+                options = dict(
                     x.split("=")
                     for x in opts_str.split()
                     if "=" in x and not x.startswith("kroki=")
-                }
+                )
             else:
                 options = {}
 
