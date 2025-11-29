@@ -15,18 +15,3 @@ repos:
   hooks:
     - id: ruff-check
     - id: ruff-format
-
-- repo: local
-  hooks:
-    - id: check-types
-      name: run mypy
-      entry: uv run --group types mypy kroki
-      language: system
-      pass_filenames: false
-      types: [ python ]
-    - id: test
-      name: run tests
-      entry: uv run pytest
-      language: system
-      pass_filenames: false
-      types: [ python ]
