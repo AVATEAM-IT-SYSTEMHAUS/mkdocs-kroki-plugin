@@ -5,7 +5,7 @@ from os import makedirs, path
 from typing import Final
 from uuid import NAMESPACE_OID, uuid3
 
-import requests
+import httpx
 from result import Err, Ok, Result
 
 from kroki.common import (
@@ -126,7 +126,7 @@ class KrokiClient:
         log.debug("Image url: %s", textwrap.shorten(image_url, 50))
         return Ok(ImageSrc(url=image_url, file_ext=file_ext))
 
-    def _kroki_post(
+    async def _kroki_post(
         self, kroki_context: KrokiImageContext, context: MkDocsEventContext
     ) -> Result[ImageSrc, ErrorResult]:
         kroki_endpoint = self._kroki_url_base(kroki_context.kroki_type)
@@ -135,22 +135,22 @@ class KrokiClient:
 
         log.debug("POST %s", textwrap.shorten(url, 50))
         try:
-            response = requests.post(
-                url,
-                headers=self.headers,
-                json={
-                    "diagram_source": kroki_context.data.unwrap(),
-                    "diagram_options": kroki_context.options,
-                },
-                timeout=10,
-                stream=True,
-            )
-        except requests.RequestException as error:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    url,
+                    headers=self.headers,
+                    json={
+                        "diagram_source": kroki_context.data.unwrap(),
+                        "diagram_options": kroki_context.options,
+                    },
+                    timeout=10.0,
+                )
+        except httpx.HTTPError as error:
             return Err(
                 ErrorResult(err_msg=f"Request error [url:{url}]: {error}", error=error)
             )
 
-        if response.status_code == requests.codes.ok:
+        if response.status_code == httpx.codes.OK:
             downloaded_image = DownloadedContent(
                 response.content,
                 file_ext,
@@ -165,21 +165,21 @@ class KrokiClient:
                 )
             )
 
-        if response.status_code == requests.codes.bad_request:
+        if response.status_code == httpx.codes.BAD_REQUEST:
             return Err(
                 ErrorResult(err_msg="Diagram error!", response_text=response.text)
             )
 
         return Err(
             ErrorResult(
-                err_msg=f"Could not retrieve image data, got: {response.reason} [{response.status_code}]"
+                err_msg=f"Could not retrieve image data, got: {response.reason_phrase} [{response.status_code}]"
             )
         )
 
-    def get_image_url(
+    async def get_image_url(
         self, kroki_context: KrokiImageContext, context: MkDocsEventContext
     ) -> Result[ImageSrc, ErrorResult]:
         if self.http_method == "GET":
             return self._kroki_url_get(kroki_context)
 
-        return self._kroki_post(kroki_context, context)
+        return await self._kroki_post(kroki_context, context)

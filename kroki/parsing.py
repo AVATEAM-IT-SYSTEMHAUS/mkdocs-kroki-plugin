@@ -1,6 +1,7 @@
+import asyncio
 import re
 import textwrap
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Final
 
@@ -47,14 +48,25 @@ class MarkdownParser:
     def replace_kroki_blocks(
         self,
         markdown: str,
-        block_callback: Callable[[KrokiImageContext, MkDocsEventContext], str],
+        block_callback: Callable[
+            [KrokiImageContext, MkDocsEventContext], Awaitable[str]
+        ],
         context: MkDocsEventContext,
     ) -> str:
-        def replace_kroki_block(match_obj: re.Match):
+        # Collect all matches and their contexts
+        matches = list(self._FENCE_RE.finditer(markdown))
+        if not matches:
+            return markdown
+
+        # Process matches to build kroki contexts
+        tasks = []
+        match_data = []
+        for match_obj in matches:
             kroki_type = self.diagram_types.get_kroki_type(match_obj.group("lang"))
             if kroki_type is None:
                 # Skip not supported code blocks
-                return match_obj.group()
+                match_data.append((match_obj, None))
+                continue
 
             kroki_options = match_obj.group("opts")
             if kroki_options:
@@ -67,13 +79,41 @@ class MarkdownParser:
                 )
             else:
                 options = {}
+
             kroki_context = KrokiImageContext(
                 kroki_type=kroki_type,
                 options=options,
                 data=self._get_block_content(textwrap.dedent(match_obj.group("code"))),
             )
-            return textwrap.indent(
-                block_callback(kroki_context, context), match_obj.group("indent")
-            )
+            match_data.append((match_obj, kroki_context))
+            tasks.append(block_callback(kroki_context, context))
 
-        return re.sub(self._FENCE_RE, replace_kroki_block, markdown)
+        # Run all async tasks
+        async def _gather_tasks():
+            return await asyncio.gather(*tasks)
+
+        if tasks:
+            results = asyncio.run(_gather_tasks())
+        else:
+            results = []
+
+        # Build replacement map
+        replacements = {}
+        result_idx = 0
+        for match_obj, kroki_context in match_data:
+            if kroki_context is None:
+                # Not a kroki block, keep original
+                replacements[match_obj.span()] = match_obj.group()
+            else:
+                # Use the async result
+                replacements[match_obj.span()] = textwrap.indent(
+                    results[result_idx], match_obj.group("indent")
+                )
+                result_idx += 1
+
+        # Apply replacements in reverse order to maintain positions
+        result = markdown
+        for (start, end), replacement in sorted(replacements.items(), reverse=True):
+            result = result[:start] + replacement + result[end:]
+
+        return result
