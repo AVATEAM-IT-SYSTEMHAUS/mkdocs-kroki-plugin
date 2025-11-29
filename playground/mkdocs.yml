@@ -13,8 +13,8 @@ theme:
 plugins:
   - search
   - kroki:
-      FencePrefix: ''
-      HttpMethod: POST
+      fence_prefix: ''
+      http_method: POST
 
 nav:
   - Home: index.md

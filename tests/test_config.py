@@ -21,7 +21,7 @@ def test_custom_request_timeout(monkeypatch) -> None:
     with MkDocsHelper("happy_path") as mkdocs_helper:
         # Add custom timeout to configuration
         plugin_config = mkdocs_helper._get_plugin_config_entry()
-        plugin_config["RequestTimeout"] = 25
+        plugin_config["request_timeout"] = 25
         mkdocs_helper.set_http_method("POST")
 
         # Patch the post method to capture timeout
@@ -52,7 +52,7 @@ def test_default_request_timeout(monkeypatch) -> None:
 
     # Arrange
     with MkDocsHelper("happy_path") as mkdocs_helper:
-        # Don't set RequestTimeout - should use default
+        # Don't set request_timeout - should use default
         mkdocs_helper.set_http_method("POST")
 
         # Patch the post method to capture timeout

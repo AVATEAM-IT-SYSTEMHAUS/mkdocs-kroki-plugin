@@ -4,5 +4,5 @@ docs_dir: docs
 plugins:
   - techdocs-core
   - kroki:
-      FencePrefix: ''
-      TagFormat: 'svg'
+      fence_prefix: ''
+      tag_format: 'svg'
