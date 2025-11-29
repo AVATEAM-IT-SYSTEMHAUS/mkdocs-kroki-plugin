@@ -51,7 +51,6 @@ class KrokiPluginConfig(MkDocsBaseConfig):
     CacheDir = config_options.Optional(config_options.Type(str))
 
     DownloadImages = DeprecatedDownloadImagesCompat(moved_to="HttpMethod: 'POST'")
-    Enablebpmn = config_options.Deprecated(moved_to="EnableBpmn")
     DownloadDir = config_options.Deprecated(removed=True)
 
     def validate(self) -> tuple[MkDocsConfigErrors, MkDocsConfigWarnings]:
