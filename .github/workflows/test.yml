@@ -57,7 +57,7 @@ jobs:
         thresholds: '60 80'
     - name: Publish Test Report
       id: test-report
-      uses: dorny/test-reporter@v1
+      uses: dorny/test-reporter@v2
       if: matrix.report && (success() || failure())
       with:
         name: 'Test Results'
