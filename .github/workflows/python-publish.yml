@@ -20,7 +20,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
-    - uses: astral-sh/setup-uv@v4
+    - uses: astral-sh/setup-uv@v7
     - name: Check project version
       run: |
         PROJECT_VERSION=$(uv run python -c "from kroki import __version__; print(__version__)")
