@@ -36,6 +36,7 @@ MANIFEST
 test-docs
 .claude/
 .idea/
+playground/site
 
 # pytest
 junit/

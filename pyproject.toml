@@ -69,6 +69,8 @@ include = [
 [dependency-groups]
 dev = [
     "pre-commit",
+    "taskipy>=1.14.1",
+    "mkdocs-techdocs-core",
 ]
 test = [
     "pytest>=7.0",
@@ -84,11 +86,6 @@ types = [
     "types-PyYAML",
     "types-beautifulsoup4",
     "types-babel",
-]
-techdocs = [
-    "mkdocs_monorepo_plugin",
-    "mkdocs-techdocs-core",
-    "nodeenv",
 ]
 
 [tool.uv]
@@ -114,3 +111,7 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
+
+[tool.taskipy.tasks]
+"playground:mkdocs" = "cd ./playground && mkdocs serve"
+"playground:techdocs" = "docker build . -f Dockerfile.techdocs-dev -t kroki:techdocs-dev && cd ./playground && docker run -w /playground -v  \"$PWD:/playground\" --entrypoint /bin/sh --rm -p 3000:3000 -it kroki:techdocs-dev -c 'techdocs-cli serve --no-docker --verbose'"

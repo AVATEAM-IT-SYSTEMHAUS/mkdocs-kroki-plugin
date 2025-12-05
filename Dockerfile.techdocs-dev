@@ -1,0 +1,7 @@
+FROM node:24
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+RUN npm install -g "@techdocs/cli@1"
+RUN uv pip install --break-system-packages --system mkdocs-techdocs-core
+COPY . .
+RUN uv build \
+    && uv pip install --break-system-packages --system dist/*.whl \

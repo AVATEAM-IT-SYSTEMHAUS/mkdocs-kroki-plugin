@@ -191,6 +191,18 @@ Run mypy:
 uv run --group types mypy kroki
 ```
 
+### Preview playground using mkdocs
+
+```
+uv run task playground:mkdocs
+```
+
+### Preview playground using techdocs-cli
+
+```
+uv run task playground:techdocs
+```
+
 ### Creating a Release
 
 Use the release script to create a new version:

@@ -1,0 +1,9 @@
+.venv
+.github
+.claude
+tests/
+Dockerfile.techdocs-dev
+docker-compose.yml
+release.py
+*.md
+!README.md
