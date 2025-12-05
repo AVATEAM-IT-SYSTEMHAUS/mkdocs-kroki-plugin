@@ -14,6 +14,7 @@ class StubInput:
     page_data: str
     expected_code_block_data: str = ""
     epxected_options: dict = field(default_factory=dict)
+    expected_plugin_options: dict = field(default_factory=dict)
     expected_kroki_type: str = ""
 
 
@@ -290,8 +291,9 @@ def test_fences(
     callback_stub.assert_called_once_with(
         KrokiImageContext(
             kroki_type=test_data.expected_kroki_type,
-            data=Ok(test_data.expected_code_block_data),
             options=test_data.epxected_options,
+            plugin_options=test_data.expected_plugin_options,
+            data=Ok(test_data.expected_code_block_data),
         ),
         context_stub,
     )

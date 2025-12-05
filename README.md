@@ -114,6 +114,55 @@ You can render diagram from file with `@from_file:` directive:
 ```
 ````
 
+### Display Options
+
+You can control the display size and alignment of diagrams using `display-width`, `display-height`, and `display-align` options. These options set inline CSS styles on the rendered element.
+
+#### Size Options
+
+````markdown
+```kroki-plantuml {display-width=500px}
+@startuml
+Alice -> Bob: Hello
+Bob --> Alice: Hi!
+@enduml
+```
+````
+
+You can use both width and height together:
+
+````markdown
+```kroki-blockdiag {display-width=400px display-height=200px}
+blockdiag {
+  A -> B -> C;
+}
+```
+````
+
+#### Alignment
+
+Use `display-align` to position diagrams horizontally. Valid values are `left`, `center`, and `right`.
+
+````markdown
+```kroki-mermaid {display-width=300px display-align=center}
+graph LR
+    A[Start] --> B[End]
+```
+````
+
+This sets `display: block` and appropriate margin values:
+
+- `center`: `margin-left: auto; margin-right: auto`
+- `right`: `margin-left: auto; margin-right: 0`
+- `left`: `margin-left: 0; margin-right: auto`
+
+**Notes:**
+
+- Display options are handled by the plugin and are **not** sent to the Kroki server
+- Setting only `display-width` or `display-height` allows the browser to scale proportionally
+- These options work with all `tag_format` settings (`img`, `object`, `svg`)
+- Size values can be any valid CSS value (e.g., `500px`, `50%`, `auto`, `20em`)
+
 ## Contributors
 
 [![Contributors](https://contrib.rocks/image?repo=AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin)](https://github.com/AVATEAM-IT-SYSTEMHAUS/mkdocs-kroki-plugin/graphs/contributors)

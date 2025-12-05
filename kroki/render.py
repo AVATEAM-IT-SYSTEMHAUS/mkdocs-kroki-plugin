@@ -36,8 +36,33 @@ class ContentRenderer:
         self.kroki_client = kroki_client
         self.tag_format = tag_format
 
+    @staticmethod
+    def _build_style_attr(plugin_options: dict) -> str:
+        """Build inline style attribute from plugin options."""
+        styles = []
+        if "display-width" in plugin_options:
+            styles.append(f"width: {plugin_options['display-width']}")
+        if "display-height" in plugin_options:
+            styles.append(f"height: {plugin_options['display-height']}")
+        if "display-align" in plugin_options:
+            align = plugin_options["display-align"]
+            styles.append("display: block")
+            if align == "center":
+                styles.append("margin-left: auto")
+                styles.append("margin-right: auto")
+            elif align == "right":
+                styles.append("margin-left: auto")
+                styles.append("margin-right: 0")
+            elif align == "left":
+                styles.append("margin-left: 0")
+                styles.append("margin-right: auto")
+
+        if not styles:
+            return ""
+        return f' style="{"; ".join(styles)}"'
+
     @classmethod
-    def _svg_data(cls, image_src: ImageSrc) -> str:
+    def _svg_data(cls, image_src: ImageSrc, plugin_options: dict) -> str:
         if image_src.file_content is None:
             err_msg = "Cannot include empty SVG data"
             raise PluginError(err_msg)
@@ -50,9 +75,18 @@ class ContentRenderer:
         svg_tag.attrib["preserveAspectRatio"] = "xMaxYMax meet"
         svg_tag.attrib["id"] = "Kroki"
 
+        # Build inline style for display options
+        styles = []
+        if "display-width" in plugin_options:
+            styles.append(f"width: {plugin_options['display-width']}")
+        if "display-height" in plugin_options:
+            styles.append(f"height: {plugin_options['display-height']}")
+        if styles:
+            svg_tag.attrib["style"] = "; ".join(styles)
+
         return DefuseElementTree.tostring(svg_tag, short_empty_elements=True).decode()
 
-    def _image_response(self, image_src: ImageSrc) -> str:
+    def _image_response(self, image_src: ImageSrc, plugin_options: dict) -> str:
         tag_format = self.tag_format
         if tag_format == "svg":
             if image_src.file_ext != "svg":
@@ -64,14 +98,16 @@ class ContentRenderer:
                 log.warning("Cannot render missing data in svg tag -> using img tag.")
                 tag_format = "img"
 
+        style_attr = self._build_style_attr(plugin_options)
+
         match tag_format:
             case "object":
                 media_type = _get_object_media_type(image_src.file_ext)
-                return f'<object id="Kroki" type="{media_type}" data="{image_src.url}" style="max-width:100%"></object>'
+                return f'<object id="Kroki" type="{media_type}" data="{image_src.url}"{style_attr}></object>'
             case "svg":
-                return ContentRenderer._svg_data(image_src)
+                return ContentRenderer._svg_data(image_src, plugin_options)
             case "img":
-                return f'<img alt="Kroki" src="{image_src.url}" />'
+                return f'<img alt="Kroki" src="{image_src.url}"{style_attr} />'
             case _:
                 err_msg = "Unknown tag format set."
                 raise PluginError(err_msg)
@@ -102,7 +138,9 @@ class ContentRenderer:
             case Ok(kroki_data):
                 match await self.kroki_client.get_image_url(kroki_context, context):
                     case Ok(image_src):
-                        return self._image_response(image_src)
+                        return self._image_response(
+                            image_src, kroki_context.plugin_options
+                        )
                     case Err(err_result):
                         return self._err_response(err_result, kroki_data)
             case Err(err_result):

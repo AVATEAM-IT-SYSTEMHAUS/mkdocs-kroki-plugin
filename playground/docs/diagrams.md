@@ -8,7 +8,7 @@ Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatib
 
 ### Authentication Flow
 
-```seqdiag
+```seqdiag {display-height=90vh display-align=center}
 seqdiag {
   browser  -> webserver [label = "GET /login"];
   browser <-- webserver [label = "Login Page"];

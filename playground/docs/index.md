@@ -78,3 +78,91 @@ You can also reference diagrams from external files for better organization:
 ```
 
 Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.
+
+## Display Options
+
+You can control the display size of diagrams using `display-width` and `display-height` options. These set inline CSS styles, so you can use any valid CSS value like `px`, `%`, `em`, etc.
+
+### Default Size
+
+Without display options, diagrams render at their native size:
+
+```mermaid
+graph LR
+    A[Input] --> B[Process]
+    B --> C[Output]
+```
+
+### With Display Width (pixels)
+
+Setting only `display-width` scales the diagram proportionally:
+
+```mermaid {display-width=300px}
+graph LR
+    A[Input] --> B[Process]
+    B --> C[Output]
+```
+
+### With Percentage Width
+
+Use percentage values for responsive sizing:
+
+```blockdiag {display-width=50%}
+blockdiag {
+  A -> B -> C -> D;
+  A [color = "greenyellow"];
+  D [color = "pink"];
+}
+```
+
+### With Both Width and Height
+
+You can set both dimensions for precise control:
+
+```blockdiag {display-width=400px display-height=150px}
+blockdiag {
+  A -> B -> C -> D;
+  A [color = "greenyellow"];
+  D [color = "pink"];
+}
+```
+
+### Alignment
+
+Use `display-align` to position diagrams. This sets `display: block` and appropriate margins.
+
+#### Centered
+
+```mermaid {display-width=300px display-align=center}
+graph LR
+    A[Start] --> B[End]
+```
+
+#### Right-aligned
+
+```mermaid {display-width=300px display-align=right}
+graph LR
+    A[Start] --> B[End]
+```
+
+#### Left-aligned (default block behavior)
+
+```mermaid {display-width=300px display-align=left}
+graph LR
+    A[Start] --> B[End]
+```
+
+### Constrained Width Example
+
+A complex diagram constrained to 500px width and centered:
+
+```c4plantuml {display-width=500px display-align=center}
+!include <C4/C4_Context>
+
+Person(user, "User")
+System(system, "System")
+System_Ext(ext, "External")
+
+Rel(user, system, "Uses")
+Rel(system, ext, "Calls")
+```

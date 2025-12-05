@@ -7,7 +7,12 @@ from typing import Final
 
 from result import Err, Ok, Result
 
-from kroki.common import ErrorResult, KrokiImageContext, MkDocsEventContext
+from kroki.common import (
+    PLUGIN_OPTIONS,
+    ErrorResult,
+    KrokiImageContext,
+    MkDocsEventContext,
+)
 from kroki.diagram_types import KrokiDiagramTypes
 from kroki.logging import log
 
@@ -69,20 +74,23 @@ class MarkdownParser:
                 continue
 
             kroki_options = match_obj.group("opts")
+            options = {}
+            plugin_options = {}
             if kroki_options:
                 # Strip curly braces if present and parse key=value pairs
                 opts_str = kroki_options.strip().strip("{}")
-                options = dict(
-                    x.split("=")
-                    for x in opts_str.split()
-                    if "=" in x and not x.startswith("kroki=")
-                )
-            else:
-                options = {}
+                for x in opts_str.split():
+                    if "=" in x and not x.startswith("kroki="):
+                        key, value = x.split("=", 1)
+                        if key in PLUGIN_OPTIONS:
+                            plugin_options[key] = value
+                        else:
+                            options[key] = value
 
             kroki_context = KrokiImageContext(
                 kroki_type=kroki_type,
                 options=options,
+                plugin_options=plugin_options,
                 data=self._get_block_content(textwrap.dedent(match_obj.group("code"))),
             )
             match_data.append((match_obj, kroki_context))
