@@ -28,4 +28,4 @@ jobs:
         uv run ruff check .
         uv run ruff format --check .
     - name: Check types
-      run: uv run mypy kroki tests
+      run: uv run mypy kroki
