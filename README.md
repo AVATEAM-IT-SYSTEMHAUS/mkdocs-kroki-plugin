@@ -41,6 +41,8 @@ plugins:
 | `tag_format`          | How the image will be included in the resulting HTML (`img`, `object`, `svg`)                                                                 | `img`                                         |
 | `fail_fast`           | Errors are raised as plugin errors                                                                                                            | `false`                                       |
 | `cache_dir`           | Custom directory for caching rendered diagrams<br>By default uses `$XDG_CACHE_HOME/kroki`, `~/.cache/kroki`, or temp directory                | (automatic)                                   |
+| `diagram_background_color_light` | Background color for diagrams in light mode (CSS color value)                                                                      | (none)                                        |
+| `diagram_background_color_dark`  | Background color for diagrams in dark mode (CSS color value)                                                                       | (none)                                        |
 
 Example:
 
@@ -162,6 +164,52 @@ This sets `display: block` and appropriate margin values:
 - Setting only `display-width` or `display-height` allows the browser to scale proportionally
 - These options work with all `tag_format` settings (`img`, `object`, `svg`)
 - Size values can be any valid CSS value (e.g., `500px`, `50%`, `auto`, `20em`)
+
+### Background Color
+
+You can set a background color for diagrams that adapts to light/dark themes. This is useful when diagrams have transparent backgrounds that don't display well in certain color schemes.
+
+#### Global Configuration
+
+Set default background colors for all diagrams in `mkdocs.yml`:
+
+```yaml
+plugins:
+  - kroki:
+      diagram_background_color_light: white
+      diagram_background_color_dark: "#333"
+```
+
+#### Per-Diagram Override
+
+Override the global settings for individual diagrams using `bg-light` and `bg-dark`:
+
+````markdown
+```kroki-plantuml {bg-light=#f5f5f5 bg-dark=#1a1a1a}
+@startuml
+Alice -> Bob: Hello
+@enduml
+```
+````
+
+#### How It Works
+
+- When both light and dark colors are set, the plugin uses the CSS `light-dark()` function:
+  ```css
+  background: light-dark(white, #333);
+  ```
+- When only one color is set, it applies as a simple background:
+  ```css
+  background: white;
+  ```
+- When neither is set, no background style is applied
+
+**Notes:**
+
+- The `light-dark()` CSS function requires the page to have `color-scheme: light dark` set. MkDocs themes like Material for MkDocs handle this automatically.
+- Per-diagram options (`bg-light`, `bg-dark`) override global settings
+- You can set only one color per-diagram while inheriting the other from global config
+- Works with all `tag_format` settings (`img`, `object`, `svg`)
 
 ## Contributors
 
