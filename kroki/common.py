@@ -16,6 +16,8 @@ PLUGIN_OPTIONS: Final[frozenset[str]] = frozenset(
         "display-width",
         "display-height",
         "display-align",
+        "bg-light",
+        "bg-dark",
     }
 )
 

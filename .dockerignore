@@ -7,3 +7,4 @@ docker-compose.yml
 release.py
 *.md
 !README.md
+dist/

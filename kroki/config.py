@@ -30,6 +30,8 @@ class KrokiPluginConfig(MkDocsBaseConfig):
     fail_fast = config_options.Type(bool, default=False)
     cache_dir = config_options.Optional(config_options.Type(str))
     download_dir = config_options.Deprecated(removed=True)
+    diagram_background_color_light = config_options.Optional(config_options.Type(str))
+    diagram_background_color_dark = config_options.Optional(config_options.Type(str))
 
     def validate(self) -> tuple[MkDocsConfigErrors, MkDocsConfigWarnings]:
         result = super().validate()

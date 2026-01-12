@@ -54,6 +54,12 @@ class MkDocsHelper(AbstractContextManager):
         def set_tag_format(self, tag_format: Literal["img", "object", "svg"]) -> None:
             self._get_plugin_config_entry()["tag_format"] = tag_format
 
+        def set_diagram_background_color_light(self, color: str) -> None:
+            self._get_plugin_config_entry()["diagram_background_color_light"] = color
+
+        def set_diagram_background_color_dark(self, color: str) -> None:
+            self._get_plugin_config_entry()["diagram_background_color_dark"] = color
+
         def invoke_build(self) -> Result:
             self._dump_config()
             runner = CliRunner()

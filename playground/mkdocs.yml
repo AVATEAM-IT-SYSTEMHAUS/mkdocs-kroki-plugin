@@ -7,6 +7,8 @@ plugins:
   - kroki:
       fence_prefix: ''
       http_method: POST
+      diagram_background_color_light: "#f8f8f8"
+      diagram_background_color_dark: "#999696"
   - techdocs-core
 
 nav:

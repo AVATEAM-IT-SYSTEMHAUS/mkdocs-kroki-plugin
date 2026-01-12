@@ -46,6 +46,8 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
             self.kroki_client,
             tag_format=self.config.tag_format,
             fail_fast=self.config.fail_fast,
+            diagram_background_color_light=self.config.diagram_background_color_light,
+            diagram_background_color_dark=self.config.diagram_background_color_dark,
         )
 
         return config

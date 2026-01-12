@@ -31,14 +31,24 @@ class ContentRenderer:
         tag_format: str,
         *,
         fail_fast: bool,
+        diagram_background_color_light: str | None = None,
+        diagram_background_color_dark: str | None = None,
     ) -> None:
         self.fail_fast = fail_fast
         self.kroki_client = kroki_client
         self.tag_format = tag_format
+        self.diagram_background_color_light = diagram_background_color_light
+        self.diagram_background_color_dark = diagram_background_color_dark
 
-    @staticmethod
-    def _build_style_attr(plugin_options: dict) -> str:
+    def _build_style_attr(self, plugin_options: dict) -> str:
         """Build inline style attribute from plugin options."""
+        styles = self._build_styles(plugin_options)
+        if not styles:
+            return ""
+        return f' style="{"; ".join(styles)}"'
+
+    def _build_styles(self, plugin_options: dict) -> list[str]:
+        """Build list of CSS styles from plugin options, merging global defaults."""
         styles = []
         if "display-width" in plugin_options:
             styles.append(f"width: {plugin_options['display-width']}")
@@ -57,12 +67,20 @@ class ContentRenderer:
                 styles.append("margin-left: 0")
                 styles.append("margin-right: auto")
 
-        if not styles:
-            return ""
-        return f' style="{"; ".join(styles)}"'
+        # Background color: per-diagram options override global defaults
+        bg_light = plugin_options.get("bg-light", self.diagram_background_color_light)
+        bg_dark = plugin_options.get("bg-dark", self.diagram_background_color_dark)
 
-    @classmethod
-    def _svg_data(cls, image_src: ImageSrc, plugin_options: dict) -> str:
+        if bg_light and bg_dark:
+            styles.append(f"background: light-dark({bg_light}, {bg_dark})")
+        elif bg_light:
+            styles.append(f"background: {bg_light}")
+        elif bg_dark:
+            styles.append(f"background: {bg_dark}")
+
+        return styles
+
+    def _svg_data(self, image_src: ImageSrc, plugin_options: dict) -> str:
         if image_src.file_content is None:
             err_msg = "Cannot include empty SVG data"
             raise PluginError(err_msg)
@@ -75,12 +93,8 @@ class ContentRenderer:
         svg_tag.attrib["preserveAspectRatio"] = "xMaxYMax meet"
         svg_tag.attrib["id"] = "Kroki"
 
-        # Build inline style for display options
-        styles = []
-        if "display-width" in plugin_options:
-            styles.append(f"width: {plugin_options['display-width']}")
-        if "display-height" in plugin_options:
-            styles.append(f"height: {plugin_options['display-height']}")
+        # Build inline style for display and background options
+        styles = self._build_styles(plugin_options)
         if styles:
             svg_tag.attrib["style"] = "; ".join(styles)
 
@@ -105,7 +119,7 @@ class ContentRenderer:
                 media_type = _get_object_media_type(image_src.file_ext)
                 return f'<object id="Kroki" type="{media_type}" data="{image_src.url}"{style_attr}></object>'
             case "svg":
-                return ContentRenderer._svg_data(image_src, plugin_options)
+                return self._svg_data(image_src, plugin_options)
             case "img":
                 return f'<img alt="Kroki" src="{image_src.url}"{style_attr} />'
             case _:
