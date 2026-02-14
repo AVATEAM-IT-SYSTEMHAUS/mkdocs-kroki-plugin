@@ -98,7 +98,14 @@ class ContentRenderer:
         if styles:
             svg_tag.attrib["style"] = "; ".join(styles)
 
-        return DefuseElementTree.tostring(svg_tag, short_empty_elements=True).decode()
+        svg_str = DefuseElementTree.tostring(
+            svg_tag, short_empty_elements=True
+        ).decode()
+        # Remove blank lines to prevent Markdown parser from breaking the SVG.
+        # Wrap in <div> because Python-Markdown does not recognize <svg> as a
+        # block-level element, causing it to be wrapped in <p> tags otherwise.
+        svg_no_blanks = "\n".join(line for line in svg_str.splitlines() if line.strip())
+        return f"<div>{svg_no_blanks}</div>"
 
     def _image_response(self, image_src: ImageSrc, plugin_options: dict) -> str:
         tag_format = self.tag_format
