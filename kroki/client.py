@@ -62,6 +62,9 @@ class DownloadedContent:
         dummy_file.abs_src_path = dummy_file.abs_dest_path = file_path
 
         log.debug("Appending dummy mkdocs file: %s", dummy_file)
+        existing = context.files.get_file_from_path(dummy_file.src_path)
+        if existing is not None:
+            context.files.remove(existing)
         context.files.append(dummy_file)
 
 
