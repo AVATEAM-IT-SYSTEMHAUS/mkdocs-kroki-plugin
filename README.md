@@ -24,25 +24,26 @@ plugins:
 
 ## Config
 
-| Key                   | Description                                                                                                                                   | Default                                       |
-|-----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------|
-| `server_url`          | URL of your kroki-Server                                                                                                                      | `!ENV [KROKI_SERVER_URL, 'https://kroki.io']` |
-| `fence_prefix`        | Diagram prefix, set to an empty string to render all diagrams using Kroki                                                                     | `kroki-`                                      |
-| `enable_block_diag`   | Enable BlockDiag (and the related Diagrams)                                                                                                   | `true`                                        |
-| `enable_bpmn`         | Enable BPMN                                                                                                                                   | `true`                                        |
-| `enable_excalidraw`   | Enable Excalidraw                                                                                                                             | `true`                                        |
-| `enable_mermaid`      | Enable Mermaid                                                                                                                                | `true`                                        |
-| `enable_diagramsnet`  | Enable diagrams.net (draw.io)                                                                                                                 | `false`                                       |
-| `http_method`         | Http method to use (`GET` or `POST`)<br> Note: On `POST` the retrieved images are stored next to the including page in the build directory    | `GET`                                         |
-| `request_timeout`     | Timeout for HTTP requests in seconds. Increase this value if you encounter timeouts with large diagrams or overloaded kroki server instances. | `30`                                          |
-| `user_agent`          | User agent for requests to the kroki server                                                                                                   | `kroki.plugin/<version>`                      |
-| `file_types`          | File types you want to use<br>Note: not all file formats work with all diagram types <https://kroki.io/#support>                              | `[svg]`                                       |
-| `file_type_overrides` | Overrides for specific diagram types to set the desired file type                                                                             | `[]`                                          |
-| `tag_format`          | How the image will be included in the resulting HTML (`img`, `object`, `svg`)                                                                 | `img`                                         |
-| `fail_fast`           | Errors are raised as plugin errors                                                                                                            | `false`                                       |
-| `cache_dir`           | Custom directory for caching rendered diagrams<br>By default uses `$XDG_CACHE_HOME/kroki`, `~/.cache/kroki`, or temp directory                | (automatic)                                   |
-| `diagram_background_color_light` | Background color for diagrams in light mode (CSS color value)                                                                      | (none)                                        |
-| `diagram_background_color_dark`  | Background color for diagrams in dark mode (CSS color value)                                                                       | (none)                                        |
+| Key                              | Description                                                                                                                                   | Default                                       |
+|----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------|
+| `server_url`                     | URL of your kroki-Server                                                                                                                      | `!ENV [KROKI_SERVER_URL, 'https://kroki.io']` |
+| `fence_prefix`                   | Diagram prefix, set to an empty string to render all diagrams using Kroki                                                                     | `kroki-`                                      |
+| `enable_block_diag`              | Enable BlockDiag (and the related Diagrams)                                                                                                   | `true`                                        |
+| `enable_bpmn`                    | Enable BPMN                                                                                                                                   | `true`                                        |
+| `enable_excalidraw`              | Enable Excalidraw                                                                                                                             | `true`                                        |
+| `enable_mermaid`                 | Enable Mermaid                                                                                                                                | `true`                                        |
+| `enable_diagramsnet`             | Enable diagrams.net (draw.io)                                                                                                                 | `false`                                       |
+| `http_method`                    | Http method to use (`GET` or `POST`)<br> Note: On `POST` the retrieved images are stored next to the including page in the build directory    | `GET`                                         |
+| `request_timeout`                | Timeout for HTTP requests in seconds. Increase this value if you encounter timeouts with large diagrams or overloaded kroki server instances. | `30`                                          |
+| `user_agent`                     | User agent for requests to the kroki server                                                                                                   | `kroki.plugin/<version>`                      |
+| `file_types`                     | File types you want to use<br>Note: not all file formats work with all diagram types <https://kroki.io/#support>                              | `[svg]`                                       |
+| `file_type_overrides`            | Overrides for specific diagram types to set the desired file type                                                                             | `[]`                                          |
+| `tag_format`                     | How the image will be included in the resulting HTML (`img`, `object`, `svg`)                                                                 | `img`                                         |
+| `fail_fast`                      | Errors are raised as plugin errors                                                                                                            | `false`                                       |
+| `cache_dir`                      | Custom directory for caching rendered diagrams<br>By default uses `$XDG_CACHE_HOME/kroki`, `~/.cache/kroki`, or temp directory                | (automatic)                                   |
+| `diagram_background_color_light` | Background color for diagrams in light mode (CSS color value)                                                                                 | (none)                                        |
+| `diagram_background_color_dark`  | Background color for diagrams in dark mode (CSS color value)                                                                                  | (none)                                        |
+| `styles`                         | Global style map for diagram elements (`box`, `actor`, `text`, `line`, `background`). See [Global Styles](#global-styles).                    | (none)                                        |
 
 Example:
 
@@ -210,6 +211,65 @@ Alice -> Bob: Hello
 - Per-diagram options (`bg-light`, `bg-dark`) override global settings
 - You can set only one color per-diagram while inheriting the other from global config
 - Works with all `tag_format` settings (`img`, `object`, `svg`)
+
+### Global Styles
+
+Apply a consistent color scheme across all supported diagram types with the `styles` config. Define generic element styles once, and the plugin translates them into diagram-type-specific directives before rendering.
+
+```yaml
+plugins:
+  - kroki:
+      styles:
+        box:
+          fill: "#e6f3ff"
+          stroke: "#0066cc"
+        actor:
+          fill: "#ffe0b2"
+          stroke: "#bf360c"
+        text:
+          fill: "#333333"
+          font-family: "Arial"
+          font-size: "14"
+        line:
+          stroke: "#666"
+          font-color: "#ff0000"
+          font-family: "Arial"
+          label-background: "#ffffff"
+        background:
+          fill: "#fff"
+```
+
+The `actor` element styles persons and actors separately from boxes. When `actor` is not configured, person elements fall back to `box` styles in diagram types that support it (C4 PlantUML).
+
+To skip style injection on a specific code block, use `no-style-inject=true`:
+
+````markdown
+```kroki-mermaid no-style-inject=true
+graph LR
+    A[Unstyled] --> B[Diagram]
+```
+````
+
+#### Support Matrix
+
+| **Style**                   | PlantUML | C4 PlantUML | Mermaid | GraphViz | BlockDiag\* | Nomnoml | D2 | Structurizr |
+|-----------------------------|----------|-------------|---------|----------|-------------|---------|----|-------------|
+| **`box.fill`**              | ✅        | ✅           | ✅       | ✅        | ✅           | ✅       | ✅  | ✅           |
+| **`box.stroke`**            | ✅        | ✅           | ✅       | ✅        | ❌           | ✅       | ✅  | ✅           |
+| **`actor.fill`**            | ✅        | ✅           | ✅       | ❌        | ❌           | ❌       | ❌  | ✅           |
+| **`actor.stroke`**          | ✅        | ✅           | ✅       | ❌        | ❌           | ❌       | ❌  | ✅           |
+| **`text.fill`**             | ✅        | ✅           | ✅       | ✅        | ✅           | ❌       | ✅  | ✅           |
+| **`text.font-family`**      | ✅        | ✅           | ❌       | ✅        | ❌           | ✅       | ❌  | ❌           |
+| **`text.font-size`**        | ✅        | ✅           | ❌       | ❌        | ✅           | ✅       | ✅  | ✅           |
+| **`line.stroke`**           | ✅        | ✅           | ✅       | ✅        | ✅           | ❌       | ✅  | ✅           |
+| **`line.font-color`**       | ❌        | ❌           | ❌       | ✅        | ❌           | ❌       | ✅  | ❌           |
+| **`line.font-family`**      | ❌        | ❌           | ❌       | ✅        | ❌           | ❌       | ❌  | ❌           |
+| **`line.label-background`** | ❌        | ❌           | ✅       | ❌        | ❌           | ❌       | ❌  | ❌           |
+| **`background.fill`**       | ✅        | ✅           | ✅       | ✅        | ❌           | ✅       | ✅  | ❌           |
+
+\*BlockDiag includes: blockdiag, seqdiag, actdiag, nwdiag, packetdiag, rackdiag.
+
+Diagram types not listed (BPMN, ByteField, DBML, Ditaa, ERD, Excalidraw, Pikchr, SVGBob, Symbolator, TikZ, UMlet, Vega, VegaLite, WaveDrom, WireViz, diagrams.net) do not support source-level style injection.
 
 ## Contributors
 

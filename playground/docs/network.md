@@ -156,4 +156,26 @@ app_tier.web3 -> db_tier.primary: Query
 db_tier.primary -> db_tier.replica: Replicate
 ```
 
+## Rack Diagram
+
+Rackdiag generates rack structure diagrams for data center documentation.
+
+### Server Rack Layout
+
+```rackdiag
+rackdiag {
+  16U;
+
+  1: UPS [2U, color = "lime"];
+  3: DB Server [color = "pink"];
+  4: Web Server 1 [color = "lightblue"];
+  5: Web Server 2 [color = "lightblue"];
+  6: Patch Panel [1U];
+  9: Core Switch [color = "lightyellow"];
+  10: Edge Switch [color = "lightyellow"];
+  15: PDU [1U, color = "orange"];
+  16: PDU [1U, color = "orange"];
+}
+```
+
 Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus.
