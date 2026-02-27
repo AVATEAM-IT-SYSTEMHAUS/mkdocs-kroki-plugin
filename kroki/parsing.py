@@ -15,6 +15,7 @@ from kroki.common import (
 )
 from kroki.diagram_types import KrokiDiagramTypes
 from kroki.logging import log
+from kroki.styles import StyleInjector
 
 _FENCE_RE = re.compile(
     r"(?P<fence>^(?P<indent>[ ]*)(?:````*|~~~~*))[ ]*"
@@ -28,9 +29,16 @@ _FROM_FILE_PREFIX: Final[str] = "@from_file:"
 
 
 class MarkdownParser:
-    def __init__(self, docs_dir: str, diagram_types: KrokiDiagramTypes) -> None:
+    def __init__(
+        self,
+        docs_dir: str,
+        diagram_types: KrokiDiagramTypes,
+        *,
+        style_injector: StyleInjector | None = None,
+    ) -> None:
         self.diagram_types = diagram_types
         self.docs_dir = docs_dir
+        self.style_injector = style_injector
 
     def _get_block_content(self, block_data: str) -> Result[str, ErrorResult]:
         if not block_data.startswith(_FROM_FILE_PREFIX):
@@ -87,11 +95,19 @@ class MarkdownParser:
                         else:
                             options[key] = value
 
+            data = self._get_block_content(textwrap.dedent(match_obj.group("code")))
+            if (
+                self.style_injector is not None
+                and "no-style-inject" not in plugin_options
+                and data.is_ok()
+            ):
+                data = Ok(self.style_injector.inject(kroki_type, data.unwrap()))
+
             kroki_context = KrokiImageContext(
                 kroki_type=kroki_type,
                 options=options,
                 plugin_options=plugin_options,
-                data=self._get_block_content(textwrap.dedent(match_obj.group("code"))),
+                data=data,
             )
             match_data.append((match_obj, kroki_context))
             tasks.append(block_callback(kroki_context, context))

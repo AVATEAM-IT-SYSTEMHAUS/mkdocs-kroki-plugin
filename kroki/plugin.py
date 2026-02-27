@@ -8,6 +8,7 @@ from kroki.diagram_types import KrokiDiagramTypes
 from kroki.logging import log
 from kroki.parsing import MarkdownParser
 from kroki.render import ContentRenderer
+from kroki.styles import StyleInjector
 
 
 class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
@@ -41,7 +42,12 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
             diagram_types=self.diagram_types,
             cache=self.cache,
         )
-        self.parser = MarkdownParser(config.docs_dir, self.diagram_types)
+        style_injector = (
+            StyleInjector(self.config.styles) if self.config.styles else None
+        )
+        self.parser = MarkdownParser(
+            config.docs_dir, self.diagram_types, style_injector=style_injector
+        )
         self.renderer = ContentRenderer(
             self.kroki_client,
             tag_format=self.config.tag_format,
