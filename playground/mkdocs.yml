@@ -17,3 +17,9 @@ nav:
       - Sequence & Activity: diagrams.md
       - Network & Infrastructure: network.md
       - UML & Class Diagrams: uml.md
+      - Data Modeling: data-modeling.md
+      - Text & ASCII Diagrams: text-diagrams.md
+      - Data Visualization & Signals: data-visualization.md
+      - Hardware & Electronics: hardware.md
+      - Other Formats: other-formats.md
+      - Global Styles: styles.md
