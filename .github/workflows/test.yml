@@ -78,7 +78,7 @@ jobs:
         🔗 [View detailed test report](${{ steps.test-report.outputs.url_html }})
         EOF
     - name: Add Coverage & Test Report PR Comment
-      uses: marocchino/sticky-pull-request-comment@v2
+      uses: marocchino/sticky-pull-request-comment@v3
       if: matrix.report && github.event_name == 'pull_request' && (success() || failure())
       with:
         recreate: true
