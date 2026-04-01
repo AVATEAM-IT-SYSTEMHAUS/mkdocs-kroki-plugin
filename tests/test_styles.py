@@ -242,7 +242,9 @@ def test_mermaid_text_color_alias() -> None:
 
 
 def test_mermaid_actor_styling() -> None:
-    injector = StyleInjector({"actor": {"fill": "#ffe0b2", "stroke": "#bf360c"}})
+    injector = StyleInjector(
+        {"actor": {"fill": "#ffe0b2", "stroke": "#bf360c", "color": "#333"}}
+    )
     source = "sequenceDiagram\n  Alice->>Bob: Hello"
     result = injector.inject("mermaid", source)
     init_line = result.split("\n")[0]
@@ -250,7 +252,8 @@ def test_mermaid_actor_styling() -> None:
     tv = parsed["themeVariables"]
     assert tv["actorBkg"] == "#ffe0b2"
     assert tv["actorBorder"] == "#bf360c"
-    assert tv["actorTextColor"] == "#ffe0b2"
+    assert tv["actorTextColor"] == "#333"
+    assert tv["mainContrastColor"] == "#333"
 
 
 # --- GraphViz ---

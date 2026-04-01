@@ -217,9 +217,10 @@ class StyleInjector:
         if text_color:
             theme_vars["primaryTextColor"] = text_color
 
-        actor_text_color = actor.get("fill") or actor.get("color")
+        actor_text_color = actor.get("color") or text_color
         if actor_text_color:
             theme_vars["actorTextColor"] = actor_text_color
+            theme_vars["mainContrastColor"] = actor_text_color
 
         if line_stroke := line.get("stroke"):
             theme_vars["lineColor"] = line_stroke
