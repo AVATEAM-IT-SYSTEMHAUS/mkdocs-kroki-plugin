@@ -56,3 +56,4 @@ class KrokiImageContext:
     options: dict
     plugin_options: dict
     data: Result[str, ErrorResult]
+    data_dark: Result[str, ErrorResult] | None = None

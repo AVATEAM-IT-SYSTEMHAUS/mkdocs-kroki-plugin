@@ -60,6 +60,12 @@ class MkDocsHelper(AbstractContextManager):
         def set_diagram_background_color_dark(self, color: str) -> None:
             self._get_plugin_config_entry()["diagram_background_color_dark"] = color
 
+        def set_styles_light(self, styles: dict) -> None:
+            self._get_plugin_config_entry()["styles_light"] = styles
+
+        def set_styles_dark(self, styles: dict) -> None:
+            self._get_plugin_config_entry()["styles_dark"] = styles
+
         def invoke_build(self) -> Result:
             self._dump_config()
             runner = CliRunner()

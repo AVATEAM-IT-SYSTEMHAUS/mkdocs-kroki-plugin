@@ -44,6 +44,8 @@ plugins:
 | `diagram_background_color_light` | Background color for diagrams in light mode (CSS color value)                                                                                 | (none)                                        |
 | `diagram_background_color_dark`  | Background color for diagrams in dark mode (CSS color value)                                                                                  | (none)                                        |
 | `styles`                         | Global style map for diagram elements (`box`, `actor`, `note`, `package`, `text`, `line`, `background`). See [Global Styles](#global-styles).                    | (none)                                        |
+| `styles_light`                   | Style map applied in light mode. Use together with `styles_dark` for theme-aware diagrams. See [Theme-Aware Styles](#theme-aware-styles).      | (none)                                        |
+| `styles_dark`                    | Style map applied in dark mode. Use together with `styles_light` for theme-aware diagrams. See [Theme-Aware Styles](#theme-aware-styles).      | (none)                                        |
 
 Example:
 
@@ -286,6 +288,49 @@ graph LR
 \*BlockDiag includes: blockdiag, seqdiag, actdiag, nwdiag, packetdiag, rackdiag.
 
 Diagram types not listed (BPMN, ByteField, DBML, Ditaa, ERD, Excalidraw, Pikchr, SVGBob, Symbolator, TikZ, UMlet, Vega, VegaLite, WaveDrom, WireViz, diagrams.net) do not support source-level style injection.
+
+### Theme-Aware Styles
+
+When you need different diagram colors for light and dark mode — not just a different background, but different fills, strokes, and text colors baked into the diagram itself — use `styles_light` and `styles_dark` together.
+
+```yaml
+plugins:
+  - kroki:
+      styles_light:
+        box:
+          fill: "#e8f4fd"
+          stroke: "#0066cc"
+        text:
+          fill: "#24292e"
+        background:
+          fill: "#ffffff"
+      styles_dark:
+        box:
+          fill: "#1a2a3a"
+          stroke: "#4da6ff"
+        text:
+          fill: "#e0e0e0"
+        background:
+          fill: "#1e1e1e"
+```
+
+The plugin renders **two versions** of each diagram — one with light styles, one with dark — and emits two `<img>` tags using [MkDocs Material's light/dark image feature](https://squidfunk.github.io/mkdocs-material/reference/images/#light-and-dark-mode):
+
+```html
+<img alt="Kroki" src="diagram-light.svg#only-light" />
+<img alt="Kroki" src="diagram-dark.svg#only-dark" />
+```
+
+Material's CSS then shows the correct image based on the active color scheme.
+
+**Notes:**
+
+- Requires **MkDocs Material** theme — the `#only-light`/`#only-dark` mechanism is Material-specific
+- Requires `tag_format: img` (the default). `object` and `svg` formats fall back to light-mode styles only with a warning
+- Requires `http_method: POST` (images must be downloaded to use this feature)
+- `styles_light`/`styles_dark` take precedence over `styles` when set; using all three simultaneously logs a warning
+- The `no-style-inject=true` per-diagram option skips injection for both light and dark
+- Supports the same style properties and diagram types as the single `styles` config (see [Support Matrix](#support-matrix))
 
 ## Contributors
 

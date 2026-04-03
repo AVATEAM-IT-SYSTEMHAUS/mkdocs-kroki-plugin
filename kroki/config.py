@@ -33,6 +33,8 @@ class KrokiPluginConfig(MkDocsBaseConfig):
     diagram_background_color_light = config_options.Optional(config_options.Type(str))
     diagram_background_color_dark = config_options.Optional(config_options.Type(str))
     styles = config_options.Optional(config_options.Type(dict))
+    styles_light = config_options.Optional(config_options.Type(dict))
+    styles_dark = config_options.Optional(config_options.Type(dict))
 
     def validate(self) -> tuple[MkDocsConfigErrors, MkDocsConfigWarnings]:
         result = super().validate()
@@ -40,5 +42,11 @@ class KrokiPluginConfig(MkDocsBaseConfig):
         if self["tag_format"] == "svg" and self["http_method"] != "POST":
             log.info("Setting Http method to POST to retrieve svg data for inlining.")
             self["http_method"] = "POST"
+
+        if self["styles"] and (self["styles_light"] or self["styles_dark"]):
+            log.warning(
+                "Both 'styles' and 'styles_light'/'styles_dark' are set. "
+                "'styles' will be ignored in favour of 'styles_light'/'styles_dark'."
+            )
 
         return result

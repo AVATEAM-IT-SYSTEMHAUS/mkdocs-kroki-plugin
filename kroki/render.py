@@ -1,3 +1,4 @@
+import asyncio
 from xml.etree import ElementTree as XmlElementTree
 
 from defusedxml import ElementTree as DefuseElementTree
@@ -152,9 +153,78 @@ class ContentRenderer:
             "</details>"
         )
 
+    def _dual_image_response(
+        self,
+        image_src_light: ImageSrc,
+        image_src_dark: ImageSrc,
+        plugin_options: dict,
+    ) -> str:
+        style_attr = self._build_style_attr(plugin_options)
+        return (
+            f'<img alt="Kroki" src="{image_src_light.url}#only-light"{style_attr} />'
+            f'<img alt="Kroki" src="{image_src_dark.url}#only-dark"{style_attr} />'
+        )
+
+    async def _render_dual(
+        self, kroki_context: KrokiImageContext, context: MkDocsEventContext
+    ) -> str:
+        if self.tag_format != "img":
+            log.warning(
+                "Dual theme styles (styles_light/styles_dark) require tag_format 'img'. "
+                "Falling back to light-mode styles only."
+            )
+            match kroki_context.data:
+                case Ok(kroki_data):
+                    match await self.kroki_client.get_image_url(kroki_context, context):
+                        case Ok(image_src):
+                            return self._image_response(
+                                image_src, kroki_context.plugin_options
+                            )
+                        case Err(err_result):
+                            return self._err_response(err_result, kroki_data)
+                case Err(err_result):
+                    return self._err_response(err_result)
+
+        # Build a dark-mode context to fetch the dark image
+        dark_context = KrokiImageContext(
+            kroki_type=kroki_context.kroki_type,
+            options=kroki_context.options,
+            plugin_options=kroki_context.plugin_options,
+            data=kroki_context.data_dark,
+        )
+
+        match kroki_context.data:
+            case Err(err_result):
+                return self._err_response(err_result)
+
+        match kroki_context.data_dark:
+            case Err(err_result):
+                return self._err_response(err_result)
+
+        light_result, dark_result = await asyncio.gather(
+            self.kroki_client.get_image_url(kroki_context, context),
+            self.kroki_client.get_image_url(dark_context, context),
+        )
+
+        match light_result:
+            case Err(err_result):
+                return self._err_response(err_result, kroki_context.data.unwrap())
+        match dark_result:
+            case Err(err_result):
+                return self._err_response(err_result, kroki_context.data_dark.unwrap())
+
+        return self._dual_image_response(
+            light_result.unwrap(),
+            dark_result.unwrap(),
+            kroki_context.plugin_options,
+        )
+
     async def render_kroki_block(
         self, kroki_context: KrokiImageContext, context: MkDocsEventContext
     ) -> str:
+        if kroki_context.data_dark is not None:
+            return await self._render_dual(kroki_context, context)
+
         match kroki_context.data:
             case Ok(kroki_data):
                 match await self.kroki_client.get_image_url(kroki_context, context):

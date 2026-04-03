@@ -1,15 +1,34 @@
 site_name: Kroki Plugin Playground
 docs_dir: docs
 
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+      primary: blue
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+      primary: blue
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+      primary: blue
 
 plugins:
-  - search
   - kroki:
       fence_prefix: ''
       http_method: POST
-      diagram_background_color_light: "#f8f8f8"
-      diagram_background_color_dark: "#999696"
-      styles:
+#      diagram_background_color_light: "transparent"
+#      diagram_background_color_dark: "transparent"
+      styles_light:
         box:
           fill: "#fce4c6"
           stroke: "#D65108"
@@ -32,8 +51,23 @@ plugins:
           stroke: "#D65108"
           label-background: "#fce4c6"
         background:
-          fill: "#fdf6ef"
-  - techdocs-core
+          fill: transparent
+      styles_dark:
+        box:
+          fill: "#3a2010"
+          stroke: "#ff8c42"
+        actor:
+          fill: "#2e1a0e"
+          stroke: "#cc6a1e"
+        text:
+          fill: "#e8d5c4"
+          font-family: "Arial"
+          font-size: "13"
+        line:
+          stroke: "#ff8c42"
+          label-background: "#3a2010"
+        background:
+          fill: transparent
 
 nav:
   - Home: index.md

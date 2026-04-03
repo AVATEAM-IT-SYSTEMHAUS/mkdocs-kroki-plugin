@@ -35,10 +35,14 @@ class MarkdownParser:
         diagram_types: KrokiDiagramTypes,
         *,
         style_injector: StyleInjector | None = None,
+        style_injector_light: StyleInjector | None = None,
+        style_injector_dark: StyleInjector | None = None,
     ) -> None:
         self.diagram_types = diagram_types
         self.docs_dir = docs_dir
         self.style_injector = style_injector
+        self.style_injector_light = style_injector_light
+        self.style_injector_dark = style_injector_dark
 
     def _get_block_content(self, block_data: str) -> Result[str, ErrorResult]:
         if not block_data.startswith(_FROM_FILE_PREFIX):
@@ -96,18 +100,38 @@ class MarkdownParser:
                             options[key] = value
 
             data = self._get_block_content(textwrap.dedent(match_obj.group("code")))
-            if (
-                self.style_injector is not None
-                and "no-style-inject" not in plugin_options
-                and data.is_ok()
-            ):
-                data = Ok(self.style_injector.inject(kroki_type, data.unwrap()))
+            data_dark: Result[str, ErrorResult] | None = None
+            skip_inject = "no-style-inject" in plugin_options
+
+            if not skip_inject and data.is_ok():
+                original_source = data.unwrap()
+                if (
+                    self.style_injector_light is not None
+                    and self.style_injector_dark is not None
+                ):
+                    data = Ok(
+                        self.style_injector_light.inject(kroki_type, original_source)
+                    )
+                    data_dark = Ok(
+                        self.style_injector_dark.inject(kroki_type, original_source)
+                    )
+                elif self.style_injector is not None:
+                    data = Ok(self.style_injector.inject(kroki_type, original_source))
+                elif self.style_injector_light is not None:
+                    data = Ok(
+                        self.style_injector_light.inject(kroki_type, original_source)
+                    )
+                elif self.style_injector_dark is not None:
+                    data = Ok(
+                        self.style_injector_dark.inject(kroki_type, original_source)
+                    )
 
             kroki_context = KrokiImageContext(
                 kroki_type=kroki_type,
                 options=options,
                 plugin_options=plugin_options,
                 data=data,
+                data_dark=data_dark,
             )
             match_data.append((match_obj, kroki_context))
             tasks.append(block_callback(kroki_context, context))
