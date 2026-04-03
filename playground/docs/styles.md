@@ -12,17 +12,27 @@ plugins:
         actor:
           fill: "#ffe0b2"
           stroke: "#bf360c"
+        note:
+          fill: "#ffffcc"
+          stroke: "#999900"
+          color: "#666600"
+        package:
+          fill: "#fff3e0"
+          stroke: "#e65100"
+          color: "#bf360c"
         text:
           fill: "#333333"
           font-family: "Arial"
           font-size: "13"
         line:
           stroke: "#f57c00"
-        background:
-          fill: "#fffaf5"
 ```
 
 The `actor` element styles persons and actors separately from boxes. It maps to `skinparam Actor*` in PlantUML, `UpdateElementStyle("person", ...)` in C4, `actorBkg`/`actorBorder` in Mermaid, and `element "Person"` in Structurizr. When `actor` is not set, person elements fall back to `box` styles.
+
+The `note` element styles note boxes in diagram types that support them. It maps to `skinparam Note*` in PlantUML/C4, and `noteBkgColor`/`noteBorderColor`/`noteTextColor` in Mermaid.
+
+The `package` element styles package containers independently from regular boxes. It maps to `skinparam Package*` in PlantUML/C4, overriding the default `box` styles for package elements.
 
 ## PlantUML
 
@@ -36,11 +46,44 @@ participant "Payment Service" as Payment
 database "Inventory" as Inv
 
 Customer -> Order: Place order
+note right: New order received
 Order -> Inv: Check stock
 Inv --> Order: Available
 Order -> Payment: Charge customer
+note left of Payment: Validate card details
 Payment --> Order: Confirmed
 Order --> Customer: Order confirmed
+@enduml
+```
+
+### Packages
+
+The `package` style overrides `box` defaults for package elements, allowing distinct container styling.
+
+```plantuml
+@startuml
+package "Frontend" {
+  [Web App]
+  [Mobile App]
+}
+
+package "Backend" {
+  [API Gateway]
+  [Auth Service]
+  [Order Service]
+}
+
+package "Data Layer" {
+  [PostgreSQL]
+  [Redis Cache]
+}
+
+[Web App] --> [API Gateway]
+[Mobile App] --> [API Gateway]
+[API Gateway] --> [Auth Service]
+[API Gateway] --> [Order Service]
+[Order Service] --> [PostgreSQL]
+[Order Service] --> [Redis Cache]
 @enduml
 ```
 
@@ -74,6 +117,25 @@ graph TD
     D --> F[Log Issue]
     E --> G[Done]
     F --> G
+```
+
+### Sequence Diagram with Notes
+
+Notes in Mermaid sequence diagrams are styled via `noteBkgColor`, `noteBorderColor`, and `noteTextColor`.
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant API
+    participant DB
+
+    User->>API: POST /orders
+    Note right of User: Submits new order
+    API->>DB: INSERT order
+    Note over API,DB: Transactional write
+    DB-->>API: OK
+    API-->>User: 201 Created
+    Note left of API: Returns order ID
 ```
 
 ### Entity Relationship

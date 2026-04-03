@@ -95,6 +95,67 @@ def test_plantuml_actor_styling() -> None:
     assert "skinparam ActorBorderColor #bf360c" in result
 
 
+def test_plantuml_note_styling() -> None:
+    injector = StyleInjector(
+        {"note": {"fill": "#ffffcc", "stroke": "#999900", "color": "#333"}}
+    )
+    source = "@startuml\nAlice -> Bob\nnote left: hello\n@enduml"
+    result = injector.inject("plantuml", source)
+    assert "skinparam NoteBackgroundColor #ffffcc" in result
+    assert "skinparam NoteBorderColor #999900" in result
+    assert "skinparam NoteFontColor #333" in result
+
+
+def test_plantuml_note_partial_config() -> None:
+    injector = StyleInjector({"note": {"fill": "#ffffcc"}})
+    source = "@startuml\nAlice -> Bob\n@enduml"
+    result = injector.inject("plantuml", source)
+    assert "skinparam NoteBackgroundColor #ffffcc" in result
+    assert "NoteBorderColor" not in result
+    assert "NoteFontColor" not in result
+
+
+def test_plantuml_package_styling() -> None:
+    injector = StyleInjector(
+        {"package": {"fill": "#fff3e0", "stroke": "#e65100", "color": "#bf360c"}}
+    )
+    source = "@startuml\npackage Foo {\n  [A]\n}\n@enduml"
+    result = injector.inject("plantuml", source)
+    assert "skinparam PackageBackgroundColor #fff3e0" in result
+    assert "skinparam PackageBorderColor #e65100" in result
+    assert "skinparam PackageFontColor #bf360c" in result
+
+
+def test_plantuml_package_overrides_box() -> None:
+    injector = StyleInjector(
+        {"box": {"fill": "#e6f3ff"}, "package": {"fill": "#fff3e0"}}
+    )
+    source = "@startuml\npackage Foo {\n  [A]\n}\n@enduml"
+    result = injector.inject("plantuml", source)
+    # box sets PackageBackgroundColor first, package overrides it later
+    lines = result.split("\n")
+    box_idx = next(
+        i
+        for i, line in enumerate(lines)
+        if "skinparam PackageBackgroundColor #e6f3ff" in line
+    )
+    pkg_idx = next(
+        i
+        for i, line in enumerate(lines)
+        if "skinparam PackageBackgroundColor #fff3e0" in line
+    )
+    assert pkg_idx > box_idx
+
+
+def test_plantuml_package_partial_config() -> None:
+    injector = StyleInjector({"package": {"fill": "#fff3e0"}})
+    source = "@startuml\npackage Foo {\n  [A]\n}\n@enduml"
+    result = injector.inject("plantuml", source)
+    assert "skinparam PackageBackgroundColor #fff3e0" in result
+    assert "PackageBorderColor" not in result
+    assert "PackageFontColor" not in result
+
+
 def test_plantuml_actor_independent_from_box() -> None:
     injector = StyleInjector(
         {
@@ -196,6 +257,28 @@ def test_c4plantuml_no_includes_falls_back_to_start_marker() -> None:
     assert lines[0] == "@startuml"
 
 
+def test_c4plantuml_note_styling() -> None:
+    injector = StyleInjector(
+        {"note": {"fill": "#ffffcc", "stroke": "#999900", "color": "#333"}}
+    )
+    source = "@startuml\n!include <C4/C4_Context>\n@enduml"
+    result = injector.inject("c4plantuml", source)
+    assert "skinparam NoteBackgroundColor #ffffcc" in result
+    assert "skinparam NoteBorderColor #999900" in result
+    assert "skinparam NoteFontColor #333" in result
+
+
+def test_c4plantuml_package_styling() -> None:
+    injector = StyleInjector(
+        {"package": {"fill": "#fff3e0", "stroke": "#e65100", "color": "#bf360c"}}
+    )
+    source = "@startuml\n!include <C4/C4_Context>\n@enduml"
+    result = injector.inject("c4plantuml", source)
+    assert "skinparam PackageBackgroundColor #fff3e0" in result
+    assert "skinparam PackageBorderColor #e65100" in result
+    assert "skinparam PackageFontColor #bf360c" in result
+
+
 def test_c4plantuml_partial_config_only_box() -> None:
     injector = StyleInjector({"box": {"fill": "#e6f3ff"}})
     source = "@startuml\n!include <C4/C4_Context>\n@enduml"
@@ -239,6 +322,32 @@ def test_mermaid_text_color_alias() -> None:
     init_line = result.split("\n")[0]
     parsed = _parse_mermaid_init(init_line)
     assert parsed["themeVariables"]["primaryTextColor"] == "#333"
+
+
+def test_mermaid_note_styling() -> None:
+    injector = StyleInjector(
+        {"note": {"fill": "#ffffcc", "stroke": "#999900", "color": "#333"}}
+    )
+    source = "sequenceDiagram\n  Alice->>Bob: Hello\n  Note right of Bob: thinking"
+    result = injector.inject("mermaid", source)
+    init_line = result.split("\n")[0]
+    parsed = _parse_mermaid_init(init_line)
+    tv = parsed["themeVariables"]
+    assert tv["noteBkgColor"] == "#ffffcc"
+    assert tv["noteBorderColor"] == "#999900"
+    assert tv["noteTextColor"] == "#333"
+
+
+def test_mermaid_note_partial_config() -> None:
+    injector = StyleInjector({"note": {"fill": "#ffffcc"}})
+    source = "sequenceDiagram\n  Alice->>Bob: Hello"
+    result = injector.inject("mermaid", source)
+    init_line = result.split("\n")[0]
+    parsed = _parse_mermaid_init(init_line)
+    tv = parsed["themeVariables"]
+    assert tv["noteBkgColor"] == "#ffffcc"
+    assert "noteBorderColor" not in tv
+    assert "noteTextColor" not in tv
 
 
 def test_mermaid_actor_styling() -> None:

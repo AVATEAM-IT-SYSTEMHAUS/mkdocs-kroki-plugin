@@ -43,7 +43,7 @@ plugins:
 | `cache_dir`                      | Custom directory for caching rendered diagrams<br>By default uses `$XDG_CACHE_HOME/kroki`, `~/.cache/kroki`, or temp directory                | (automatic)                                   |
 | `diagram_background_color_light` | Background color for diagrams in light mode (CSS color value)                                                                                 | (none)                                        |
 | `diagram_background_color_dark`  | Background color for diagrams in dark mode (CSS color value)                                                                                  | (none)                                        |
-| `styles`                         | Global style map for diagram elements (`box`, `actor`, `text`, `line`, `background`). See [Global Styles](#global-styles).                    | (none)                                        |
+| `styles`                         | Global style map for diagram elements (`box`, `actor`, `note`, `package`, `text`, `line`, `background`). See [Global Styles](#global-styles).                    | (none)                                        |
 
 Example:
 
@@ -226,6 +226,14 @@ plugins:
         actor:
           fill: "#ffe0b2"
           stroke: "#bf360c"
+        note:
+          fill: "#ffffcc"
+          stroke: "#999900"
+          color: "#666600"
+        package:
+          fill: "#fff3e0"
+          stroke: "#e65100"
+          color: "#bf360c"
         text:
           fill: "#333333"
           font-family: "Arial"
@@ -240,6 +248,8 @@ plugins:
 ```
 
 The `actor` element styles persons and actors separately from boxes. When `actor` is not configured, person elements fall back to `box` styles in diagram types that support it (C4 PlantUML).
+
+The `note` element styles note boxes (fill, stroke, and text color) in diagram types that support them (PlantUML, C4 PlantUML, Mermaid). The `package` element styles package containers independently from regular boxes (PlantUML, C4 PlantUML); since `box` already sets `PackageBackgroundColor`/`PackageBorderColor`, `package` overrides those defaults.
 
 To skip style injection on a specific code block, use `no-style-inject=true`:
 
@@ -258,6 +268,12 @@ graph LR
 | **`box.stroke`**            | ✅        | ✅           | ✅       | ✅        | ❌           | ✅       | ✅  | ✅           |
 | **`actor.fill`**            | ✅        | ✅           | ✅       | ❌        | ❌           | ❌       | ❌  | ✅           |
 | **`actor.stroke`**          | ✅        | ✅           | ✅       | ❌        | ❌           | ❌       | ❌  | ✅           |
+| **`note.fill`**             | ✅        | ✅           | ✅       | ❌        | ❌           | ❌       | ❌  | ❌           |
+| **`note.stroke`**           | ✅        | ✅           | ✅       | ❌        | ❌           | ❌       | ❌  | ❌           |
+| **`note.color`**            | ✅        | ✅           | ✅       | ❌        | ❌           | ❌       | ❌  | ❌           |
+| **`package.fill`**          | ✅        | ✅           | ❌       | ❌        | ❌           | ❌       | ❌  | ❌           |
+| **`package.stroke`**        | ✅        | ✅           | ❌       | ❌        | ❌           | ❌       | ❌  | ❌           |
+| **`package.color`**         | ✅        | ✅           | ❌       | ❌        | ❌           | ❌       | ❌  | ❌           |
 | **`text.fill`**             | ✅        | ✅           | ✅       | ✅        | ✅           | ❌       | ✅  | ✅           |
 | **`text.font-family`**      | ✅        | ✅           | ❌       | ✅        | ❌           | ✅       | ❌  | ❌           |
 | **`text.font-size`**        | ✅        | ✅           | ❌       | ❌        | ✅           | ✅       | ✅  | ✅           |
