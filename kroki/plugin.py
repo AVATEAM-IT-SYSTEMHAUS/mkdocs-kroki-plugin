@@ -1,5 +1,14 @@
 from mkdocs.plugins import BasePlugin as MkDocsBasePlugin
 
+# ProperDocs replacement warning setup
+try:
+    import properdocs.replacement_warning
+
+    properdocs.replacement_warning.setup()
+except ImportError:
+    # properdocs not installed, continue normally
+    pass
+
 from kroki.cache import KrokiCache
 from kroki.client import KrokiClient
 from kroki.common import MkDocsConfig, MkDocsEventContext, MkDocsFiles, MkDocsPage

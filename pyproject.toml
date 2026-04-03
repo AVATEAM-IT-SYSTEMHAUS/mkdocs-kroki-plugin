@@ -39,7 +39,8 @@ classifiers = [
     "Topic :: Software Development :: Documentation"
 ]
 dependencies = [
-    "mkdocs>=1.5.0",
+    "mkdocs>=1.5.0,<=1.6.1",
+    "properdocs",
     "httpx>=0.24.0",
     "result>=0.17.0",
     "defusedxml>=0.7.1"
