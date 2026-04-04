@@ -186,6 +186,7 @@ class ContentRenderer:
                     return self._err_response(err_result)
 
         # Build a dark-mode context to fetch the dark image
+        assert kroki_context.data_dark is not None
         dark_context = KrokiImageContext(
             kroki_type=kroki_context.kroki_type,
             options=kroki_context.options,
@@ -211,7 +212,7 @@ class ContentRenderer:
                 return self._err_response(err_result, kroki_context.data.unwrap())
         match dark_result:
             case Err(err_result):
-                return self._err_response(err_result, kroki_context.data_dark.unwrap())
+                return self._err_response(err_result, dark_context.data.unwrap())
 
         return self._dual_image_response(
             light_result.unwrap(),
