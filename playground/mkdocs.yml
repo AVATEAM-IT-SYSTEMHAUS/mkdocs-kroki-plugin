@@ -16,6 +16,14 @@ plugins:
         actor:
           fill: "#f8d4a8"
           stroke: "#a33d06"
+        note:
+          fill: "#fff8e1"
+          stroke: "#f9a825"
+          color: "#5d4037"
+        package:
+          fill: "#fff3e0"
+          stroke: "#e65100"
+          color: "#bf360c"
         text:
           fill: "#24292e"
           font-family: "Arial"

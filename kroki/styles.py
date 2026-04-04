@@ -99,6 +99,22 @@ class StyleInjector:
         if line_stroke := line.get("stroke"):
             lines.append(f"skinparam ArrowColor {line_stroke}")
 
+        note = self._styles.get("note", {})
+        if note_fill := note.get("fill"):
+            lines.append(f"skinparam NoteBackgroundColor {note_fill}")
+        if note_stroke := note.get("stroke"):
+            lines.append(f"skinparam NoteBorderColor {note_stroke}")
+        if note_color := note.get("color"):
+            lines.append(f"skinparam NoteFontColor {note_color}")
+
+        package = self._styles.get("package", {})
+        if package_fill := package.get("fill"):
+            lines.append(f"skinparam PackageBackgroundColor {package_fill}")
+        if package_stroke := package.get("stroke"):
+            lines.append(f"skinparam PackageBorderColor {package_stroke}")
+        if package_color := package.get("color"):
+            lines.append(f"skinparam PackageFontColor {package_color}")
+
         if bg_fill := background.get("fill"):
             lines.append(f"skinparam BackgroundColor {bg_fill}")
 
@@ -158,6 +174,23 @@ class StyleInjector:
             skinparams.append(f"skinparam defaultFontSize {text_size}")
         if line_stroke := line.get("stroke"):
             skinparams.append(f"skinparam ArrowColor {line_stroke}")
+
+        note = self._styles.get("note", {})
+        if note_fill := note.get("fill"):
+            skinparams.append(f"skinparam NoteBackgroundColor {note_fill}")
+        if note_stroke := note.get("stroke"):
+            skinparams.append(f"skinparam NoteBorderColor {note_stroke}")
+        if note_color := note.get("color"):
+            skinparams.append(f"skinparam NoteFontColor {note_color}")
+
+        package = self._styles.get("package", {})
+        if package_fill := package.get("fill"):
+            skinparams.append(f"skinparam PackageBackgroundColor {package_fill}")
+        if package_stroke := package.get("stroke"):
+            skinparams.append(f"skinparam PackageBorderColor {package_stroke}")
+        if package_color := package.get("color"):
+            skinparams.append(f"skinparam PackageFontColor {package_color}")
+
         if bg_fill := background.get("fill"):
             skinparams.append(f"skinparam BackgroundColor {bg_fill}")
 
@@ -226,6 +259,14 @@ class StyleInjector:
             theme_vars["lineColor"] = line_stroke
         if line_label_bg := line.get("label-background"):
             theme_vars["edgeLabelBackground"] = line_label_bg
+
+        note = self._styles.get("note", {})
+        if note_fill := note.get("fill"):
+            theme_vars["noteBkgColor"] = note_fill
+        if note_stroke := note.get("stroke"):
+            theme_vars["noteBorderColor"] = note_stroke
+        if note_color := note.get("color"):
+            theme_vars["noteTextColor"] = note_color
 
         if bg_fill := background.get("fill"):
             theme_vars["background"] = bg_fill
