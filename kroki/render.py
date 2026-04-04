@@ -159,11 +159,25 @@ class ContentRenderer:
         image_src_dark: ImageSrc,
         plugin_options: dict,
     ) -> str:
-        style_attr = self._build_style_attr(plugin_options)
-        return (
-            f'<img alt="Kroki" src="{image_src_light.url}#only-light"{style_attr} />'
-            f'<img alt="Kroki" src="{image_src_dark.url}#only-dark"{style_attr} />'
+        # For dual images, layout styles (display/margin) must not be on the <img>
+        # tags — inline display:block would override Material's display:none for
+        # #only-light/#only-dark theme switching. Use a wrapper for alignment instead.
+        styles = self._build_styles(plugin_options)
+        layout_props = {"display", "margin-left", "margin-right"}
+        img_styles = [s for s in styles if s.split(":")[0].strip() not in layout_props]
+        img_style_attr = f' style="{"; ".join(img_styles)}"' if img_styles else ""
+
+        light = f'<img alt="Kroki" src="{image_src_light.url}#only-light"{img_style_attr} />'
+        dark = (
+            f'<img alt="Kroki" src="{image_src_dark.url}#only-dark"{img_style_attr} />'
         )
+
+        if "display-align" in plugin_options:
+            align = plugin_options["display-align"]
+            text_align = {"center": "center", "right": "right"}.get(align, "left")
+            return f'<span style="display: block; text-align: {text_align}">{light}{dark}</span>'
+
+        return f"{light}{dark}"
 
     async def _render_dual(
         self, kroki_context: KrokiImageContext, context: MkDocsEventContext
