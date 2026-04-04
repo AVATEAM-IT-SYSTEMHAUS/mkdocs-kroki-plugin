@@ -56,6 +56,32 @@ Order --> Customer: Order confirmed
 @enduml
 ```
 
+### Note
+
+Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur.
+
+```plantuml
+@startuml
+note "This is a floating note" as N1
+
+note left of Alice
+  This is a note
+  on several lines
+end note
+
+Alice -> Bob : hello
+note right of Bob
+  Bob thinks about
+  the request
+end note
+
+Bob --> Alice : ok
+note left
+  This is another note
+end note
+@enduml
+```
+
 ### Packages
 
 The `package` style overrides `box` defaults for package elements, allowing distinct container styling.
