@@ -51,11 +51,26 @@ class KrokiPlugin(MkDocsBasePlugin[KrokiPluginConfig]):
             diagram_types=self.diagram_types,
             cache=self.cache,
         )
+        style_injector_light = (
+            StyleInjector(self.config.styles_light)
+            if self.config.styles_light
+            else None
+        )
+        style_injector_dark = (
+            StyleInjector(self.config.styles_dark) if self.config.styles_dark else None
+        )
+        # Use single styles only when no themed styles are configured
         style_injector = (
-            StyleInjector(self.config.styles) if self.config.styles else None
+            StyleInjector(self.config.styles)
+            if self.config.styles and not (style_injector_light or style_injector_dark)
+            else None
         )
         self.parser = MarkdownParser(
-            config.docs_dir, self.diagram_types, style_injector=style_injector
+            config.docs_dir,
+            self.diagram_types,
+            style_injector=style_injector,
+            style_injector_light=style_injector_light,
+            style_injector_dark=style_injector_dark,
         )
         self.renderer = ContentRenderer(
             self.kroki_client,
