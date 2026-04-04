@@ -236,6 +236,40 @@ A -> B
 
 
 @pytest.mark.usefixtures("kroki_dummy")
+def test_dual_styles_with_display_align_no_inline_display_block() -> None:
+    """display-align must not put display:block on <img> tags for dual images,
+    as it would override Material's display:none for #only-light/#only-dark."""
+    code_block = """```plantuml {display-align=center}
+@startuml
+A -> B
+@enduml
+```"""
+    with MkDocsTemplateHelper(code_block) as mkdocs_helper:
+        mkdocs_helper.set_http_method("POST")
+        mkdocs_helper.set_tag_format("img")
+        mkdocs_helper.set_styles_light(_LIGHT_STYLES)
+        mkdocs_helper.set_styles_dark(_DARK_STYLES)
+        result = mkdocs_helper.invoke_build()
+
+        assert result.exit_code == 0
+        with open(mkdocs_helper.test_dir / "site/index.html") as f:
+            soup = bs4.BeautifulSoup(f.read(), features="html.parser")
+
+    imgs = soup.find_all("img", attrs={"alt": "Kroki"})
+    assert len(imgs) == 2
+    for img in imgs:
+        style = img.get("style", "")
+        assert "display" not in style, (
+            f"Inline display on dual <img> overrides Material theme switching: {style}"
+        )
+
+    # Alignment should be on a wrapper element instead
+    wrapper = imgs[0].parent
+    wrapper_style = wrapper.get("style", "")
+    assert "text-align: center" in wrapper_style
+
+
+@pytest.mark.usefixtures("kroki_dummy")
 def test_no_dual_styles_when_not_configured() -> None:
     """Without styles_light/styles_dark, no theme hash fragments are added."""
     code_block = """```plantuml

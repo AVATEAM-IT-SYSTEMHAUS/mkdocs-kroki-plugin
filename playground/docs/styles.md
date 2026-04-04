@@ -249,6 +249,23 @@ workspace {
 }
 ```
 
+## Display Alignment with Theme Switching
+
+When using `display-align` with dual theme styles (`styles_light`/`styles_dark`), alignment is applied via a wrapper element so that Material's `#only-light`/`#only-dark` CSS switching works correctly.
+
+```plantuml {display-align=center}
+@startuml
+actor User
+participant "API Gateway" as GW
+participant "Backend" as BE
+
+User -> GW: Request
+GW -> BE: Forward
+BE --> GW: Response
+GW --> User: Response
+@enduml
+```
+
 ## Unsupported Types
 
 The following diagram types don't support source-level styling and render with their default colors: ERD, DBML, Ditaa, SVGBob, Pikchr, BPMN, Vega, VegaLite, WaveDrom, ByteField, Symbolator, WireViz, UMlet, Excalidraw. Use `no-style-inject=true` if you want to prevent any future injection attempts on these blocks.
