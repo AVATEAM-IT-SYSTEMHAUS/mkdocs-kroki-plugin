@@ -259,6 +259,11 @@ bar
         expected_code_block_data="bar\n",
         expected_kroki_type="mermaid",
     ),
+}
+
+# example-146: tilde fences allow backticks in info strings per CommonMark spec,
+# so this is now correctly matched after the fence regex fix.
+TEST_CASES_NOT_COMPLYING_TILDE = {
     "https://spec.commonmark.org/0.31.2/#example-146": StubInput(
         page_data="""
 ~~~ mermaid ``` ~~~
@@ -274,7 +279,8 @@ foo
 @pytest.mark.parametrize(
     "test_data",
     [pytest.param(v, id=k) for k, v in TEST_CASES.items()]
-    + [pytest.param(v, id=k) for k, v in TEST_CASES_NOT_COMPLYING.items()],
+    + [pytest.param(v, id=k) for k, v in TEST_CASES_NOT_COMPLYING.items()]
+    + [pytest.param(v, id=k) for k, v in TEST_CASES_NOT_COMPLYING_TILDE.items()],
 )
 def test_fences(
     test_data: StubInput,
@@ -315,3 +321,36 @@ def test_fences_not_supported(
     parser.replace_kroki_blocks(test_data.page_data, callback_stub, context_stub)
     # Assert
     callback_stub.assert_not_called()
+
+
+def test_diagram_after_code_block_with_attributes(
+    mock_kroki_diagram_types: KrokiDiagramTypes,
+    mocker: MockerFixture,
+) -> None:
+    """A code block with unrecognized attributes (e.g. title) must not
+    consume the closing fence of a subsequent diagram block."""
+    page_data = """
+```python title="example/hello.py"
+print("hello")
+```
+
+```mermaid
+graph LR
+    A --> B
+```
+"""
+    parser = MarkdownParser("", mock_kroki_diagram_types)
+    callback_stub = AsyncMock(return_value="")
+    context_stub = mocker.stub()
+
+    parser.replace_kroki_blocks(page_data, callback_stub, context_stub)
+
+    callback_stub.assert_called_once_with(
+        KrokiImageContext(
+            kroki_type="mermaid",
+            options={},
+            plugin_options={},
+            data=Ok("graph LR\n    A --> B\n"),
+        ),
+        context_stub,
+    )

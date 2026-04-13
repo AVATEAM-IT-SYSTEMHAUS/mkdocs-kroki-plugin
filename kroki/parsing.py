@@ -20,7 +20,7 @@ from kroki.styles import StyleInjector
 _FENCE_RE = re.compile(
     r"(?P<fence>^(?P<indent>[ ]*)(?:````*|~~~~*))[ ]*"
     r"(\.?(?P<lang>[\w#.+-]*)[ ]*)?"
-    r"(?P<opts>\{[^}]*\}|(?:[ ]?[a-zA-Z0-9\-_]+=[a-zA-Z0-9\-_]+)*)\n"
+    r"(?P<opts>\{[^}]*\}|(?:[ ]?[a-zA-Z0-9\-_]+=[a-zA-Z0-9\-_]+)*)[^\n]*\n"
     r"(?P<code>.*?)(?<=\n)"
     r"(?P=fence)[ ]*$",
     flags=re.IGNORECASE + re.DOTALL + re.MULTILINE,
