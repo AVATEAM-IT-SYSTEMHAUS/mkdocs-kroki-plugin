@@ -331,6 +331,15 @@ Material's CSS then shows the correct image based on the active color scheme.
 - `styles_light`/`styles_dark` take precedence over `styles` when set; using all three simultaneously logs a warning
 - The `no-style-inject=true` per-diagram option skips injection for both light and dark
 - Supports the same style properties and diagram types as the single `styles` config (see [Support Matrix](#support-matrix))
+- **Backstage TechDocs**: Backstage does not set Material's `data-md-color-scheme` attribute, so both light and dark images will be visible by default. Add a `prefers-color-scheme` CSS fallback to your extra stylesheets to fix this:
+  ```css
+  @media (prefers-color-scheme: light) {
+      img[src$="#only-dark"] { display: none; }
+  }
+  @media (prefers-color-scheme: dark) {
+      img[src$="#only-light"] { display: none; }
+  }
+  ```
 
 ## Contributors
 
