@@ -98,6 +98,10 @@ class StyleInjector:
 
         if line_stroke := line.get("stroke"):
             lines.append(f"skinparam ArrowColor {line_stroke}")
+            # Sequence diagram lifelines otherwise fall back to PlantUML's
+            # built-in default, which isn't adjusted for styles_dark and can
+            # end up low-contrast against a themed participant box.
+            lines.append(f"skinparam LifeLineBorderColor {line_stroke}")
 
         note = self._styles.get("note", {})
         if note_fill := note.get("fill"):
@@ -117,6 +121,7 @@ class StyleInjector:
 
         if bg_fill := background.get("fill"):
             lines.append(f"skinparam BackgroundColor {bg_fill}")
+            lines.append(f"skinparam LifeLineBackgroundColor {bg_fill}")
 
         if not lines:
             return source
