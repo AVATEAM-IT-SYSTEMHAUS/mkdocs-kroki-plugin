@@ -253,6 +253,8 @@ The `actor` element styles persons and actors separately from boxes. When `actor
 
 The `note` element styles note boxes (fill, stroke, and text color) in diagram types that support them (PlantUML, C4 PlantUML, Mermaid). The `package` element styles package containers independently from regular boxes (PlantUML, C4 PlantUML); since `box` already sets `PackageBackgroundColor`/`PackageBorderColor`, `package` overrides those defaults.
 
+In PlantUML sequence diagrams, `line.stroke` and `background.fill` also style the participant lifelines (`LifeLineBorderColor`/`LifeLineBackgroundColor`), so lifelines stay visible instead of falling back to PlantUML's built-in default — which matters most when using `styles_dark`.
+
 To skip style injection on a specific code block, use `no-style-inject=true`:
 
 ````markdown

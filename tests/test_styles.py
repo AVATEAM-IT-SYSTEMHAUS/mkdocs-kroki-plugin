@@ -35,7 +35,17 @@ def test_plantuml_full_config() -> None:
     assert "skinparam defaultFontName Arial" in result
     assert "skinparam defaultFontSize 14" in result
     assert "skinparam ArrowColor #666" in result
+    assert "skinparam LifeLineBorderColor #666" in result
     assert "skinparam BackgroundColor #fff" in result
+    assert "skinparam LifeLineBackgroundColor #fff" in result
+
+
+def test_plantuml_lifeline_colors_follow_line_and_background() -> None:
+    injector = StyleInjector({"line": {"stroke": "#97caff"}})
+    source = "@startuml\nAlice -> Bob\n@enduml"
+    result = injector.inject("plantuml", source)
+    assert "skinparam LifeLineBorderColor #97caff" in result
+    assert "LifeLineBackgroundColor" not in result
 
 
 def test_plantuml_directives_after_startuml() -> None:
