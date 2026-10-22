@@ -273,6 +273,16 @@ class StyleInjector:
         if note_color := note.get("color"):
             theme_vars["noteTextColor"] = note_color
 
+        # Subgraphs (flowchart clusters) otherwise derive their colors from
+        # primaryColor, which yields low-contrast titles, especially with styles_dark.
+        package = self._styles.get("package", {})
+        if package_fill := package.get("fill"):
+            theme_vars["clusterBkg"] = package_fill
+        if package_stroke := package.get("stroke"):
+            theme_vars["clusterBorder"] = package_stroke
+        if package_color := package.get("color"):
+            theme_vars["titleColor"] = package_color
+
         if bg_fill := background.get("fill"):
             theme_vars["background"] = bg_fill
 
