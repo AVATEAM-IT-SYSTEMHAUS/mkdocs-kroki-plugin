@@ -375,6 +375,29 @@ def test_mermaid_actor_styling() -> None:
     assert tv["mainContrastColor"] == "#333"
 
 
+def test_mermaid_package_styling() -> None:
+    injector = StyleInjector(
+        {"package": {"fill": "#fff3e0", "stroke": "#e65100", "color": "#bf360c"}}
+    )
+    source = "flowchart LR\n  subgraph Foo\n    A-->B\n  end"
+    result = injector.inject("mermaid", source)
+    init_line = result.split("\n")[0]
+    parsed = _parse_mermaid_init(init_line)
+    tv = parsed["themeVariables"]
+    assert tv["clusterBkg"] == "#fff3e0"
+    assert tv["clusterBorder"] == "#e65100"
+    assert tv["titleColor"] == "#bf360c"
+
+
+def test_mermaid_package_partial_config() -> None:
+    injector = StyleInjector({"package": {"fill": "#fff3e0"}})
+    source = "flowchart LR\n  subgraph Foo\n    A-->B\n  end"
+    result = injector.inject("mermaid", source)
+    init_line = result.split("\n")[0]
+    parsed = _parse_mermaid_init(init_line)
+    assert parsed["themeVariables"] == {"clusterBkg": "#fff3e0"}
+
+
 # --- GraphViz ---
 
 

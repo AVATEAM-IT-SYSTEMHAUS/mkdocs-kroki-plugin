@@ -251,7 +251,7 @@ plugins:
 
 The `actor` element styles persons and actors separately from boxes. When `actor` is not configured, person elements fall back to `box` styles in diagram types that support it (C4 PlantUML).
 
-The `note` element styles note boxes (fill, stroke, and text color) in diagram types that support them (PlantUML, C4 PlantUML, Mermaid). The `package` element styles package containers independently from regular boxes (PlantUML, C4 PlantUML); since `box` already sets `PackageBackgroundColor`/`PackageBorderColor`, `package` overrides those defaults.
+The `note` element styles note boxes (fill, stroke, and text color) in diagram types that support them (PlantUML, C4 PlantUML, Mermaid). The `package` element styles package containers independently from regular boxes (PlantUML, C4 PlantUML) and subgraphs (Mermaid `clusterBkg`/`clusterBorder`/`titleColor`); since `box` already sets `PackageBackgroundColor`/`PackageBorderColor` in PlantUML, `package` overrides those defaults.
 
 In PlantUML sequence diagrams, `line.stroke` and `background.fill` also style the participant lifelines (`LifeLineBorderColor`/`LifeLineBackgroundColor`), so lifelines stay visible instead of falling back to PlantUML's built-in default — which matters most when using `styles_dark`.
 
@@ -275,9 +275,9 @@ graph LR
 | **`note.fill`**             | ✅        | ✅           | ✅       | ❌        | ❌           | ❌       | ❌  | ❌           |
 | **`note.stroke`**           | ✅        | ✅           | ✅       | ❌        | ❌           | ❌       | ❌  | ❌           |
 | **`note.color`**            | ✅        | ✅           | ✅       | ❌        | ❌           | ❌       | ❌  | ❌           |
-| **`package.fill`**          | ✅        | ✅           | ❌       | ❌        | ❌           | ❌       | ❌  | ❌           |
-| **`package.stroke`**        | ✅        | ✅           | ❌       | ❌        | ❌           | ❌       | ❌  | ❌           |
-| **`package.color`**         | ✅        | ✅           | ❌       | ❌        | ❌           | ❌       | ❌  | ❌           |
+| **`package.fill`**          | ✅        | ✅           | ✅       | ❌        | ❌           | ❌       | ❌  | ❌           |
+| **`package.stroke`**        | ✅        | ✅           | ✅       | ❌        | ❌           | ❌       | ❌  | ❌           |
+| **`package.color`**         | ✅        | ✅           | ✅       | ❌        | ❌           | ❌       | ❌  | ❌           |
 | **`text.fill`**             | ✅        | ✅           | ✅       | ✅        | ✅           | ❌       | ✅  | ✅           |
 | **`text.font-family`**      | ✅        | ✅           | ❌       | ✅        | ❌           | ✅       | ❌  | ❌           |
 | **`text.font-size`**        | ✅        | ✅           | ❌       | ❌        | ✅           | ✅       | ✅  | ✅           |
